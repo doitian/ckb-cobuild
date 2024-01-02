@@ -4,9 +4,6 @@ import {
   parseWitnessType,
   WitnessLayout,
   Bytes,
-  Message,
-  BuildingPacketV1,
-  BuildingPacket,
 } from "../building-packet";
 
 const { WitnessArgs } = blockchain;
@@ -77,22 +74,4 @@ test("parseWitnessType(Bytes)", () => {
   // cannot differentiate with WitnessArgs
   const type = parseWitnessType(input);
   expect(type).toBe("WitnessArgs");
-});
-
-test("Message.default()", () => {
-  const output = Message.default();
-  const unpacked = Message.unpack(Message.pack(output));
-  expect(output).toStrictEqual(unpacked);
-});
-
-test("BuildingPacketV1.default()", () => {
-  const output = BuildingPacketV1.default();
-  const unpacked = BuildingPacketV1.unpack(BuildingPacketV1.pack(output));
-  expect(output).toStrictEqual(unpacked);
-});
-
-test("BuildingPacket.default()", () => {
-  const output = BuildingPacket.default();
-  const unpacked = BuildingPacket.unpack(BuildingPacket.pack(output));
-  expect(output).toStrictEqual(unpacked);
 });

@@ -4,14 +4,23 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "lint": "eslint . --max-warnings 0",
     "test": "NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 jest",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 jest --watch"
   },
+  "exports": {
+    "./building-packet": "./src/building-packet.js",
+    "./reducers": "./src/reducers.js",
+    "./transformers": "./src/transformers.js",
+    "./building-packet-factory": "./src/building-packet-factory.js"
+  },
   "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
     "jest": "^29.7.0"
   },
   "dependencies": {
     "@ckb-lumos/base": "^0.21.1",
+    "@ckb-lumos/bi": "^0.21.1",
     "@ckb-lumos/codec": "^v0.22.0-next.0"
   }
 }

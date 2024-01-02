@@ -24,8 +24,6 @@ export const ActionVec = vector(Action);
 
 export const Message = table({ actions: ActionVec }, ["actions"]);
 
-Message.default = () => ({ actions: [] });
-
 export const ScriptInfo = table(
   {
     name: String,
@@ -66,32 +64,7 @@ export const BuildingPacketV1 = table(
   ],
 );
 
-BuildingPacketV1.default = () => ({
-  message: Message.default(),
-  payload: {
-    version: 0,
-    inputs: [],
-    outputs: [],
-    outputsData: [],
-    cellDeps: [],
-    headerDeps: [],
-    witnesses: [],
-  },
-  resolvedInputs: {
-    outputs: [],
-    outputsData: [],
-  },
-  changeOutput: undefined,
-  scriptInfos: [],
-  lockActions: [],
-});
-
 export const BuildingPacket = union({ BuildingPacketV1 }, ["BuildingPacketV1"]);
-
-BuildingPacket.default = () => ({
-  type: "BuildingPacketV1",
-  value: BuildingPacketV1.default(),
-});
 
 export const SighashAll = table({ seal: Bytes, message: Message }, [
   "seal",
@@ -99,8 +72,6 @@ export const SighashAll = table({ seal: Bytes, message: Message }, [
 ]);
 
 export const SighashAllOnly = table({ seal: Bytes }, ["seal"]);
-
-export const SighashOnly = table({ seal: Bytes }, ["seal"]);
 
 // TODO: TBD
 export const OtxStart = table({}, []);
