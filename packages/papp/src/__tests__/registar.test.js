@@ -10,6 +10,7 @@ import * as transformers from "@ckb-cobuild/cobuild/transformers";
 
 import { Registar } from "../registar";
 import { createDeploymentFromCell } from "../deployment";
+import { createScriptInfoFromHumanTemplate } from "../script-info";
 
 const { computeScriptHash } = lumosBaseUtils;
 const jest = import.meta.jest;
@@ -45,7 +46,12 @@ function makePapp(name, seed) {
     data: seedToData(seed++),
   });
   return {
-    name,
+    scriptInfoTemplate: {
+      name,
+      url: "",
+      schema: "",
+      messageType: "",
+    },
     deployment,
     actionCreators: {
       api: apiMock,
@@ -110,6 +116,13 @@ function makeActionForPapp(cellOutput, kind, seed) {
   });
 }
 
+function makeScriptInfo(papp, action) {
+  return createScriptInfoFromHumanTemplate(
+    papp.scriptInfoTemplate,
+    action.scriptHash,
+  );
+}
+
 describe("Registar", () => {
   const lockPapp = makePapp("lock", 100);
   const typePapp = makePapp("type", 200);
@@ -133,12 +146,15 @@ describe("Registar", () => {
       const cell = makeCellForPapps(lockPapp, undefined, 300, true);
       const action = makeActionForPapp(cell.cellOutput, "lock", 400);
       const input = transformers.addInput(cell)(makeBuildingPacket());
-      const inputWithAction = transformers.addLockAction(action)(input);
+      const expectedOutput = transformers.chainTransformers([
+        transformers.addLockAction(action),
+        transformers.addScriptInfo(makeScriptInfo(lockPapp, action)),
+      ])(input);
       lockPapp.actionCreators.willAdd.mockImplementation(() => action);
       lockPapp.reducers.didAdd().mockImplementation((bp) => bp);
       const output = registar.prepareActions(input);
       expect(lockPapp.reducers.didAdd()).toHaveBeenCalledWith(
-        inputWithAction,
+        expectedOutput,
         action,
       );
       expect(output.value.lockActions.length).toBe(1);
@@ -149,9 +165,11 @@ describe("Registar", () => {
       const lockAction = makeActionForPapp(cell.cellOutput, "lock", 400);
       const typeAction = makeActionForPapp(cell.cellOutput, "type", 400);
       const input = transformers.addInput(cell)(makeBuildingPacket());
-      const inputWithActions = transformers.chainTransformers([
+      const expectedOutput = transformers.chainTransformers([
         transformers.addLockAction(lockAction),
         transformers.addMessageAction(typeAction),
+        transformers.addScriptInfo(makeScriptInfo(lockPapp, lockAction)),
+        transformers.addScriptInfo(makeScriptInfo(typePapp, typeAction)),
       ])(input);
       lockPapp.actionCreators.willAdd.mockImplementation(() => lockAction);
       lockPapp.reducers.didAdd().mockImplementation((bp) => bp);
@@ -159,7 +177,7 @@ describe("Registar", () => {
       typePapp.reducers.didAdd().mockImplementation((bp) => bp);
       const output = registar.prepareActions(input);
       expect(typePapp.reducers.didAdd()).toHaveBeenCalledWith(
-        inputWithActions,
+        expectedOutput,
         typeAction,
       );
       expect(output.value.lockActions.length).toBe(1);
@@ -175,10 +193,13 @@ describe("Registar", () => {
     typePapp.reducers.didAdd().mockImplementation((bp) => bp);
     const addPappAction = registar.addPappAction("type", "type", "api");
     const input = makeBuildingPacket();
-    const inputWithActions = transformers.addMessageAction(typeAction)(input);
+    const expectedOutput = transformers.chainTransformers([
+      transformers.addMessageAction(typeAction),
+      transformers.addScriptInfo(makeScriptInfo(typePapp, typeAction)),
+    ])(input);
     const output = addPappAction(input);
     expect(typePapp.reducers.didAdd()).toHaveBeenCalledWith(
-      inputWithActions,
+      expectedOutput,
       typeAction,
     );
     expect(output.value.message.actions.length).toBe(1);

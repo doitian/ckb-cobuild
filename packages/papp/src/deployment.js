@@ -21,11 +21,11 @@ const SPECS_MAPPING = {
 
 // Default option for the depoyment.
 //
-export function defaultOptions() {
+export function defaultDeploymentOptions() {
   return DEFAULT_OPTOINS;
 }
 
-export function ckb2023Options() {
+export function ckb2023DeploymentOptions() {
   return {
     ...DEFAULT_OPTOINS,
     fallbackDataHashType: "data2",
@@ -36,22 +36,17 @@ export function ckb2023Options() {
 //
 // - outPoint is the reference to the script cell output.
 // - type is the script cell type script.
-export function createDeploymentFromCell(cell, options) {
+export function createDeploymentFromCell(cell) {
   const { outPoint } = cell;
-  return createDeploymentFromCellAndCellDeps(
-    cell,
-    [{ outPoint, depType: "code" }],
-    options,
-  );
+  return createDeploymentFromCellAndCellDeps(cell, [
+    { outPoint, depType: "code" },
+  ]);
 }
 
 export function createDeploymentFromCellAndCellDeps(
   { cellOutput, data },
   cellDeps,
-  options,
 ) {
-  options = { ...DEFAULT_OPTOINS, ...(options ?? {}) };
-
   const dataHash = bytes.hexify(ckbHash(data));
   const typeHash =
     cellOutput.type === null || cellOutput === undefined
@@ -62,7 +57,6 @@ export function createDeploymentFromCellAndCellDeps(
     dataHash,
     typeHash,
     cellDeps,
-    options,
   };
 }
 
@@ -71,32 +65,26 @@ export function getHashes({ chain, hashes }) {
   return (hashes ?? BUNDLED_CKB_HASHES)[chain];
 }
 
-export function createSecp256k1Blake160SighashAllDeployment(
-  { chain, hashes },
-  options,
-) {
-  return createSystemScriptDeployment({ chain, hashes }, 0, 0, options);
+export function createSecp256k1Blake160SighashAllDeployment({ chain, hashes }) {
+  return createSystemScriptDeployment({ chain, hashes }, 0, 0);
 }
 
-export function createSecp256k1Blake160MultisigAllDeployment(
-  { chain, hashes },
-  options,
-) {
-  return createSystemScriptDeployment({ chain, hashes }, 3, 1, options);
+export function createSecp256k1Blake160MultisigAllDeployment({
+  chain,
+  hashes,
+}) {
+  return createSystemScriptDeployment({ chain, hashes }, 3, 1);
 }
 
-export function createDaoDeployment({ chain, hashes }, options) {
-  return createSystemScriptDeployment({ chain, hashes }, 1, null, options);
+export function createDaoDeployment({ chain, hashes }) {
+  return createSystemScriptDeployment({ chain, hashes }, 1, null);
 }
 
 function createSystemScriptDeployment(
   { chain, hashes },
   systemCellIndex,
   depGroupIndex,
-  options,
 ) {
-  options = { ...DEFAULT_OPTOINS, ...(options ?? {}) };
-
   const resolvedHashes = getHashes({ chain, hashes });
   return {
     typeHash: resolvedHashes.system_cells[systemCellIndex].type_hash,
@@ -118,16 +106,13 @@ function createSystemScriptDeployment(
             depType: "code",
           },
     ],
-    options,
   };
 }
 
 export function createDeploymentFromCkbCliMigration(
   cellRecipe,
   depGroupRecipe,
-  options,
 ) {
-  options = { ...DEFAULT_OPTOINS, ...(options ?? {}) };
   return {
     typeHash: cellRecipe.type_id,
     dataHash: cellRecipe.data_hash,
@@ -148,14 +133,13 @@ export function createDeploymentFromCkbCliMigration(
             depType: "code",
           },
     ],
-    options,
   };
 }
 
 export function createScriptFromDeployment(deployment, args, options = {}) {
   const { defaultHashType, fallbackDataHashType } = options
-    ? { ...deployment.options, ...options }
-    : deployment.options;
+    ? { ...DEFAULT_OPTOINS, ...options }
+    : DEFAULT_OPTOINS;
 
   const preferedDataHashType =
     defaultHashType === "type" ? fallbackDataHashType : defaultHashType;

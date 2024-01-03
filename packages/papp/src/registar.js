@@ -1,11 +1,13 @@
 import { utils as lumosBaseUtils } from "@ckb-lumos/base";
 
+import * as transformers from "@ckb-cobuild/cobuild/transformers";
+
 import {
   groupScripts,
   getScriptForGroup,
   findActionForGroup,
 } from "./script-group";
-import * as transformers from "@ckb-cobuild/cobuild/transformers";
+import { createScriptInfoFromHumanTemplate } from "./script-info";
 
 const { computeScriptHash } = lumosBaseUtils;
 
@@ -20,7 +22,7 @@ export class Registar {
   }
 
   // registry:
-  // - name
+  // - scriptInfoTemplate: human readable ScriptInfo template
   // - deployment: see deployment.js
   // - actionCreators: a map of callbaks to return Actions
   //     - willAdd(buildingPacket, { kind: "type" | "lock", scriptHash, inputIndices, outputIndices }): Called to create an action when the papp is found in the transaction.
@@ -32,7 +34,7 @@ export class Registar {
   //     - didSeal(script, seal): returns a reducer to add the new generated seal.
   register(registry) {
     const {
-      name,
+      scriptInfoTemplate: { name },
       deployment: { dataHash, typeHash },
     } = registry;
     this.papps.byName[name] = registry;
@@ -126,10 +128,16 @@ export class Registar {
       kind === "lock"
         ? transformers.addLockAction(action)
         : transformers.addMessageAction(action);
+    const addScriptInfo = transformers.addScriptInfo(
+      createScriptInfoFromHumanTemplate(
+        papp.scriptInfoTemplate,
+        action.scriptHash,
+      ),
+    );
     const reducer = papp.reducers.didAdd ? papp.reducers.didAdd() : undefined;
 
     return (buildingPacket) => {
-      buildingPacket = addAction(buildingPacket);
+      buildingPacket = addScriptInfo(addAction(buildingPacket));
       if (reducer !== undefined) {
         return reducer(buildingPacket, action) ?? buildingPacket;
       }
@@ -153,7 +161,13 @@ export class Registar {
           group.kind === "type"
             ? transformers.addMessageAction
             : transformers.addLockAction;
-        buildingPacket = addAction(action)(buildingPacket);
+        const addScriptInfo = transformers.addScriptInfo(
+          createScriptInfoFromHumanTemplate(
+            papp.scriptInfoTemplate,
+            action.scriptHash,
+          ),
+        );
+        buildingPacket = addScriptInfo(addAction(action)(buildingPacket));
       }
       if (action !== undefined && papp.reducers.didAdd !== undefined) {
         buildingPacket =

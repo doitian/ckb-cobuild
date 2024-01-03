@@ -12,7 +12,8 @@
     "./": "./src/index.js",
     "./registar": "./src/registar.js",
     "./deployment": "./src/deployment.js",
-    "./script-group": "./src/script-group.js"
+    "./script-group": "./src/script-group.js",
+    "./script-info": "./src/script-info.js"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

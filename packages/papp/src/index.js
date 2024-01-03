@@ -1,4 +1,4 @@
 import Registar from "./registar";
 import * as deployment from "./deployment";
-
-export { Registar, deployment };
+import { encodeScriptInfo, computeScriptInfoHash } from "./script-info";
+export { Registar, deployment, encodeScriptInfo, computeScriptInfoHash };
