@@ -119,6 +119,9 @@ importers:
         specifier: ^v0.22.0-next.0
         version: 0.22.0-next.1
     devDependencies:
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
       jest:
         specifier: ^29.7.0
         version: 29.7.0
@@ -146,6 +149,25 @@ importers:
       typescript:
         specifier: ^5.2.2
         version: 5.2.2
+
+  packages/papp:
+    dependencies:
+      '@ckb-cobuild/cobuild':
+        specifier: workspace:*
+        version: link:../cobuild
+      '@ckb-lumos/base':
+        specifier: ^0.21.1
+        version: 0.21.1
+      '@ckb-lumos/codec':
+        specifier: ^v0.22.0-next.0
+        version: 0.22.0-next.1
+    devDependencies:
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0
 
   packages/typescript-config: {}
 

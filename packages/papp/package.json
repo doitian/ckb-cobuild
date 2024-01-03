@@ -1,7 +1,7 @@
 {
-  "name": "@ckb-cobuild/cobuild",
-  "type": "module",
+  "name": "@ckb-cobuild/papp",
   "version": "0.0.0",
+  "type": "module",
   "private": true,
   "scripts": {
     "lint": "eslint . --max-warnings 0",
@@ -10,18 +10,15 @@
   },
   "exports": {
     "./": "./src/index.js",
-    "./building-packet": "./src/building-packet.js",
-    "./reducers": "./src/reducers.js",
-    "./transformers": "./src/transformers.js",
-    "./building-packet-factory": "./src/building-packet-factory.js"
+    "./deployment": "./src/deployment.js"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "jest": "^29.7.0"
   },
   "dependencies": {
+    "@ckb-cobuild/cobuild": "workspace:*",
     "@ckb-lumos/base": "^0.21.1",
-    "@ckb-lumos/bi": "^0.21.1",
     "@ckb-lumos/codec": "^v0.22.0-next.0"
   }
 }

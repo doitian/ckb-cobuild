@@ -94,8 +94,9 @@ export const WitnessLayout = union(
 /**
  * Parse the witness type from the first 4 bytes.
  *
- * @return {string} "WitnessArgs" for WitnessArgs, or a variant name of
- *         WitnessLayout. Throws error if the witness is neither WitnessArgs nor WitnessLayout buffer.
+ * Return "WitnessArgs" for WitnessArgs, or a variant name of WitnessLayout.
+ *
+ * Throw error if the witness is neither WitnessArgs nor WitnessLayout buffer.
  */
 export function parseWitnessType(witness) {
   const buf = bytes.bytify(witness ?? []);
@@ -118,7 +119,7 @@ export function parseWitnessType(witness) {
 /**
  * Try to parse the witness as WitnessLayout or WitnessArgs.
  *
- * @return {WitnessLayout | {type: "WitnessArgs", value: WitnessArgs}}
+ * Return WitnessLayout or {type: "WitnessArgs", value: WitnessArgs}
  */
 export function tryParseWitness(witness) {
   const buf = bytes.bytify(witness ?? []);
