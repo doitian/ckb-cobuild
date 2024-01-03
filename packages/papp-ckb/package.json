@@ -1,0 +1,20 @@
+{
+  "name": "@ckb-cobuild/papp-ckb",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "eslint . --max-warnings 0",
+    "test": "NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 jest",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 jest --watch"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "jest": "^29.7.0"
+  },
+  "dependencies": {
+    "@ckb-lumos/base": "^0.21.1",
+    "@ckb-lumos/codec": "^v0.22.0-next.0",
+    "@ckb-cobuild/papp": "workspace:*"
+  }
+}

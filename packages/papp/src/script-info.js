@@ -1,6 +1,8 @@
 import { utils as lumosBaseUtils } from "@ckb-lumos/base";
 import { bytes } from "@ckb-lumos/codec";
 
+import { ScriptInfo } from "@ckb-cobuild/cobuild/building-packet";
+
 const { ckbHash } = lumosBaseUtils;
 
 export function encodeString(jsString) {
