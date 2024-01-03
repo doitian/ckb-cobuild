@@ -1,3 +1,4 @@
+import Registar from "./registar";
 import * as deployment from "./deployment";
 
-export { deployment };
+export { Registar, deployment };

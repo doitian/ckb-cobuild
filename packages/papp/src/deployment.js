@@ -52,11 +52,11 @@ export function createDeploymentFromCellAndCellDeps(
 ) {
   options = { ...DEFAULT_OPTOINS, ...(options ?? {}) };
 
-  const dataHash = bytes.bytify(ckbHash(data));
+  const dataHash = bytes.hexify(ckbHash(data));
   const typeHash =
     cellOutput.type === null || cellOutput === undefined
       ? undefined
-      : bytes.bytify(ckbHash(Script.pack(cellOutput.type)));
+      : bytes.hexify(ckbHash(Script.pack(cellOutput.type)));
 
   return {
     dataHash,
