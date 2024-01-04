@@ -1,6 +1,6 @@
 import { utils as lumosBaseUtils } from "@ckb-lumos/base";
 
-import * as transformers from "@ckb-cobuild/cobuild/transformers";
+import * as transformers from "@ckb-cobuild/cobuild-es/transformers";
 
 import {
   groupScripts,

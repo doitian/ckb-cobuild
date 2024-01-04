@@ -1,27 +1,29 @@
 {
   "name": "@ckb-cobuild/cobuild",
-  "type": "module",
   "version": "0.0.0",
   "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    "./witness-layout": "./src/withess-layout.ts",
+    "./building-packet": "./src/building-packet.ts",
+    "./factory": "./src/factory.ts"
+  },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
-    "test": "NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 jest",
-    "test:watch": "NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 jest --watch"
-  },
-  "exports": {
-    "./": "./src/index.js",
-    "./building-packet": "./src/building-packet.js",
-    "./reducers": "./src/reducers.js",
-    "./transformers": "./src/transformers.js",
-    "./building-packet-factory": "./src/building-packet-factory.js"
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
-    "jest": "^29.7.0"
+    "@repo/typescript-config": "workspace:*",
+    "@types/jest": "^29.5.11",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1"
   },
   "dependencies": {
-    "@ckb-lumos/base": "^0.21.1",
-    "@ckb-lumos/bi": "^0.21.1",
+    "@ckb-lumos/base": "^v0.22.0-next.0",
+    "@ckb-lumos/bi": "^v0.22.0-next.0",
     "@ckb-lumos/codec": "^v0.22.0-next.0"
   }
 }

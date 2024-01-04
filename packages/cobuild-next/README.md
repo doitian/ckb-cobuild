@@ -1,1 +1,0 @@
-# `@repo/library-template`

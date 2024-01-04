@@ -5,8 +5,8 @@ import {
   makeScript,
   makeAction,
   makeBuildingPacket,
-} from "@ckb-cobuild/cobuild/building-packet-factory";
-import * as transformers from "@ckb-cobuild/cobuild/transformers";
+} from "@ckb-cobuild/cobuild-es/building-packet-factory";
+import * as transformers from "@ckb-cobuild/cobuild-es/transformers";
 
 import { Registar } from "../registar";
 import { createDeploymentFromCell } from "../deployment";
