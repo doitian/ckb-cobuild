@@ -15,7 +15,7 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "test:watch": "turbo test:watch",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx}\""
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
