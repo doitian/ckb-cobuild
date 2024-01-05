@@ -15,6 +15,7 @@
     "lint": "eslint . --max-warnings 0",
     "test": "jest",
     "test:watch": "jest --watch",
+    "type-check": "tsc --noEmit",
     "prepublishOnly": "sed -i.bak -e '/\"module\":/d' -e 's;\"main\": .*;\"main\": \"./dist/index.js\",'\"\\n\"'  \"module\": \"./dist/index.mjs\",;' -e 's;\"types\": .*;\"types\": \"./dist/index.d.ts\",;' package.json",
     "postpublish": "mv -f package.json.bak package.json"
   },

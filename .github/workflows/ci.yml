@@ -41,8 +41,14 @@ jobs:
       - name: Build
         run: pnpm build
 
+      - name: Test
+        run: pnpm test
+
       - name: Lint
         run: pnpm lint
 
-      - name: Test
-        run: pnpm test
+      - name: Type Check
+        run: pnpm type-check
+
+      - name: Format
+        run: pnpm format && git diff --exit-code .

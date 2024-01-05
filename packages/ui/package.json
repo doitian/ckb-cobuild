@@ -5,6 +5,7 @@
   "exports": {},
   "scripts": {
     "lint": "eslint . --max-warnings 0",
+    "type-check": "echo tsc --noEmit",
     "generate:component": "turbo gen react-component"
   },
   "devDependencies": {
