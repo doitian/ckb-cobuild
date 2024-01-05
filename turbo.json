@@ -2,12 +2,9 @@
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local"],
   "pipeline": {
-    "//#doc": {
-      "outputs": ["apps/docs/public/api/**"]
-    },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+      "outputs": [".next/**", "!.next/cache/**", "dist/**", "public/api/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]
