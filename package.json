@@ -3,9 +3,10 @@
   "private": true,
   "homepage": "https://github.com/doitian/ckb-cobuild",
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/doitian/ckb-cobuild.git"
+    "type": "git",
+    "url": "https://github.com/doitian/ckb-cobuild.git"
   },
+  "license": "MIT",
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
