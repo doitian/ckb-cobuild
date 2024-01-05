@@ -2,12 +2,21 @@
   "name": "@repo/library-template",
   "version": "0.0.0",
   "private": true,
+  "homepage": "https://github.com/doitian/ckb-cobuild",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/doitian/ckb-cobuild.git"
+  },
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
+    "build": "echo tsup src/index.ts --format cjs,esm --dts",
+    "dev": "echo tsup src/index.ts --format cjs,esm --dts --watch",
     "lint": "eslint . --max-warnings 0",
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "prepublishOnly": "sed -i.bak -e '/\"module\":/d' -e 's;\"main\": .*;\"main\": \"./dist/index.js\",'\"\\n\"'  \"module\": \"./dist/index.mjs\",;' -e 's;\"types\": .*;\"types\": \"./dist/index.d.ts\",;' package.json",
+    "postpublish": "mv -f package.json.bak package.json"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

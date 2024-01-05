@@ -1,10 +1,15 @@
 {
   "name": "ckb-cobuild",
   "private": true,
+  "homepage": "https://github.com/doitian/ckb-cobuild",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/doitian/ckb-cobuild.git"
+  },
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
-    "doc": "typedoc",
+    "typedoc": "typedoc",
     "lint": "turbo lint",
     "test": "turbo test",
     "test:watch": "turbo test:watch",
