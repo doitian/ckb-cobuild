@@ -3,7 +3,6 @@ import { UnpackResult, number } from "@ckb-lumos/codec";
 import { blockchain } from "@ckb-lumos/base";
 
 import {
-  Byte32,
   MessageUnpackResult,
   ActionUnpackResult,
   WitnessArgsUnpackResult,
@@ -20,7 +19,7 @@ import {
 } from "./building-packet";
 
 const { Uint256 } = number;
-const { OutPoint, CellInput, Script, CellOutput, CellDep } = blockchain;
+const { Byte32, OutPoint, CellInput, Script, CellOutput, CellDep } = blockchain;
 
 export const BI_ZERO = BI.from(0);
 

@@ -11,7 +11,7 @@ const { Uint32LE } = number;
 const { table, union, vector } = molecule;
 const { WitnessArgs, Bytes, Byte32 } = blockchain;
 
-export { WitnessArgs, Bytes, Byte32 };
+export { WitnessArgs };
 
 export const Action = table(
   {
@@ -127,3 +127,5 @@ export function tryParseWitness(
 
   throw new Error("Unknown witness format");
 }
+
+export default WitnessLayout;

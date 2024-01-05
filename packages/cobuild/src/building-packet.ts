@@ -12,8 +12,6 @@ const { Uint32LE } = number;
 const { option, table, vector, union } = molecule;
 const { Bytes, Byte32, BytesVec, CellOutputVec } = blockchain;
 
-export { Uint32LE, Bytes, Byte32, BytesVec, CellOutputVec };
-
 export const Uint32Opt = option(Uint32LE);
 
 export const String = Bytes;

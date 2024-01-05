@@ -4,10 +4,10 @@ import {
   tryParseWitness,
   parseWitnessType,
   WitnessLayout,
-  Bytes,
+  WitnessArgs,
 } from "../witness-layout";
 
-const { WitnessArgs } = blockchain;
+const { Bytes } = blockchain;
 
 describe("tryParseWitness", () => {
   test("(empty)", () => {
