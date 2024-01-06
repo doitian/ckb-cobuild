@@ -1,8 +1,8 @@
-import { BuildingPacket } from "../building-packet";
+import { BuildingPacket, BuildingPacketUnpackResult } from "../building-packet";
 
 describe("BuildingPacket", () => {
   test("unpack(pack(default))", () => {
-    const input = {
+    const input: BuildingPacketUnpackResult = {
       type: "BuildingPacketV1",
       value: {
         message: {
@@ -27,7 +27,7 @@ describe("BuildingPacket", () => {
       },
     };
 
-    const output = BuildingPacket.unpack(BuildingPacket.pack(input as any));
+    const output = BuildingPacket.unpack(BuildingPacket.pack(input));
     expect(output).toEqual(input);
   });
 });
