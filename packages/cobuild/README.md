@@ -1,3 +1,5 @@
 # `@ckb-cobuild/cobuild`
 
-[API Docs](https://ckb-cobuild-docs.vercel.app/api/index.html)
+Basic data structures and help functions.
+
+- [API Docs](https://ckb-cobuild-docs.vercel.app/api/index.html)
