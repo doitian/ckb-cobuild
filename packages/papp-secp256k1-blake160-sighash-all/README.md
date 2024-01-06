@@ -1,1 +1,0 @@
-# `@ckb-cobuild/papp-secp256k1-blake160-sighash-all`
