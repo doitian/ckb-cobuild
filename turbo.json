@@ -17,6 +17,13 @@
     "test:watch": {
       "cache": false
     },
-    "type-check": {}
+    "type-check": {},
+    "//#typedoc": {
+      "dependsOn": [],
+      "outputs": ["apps/docs/public/api/**"]
+    },
+    "docs#build": {
+      "dependsOn": ["//#typedoc"]
+    }
   }
 }
