@@ -11,12 +11,15 @@
     "build": "turbo build",
     "clean": "turbo clean && rm -rf node_modules .turbo",
     "dev": "turbo dev",
-    "type-check": "turbo type-check",
-    "typedoc": "typedoc",
     "lint": "turbo lint",
     "test": "turbo test",
     "test:watch": "turbo test:watch",
-    "format": "prettier --write \"**/*.{ts,tsx}\""
+    "type-check": "turbo type-check",
+    "typedoc": "typedoc",
+    "format": "prettier --write \"**/*.{ts,tsx}\"",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "turbo build --filter='docs^...' && changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.1",
