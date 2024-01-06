@@ -1,0 +1,10 @@
+{
+  "name": "@repo/tsup-patcher",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {},
+  "bin": {
+    "tsup-patcher": "index.js"
+  }
+}
+

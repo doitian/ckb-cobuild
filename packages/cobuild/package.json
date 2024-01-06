@@ -9,19 +9,30 @@
     "url": "https://github.com/doitian/ckb-cobuild.git"
   },
   "license": "MIT",
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "format": [
+      "cjs",
+      "esm"
+    ],
+    "dts": true
+  },
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts",
-    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "lint": "eslint . --max-warnings 0",
     "test": "jest",
     "test:watch": "jest --watch",
     "type-check": "tsc --noEmit",
-    "prepublishOnly": "sed -i.bak -e '/\"module\":/d' -e 's;\"main\": .*;\"main\": \"./dist/index.js\",'\"\\n\"'  \"module\": \"./dist/index.mjs\",;' -e 's;\"types\": .*;\"types\": \"./dist/index.d.ts\",;' package.json",
+    "prepublishOnly": "tsup-patcher",
     "postpublish": "mv -f package.json.bak package.json"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "@repo/tsup-patcher": "workspace:*",
     "@types/jest": "^29.5.11",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.1",

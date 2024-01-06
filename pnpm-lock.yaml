@@ -85,6 +85,9 @@ importers:
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@repo/tsup-patcher':
+        specifier: workspace:*
+        version: link:../tsup-patcher
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -212,6 +215,8 @@ importers:
       jest:
         specifier: ^29.7.0
         version: 29.7.0
+
+  packages/tsup-patcher: {}
 
   packages/typescript-config: {}
 
