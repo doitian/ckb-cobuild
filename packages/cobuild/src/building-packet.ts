@@ -56,6 +56,13 @@ export const Transaction = createBytesCodec({
   unpack: blockchain.Transaction.unpack,
 });
 
+export interface Cell {
+  /** Transacton output has no cellInput */
+  cellInput?: CellInputUnpackResult;
+  cellOutput: CellOutputUnpackResult;
+  data: string;
+}
+
 export const BuildingPacketV1 = table(
   {
     message: Message,
