@@ -4,9 +4,10 @@
   "private": true,
   "exports": {},
   "scripts": {
+    "clean": "rm -rf node_modules .turbo",
+    "generate:component": "turbo gen react-component",
     "lint": "eslint . --max-warnings 0",
-    "type-check": "echo tsc --noEmit",
-    "generate:component": "turbo gen react-component"
+    "type-check": "echo tsc --noEmit"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

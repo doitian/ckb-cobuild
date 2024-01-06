@@ -104,25 +104,6 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1(typescript@5.2.2)
 
-  packages/cobuild-es:
-    dependencies:
-      '@ckb-lumos/base':
-        specifier: ^0.21.1
-        version: 0.21.1
-      '@ckb-lumos/bi':
-        specifier: ^0.21.1
-        version: 0.21.1
-      '@ckb-lumos/codec':
-        specifier: ^v0.22.0-next.0
-        version: 0.22.0-next.1
-    devDependencies:
-      '@repo/eslint-config':
-        specifier: workspace:*
-        version: link:../eslint-config
-      jest:
-        specifier: ^29.7.0
-        version: 29.7.0
-
   packages/eslint-config:
     devDependencies:
       '@typescript-eslint/eslint-plugin':
@@ -152,6 +133,9 @@ importers:
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
+      '@repo/tsup-patcher':
+        specifier: workspace:*
+        version: link:../tsup-patcher
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
@@ -164,57 +148,6 @@ importers:
       ts-jest:
         specifier: ^29.1.1
         version: 29.1.1(@babel/core@7.23.3)(esbuild@0.19.11)(jest@29.7.0)(typescript@5.2.2)
-
-  packages/papp:
-    dependencies:
-      '@ckb-cobuild/cobuild-es':
-        specifier: workspace:*
-        version: link:../cobuild-es
-      '@ckb-lumos/base':
-        specifier: ^0.21.1
-        version: 0.21.1
-      '@ckb-lumos/codec':
-        specifier: ^v0.22.0-next.0
-        version: 0.22.0-next.1
-    devDependencies:
-      '@repo/eslint-config':
-        specifier: workspace:*
-        version: link:../eslint-config
-      jest:
-        specifier: ^29.7.0
-        version: 29.7.0
-
-  packages/papp-ckb:
-    dependencies:
-      '@ckb-cobuild/papp':
-        specifier: workspace:*
-        version: link:../papp
-      '@ckb-lumos/base':
-        specifier: ^0.21.1
-        version: 0.21.1
-      '@ckb-lumos/codec':
-        specifier: ^v0.22.0-next.0
-        version: 0.22.0-next.1
-    devDependencies:
-      '@repo/eslint-config':
-        specifier: workspace:*
-        version: link:../eslint-config
-      jest:
-        specifier: ^29.7.0
-        version: 29.7.0
-
-  packages/papp-secp256k1-blake160-sighash-all:
-    dependencies:
-      '@ckb-cobuild/papp':
-        specifier: workspace:*
-        version: link:../papp
-    devDependencies:
-      '@repo/eslint-config':
-        specifier: workspace:*
-        version: link:../eslint-config
-      jest:
-        specifier: ^29.7.0
-        version: 29.7.0
 
   packages/tsup-patcher: {}
 
@@ -808,20 +741,6 @@ packages:
       prettier: 2.8.8
     dev: true
 
-  /@ckb-lumos/base@0.21.1:
-    resolution: {integrity: sha512-7O+jBl7pqMsRbYTMNnbpamgaQzvaLZq+ftMtnKZ3A+Zbs6hZcGbz/6nfbRZnyJitPXQHRPT5KAQz6g+TiYqJGg==}
-    engines: {node: '>=12.0.0'}
-    dependencies:
-      '@ckb-lumos/bi': 0.21.1
-      '@ckb-lumos/codec': 0.21.1
-      '@ckb-lumos/toolkit': 0.21.1
-      '@types/blake2b': 2.1.3
-      '@types/lodash.isequal': 4.5.8
-      blake2b: 2.1.4
-      js-xxhash: 1.0.4
-      lodash.isequal: 4.5.0
-    dev: false
-
   /@ckb-lumos/base@0.22.0-next.1:
     resolution: {integrity: sha512-GcRHk9urO0JGRZmL1wtOISJLxtrMsi7ZXJr/PP8KRKHxbJtxaW2BIDgbdH+EuYv6jHW3nJmR5FK5zdXG9ZZ7wA==}
     engines: {node: '>=12.0.0'}
@@ -836,13 +755,6 @@ packages:
       lodash.isequal: 4.5.0
     dev: false
 
-  /@ckb-lumos/bi@0.21.1:
-    resolution: {integrity: sha512-6q8uesvu3DAM7GReei9H5seino4tnakTeg8uXtZBPDC6rboMohLCPQvEwhl1iHmsybXvBYVQt4Te1BPPZtuaRw==}
-    engines: {node: '>=12.0.0'}
-    dependencies:
-      jsbi: 4.3.0
-    dev: false
-
   /@ckb-lumos/bi@0.22.0-next.1:
     resolution: {integrity: sha512-29ZTI724HUBv39i2s15xnOUMSjLf5pRJz6Yq5XVJJmQz9ZIsmC3h8EcwqhdrcbQYJxrDNjwmSSP0+cciYK8FQw==}
     engines: {node: '>=12.0.0'}
@@ -850,25 +762,11 @@ packages:
       jsbi: 4.3.0
     dev: false
 
-  /@ckb-lumos/codec@0.21.1:
-    resolution: {integrity: sha512-z6IUUxVZrx663iC7VM9CmaQZL8jsdM3ybgz0UCS24JgBXTNec+Uz0/Zrl7yeH6fBpVls44C2wObcHKigKaNVAA==}
-    engines: {node: '>=12.0.0'}
-    dependencies:
-      '@ckb-lumos/bi': 0.21.1
-    dev: false
-
   /@ckb-lumos/codec@0.22.0-next.1:
     resolution: {integrity: sha512-+GGd1m/UF69TDflxiFFKGMxTVwyKP/lpCAnTNCsztBXzuHv6Z4hEamCVJr3kx2z8yBXoy3nRTTSo4IwEUxD0Ww==}
     engines: {node: '>=12.0.0'}
     dependencies:
       '@ckb-lumos/bi': 0.22.0-next.1
-    dev: false
-
-  /@ckb-lumos/toolkit@0.21.1:
-    resolution: {integrity: sha512-awrFos7uQXEVGbqKSv/8Fc8B8XAfxdYoyYak4zFyAAmxxA0NiTTvk9V8TsOA7zVXpxct4Jal22+qUe+4Jg8T/g==}
-    engines: {node: '>=12.0.0'}
-    dependencies:
-      '@ckb-lumos/bi': 0.21.1
     dev: false
 
   /@ckb-lumos/toolkit@0.22.0-next.1:

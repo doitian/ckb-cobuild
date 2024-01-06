@@ -12,6 +12,7 @@
   "types": "src/index.ts",
   "scripts": {
     "build": "echo tsup --clean",
+    "clean": "rm -rf node_modules dist .turbo",
     "dev": "echo tsup --watch",
     "lint": "eslint . --max-warnings 0",
     "test": "jest",
@@ -30,6 +31,9 @@
     ],
     "dts": true,
     "sourcemap": true
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

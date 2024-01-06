@@ -9,6 +9,7 @@
   "license": "MIT",
   "scripts": {
     "build": "turbo build",
+    "clean": "turbo clean && rm -rf node_modules .turbo",
     "dev": "turbo dev",
     "type-check": "turbo type-check",
     "typedoc": "typedoc",
