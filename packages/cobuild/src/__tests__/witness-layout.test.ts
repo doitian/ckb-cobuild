@@ -5,6 +5,7 @@ import {
   parseWitnessType,
   WitnessLayout,
   WitnessArgs,
+  WitnessLayoutUnpackResult,
 } from "../witness-layout";
 
 const { Bytes } = blockchain;
@@ -101,7 +102,7 @@ describe("WitnessLayout", () => {
     ["SighashAllOnly", { seal: "0x10" }],
   ])("unpack(pack(%s))", (type, value) => {
     const unpack = WitnessLayout.unpack(
-      WitnessLayout.pack({ type, value } as any),
+      WitnessLayout.pack({ type, value } as WitnessLayoutUnpackResult),
     );
     expect(unpack).toEqual({ type, value });
   });

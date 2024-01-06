@@ -1,33 +1,84 @@
-import { BuildingPacket, BuildingPacketUnpackResult } from "../building-packet";
+import { BI } from "@ckb-lumos/bi";
+import {
+  BuildingPacket,
+  BuildingPacketUnpackResult,
+  getInputCell,
+  getOutputCell,
+} from "../building-packet";
 
 describe("BuildingPacket", () => {
-  test("unpack(pack(default))", () => {
-    const input: BuildingPacketUnpackResult = {
-      type: "BuildingPacketV1",
-      value: {
-        message: {
-          actions: [],
-        },
-        payload: {
-          version: 0,
-          inputs: [],
-          outputs: [],
-          outputsData: [],
-          cellDeps: [],
-          headerDeps: [],
-          witnesses: [],
-        },
-        resolvedInputs: {
-          outputs: [],
-          outputsData: [],
-        },
-        changeOutput: undefined,
-        scriptInfos: [],
-        lockActions: [],
+  const sampleBuildingPacket: BuildingPacketUnpackResult = {
+    type: "BuildingPacketV1",
+    value: {
+      message: {
+        actions: [],
       },
-    };
+      payload: {
+        version: 0,
+        inputs: [
+          {
+            since: BI.from(0),
+            previousOutput: {
+              txHash: `0x01${"0".repeat(62)}`,
+              index: 2,
+            },
+          },
+        ],
+        outputs: [
+          {
+            capacity: BI.from(3),
+            lock: {
+              codeHash: `0x04${"0".repeat(62)}`,
+              hashType: "type",
+              args: "0x05",
+            },
+          },
+        ],
+        outputsData: ["0x06"],
+        cellDeps: [],
+        headerDeps: [],
+        witnesses: [],
+      },
+      resolvedInputs: {
+        outputs: [
+          {
+            capacity: BI.from(7),
+            lock: {
+              codeHash: `0x08${"0".repeat(62)}`,
+              hashType: "type",
+              args: "0x09",
+            },
+          },
+        ],
+        outputsData: ["0x10"],
+      },
+      changeOutput: undefined,
+      scriptInfos: [],
+      lockActions: [],
+    },
+  };
 
-    const output = BuildingPacket.unpack(BuildingPacket.pack(input));
-    expect(output).toEqual(input);
+  test(".unpack(.pack)", () => {
+    const output = BuildingPacket.unpack(
+      BuildingPacket.pack(sampleBuildingPacket),
+    );
+    expect(output).toEqual(sampleBuildingPacket);
+  });
+
+  test(".getInputCell", () => {
+    const cell = getInputCell(sampleBuildingPacket, 0);
+    expect(cell).toEqual({
+      cellInput: sampleBuildingPacket.value.payload.inputs[0],
+      cellOutput: sampleBuildingPacket.value.resolvedInputs.outputs[0],
+      data: sampleBuildingPacket.value.resolvedInputs.outputsData[0],
+    });
+  });
+
+  test(".getOutputCell", () => {
+    const cell = getOutputCell(sampleBuildingPacket, 0);
+    expect(cell).toEqual({
+      cellOutput: sampleBuildingPacket.value.payload.outputs[0],
+      data: sampleBuildingPacket.value.payload.outputsData[0],
+    });
   });
 });

@@ -12,7 +12,17 @@ import { ActionVec, Message } from "./witness-layout";
 
 const { Uint32LE } = number;
 const { option, table, vector, union } = molecule;
-const { Bytes, Byte32, BytesVec, CellOutputVec } = blockchain;
+const {
+  Bytes,
+  Byte32,
+  BytesVec,
+  CellOutputVec,
+  OutPoint,
+  CellInput,
+  Script,
+  CellOutput,
+  CellDep,
+} = blockchain;
 
 export const Uint32Opt = option(Uint32LE);
 
@@ -56,13 +66,6 @@ export const Transaction = createBytesCodec({
   unpack: blockchain.Transaction.unpack,
 });
 
-export interface Cell {
-  /** Transacton output has no cellInput */
-  cellInput?: CellInputUnpackResult;
-  cellOutput: CellOutputUnpackResult;
-  data: string;
-}
-
 export const BuildingPacketV1 = table(
   {
     message: Message,
@@ -90,5 +93,54 @@ export type BuildingPacketV1UnpackResult = UnpackResult<
   typeof BuildingPacketV1
 >;
 export type BuildingPacketUnpackResult = UnpackResult<typeof BuildingPacket>;
+export type OutPointUnpackResult = UnpackResult<typeof OutPoint>;
+export type CellInputUnpackResult = UnpackResult<typeof CellInput>;
+export type ScriptUnpackResult = UnpackResult<typeof Script>;
+export type CellOutputUnpackResult = UnpackResult<typeof CellOutput>;
+export type CellDepUnpackResult = UnpackResult<typeof CellDep>;
+
+/** Bundle fields for a transaction input */
+export interface InputCell {
+  cellInput: CellInputUnpackResult;
+  cellOutput: CellOutputUnpackResult;
+  data: string;
+}
+/** Bundle fields for a transaction output */
+export interface OutputCell {
+  cellOutput: CellOutputUnpackResult;
+  data: string;
+}
+export type Cell = InputCell | OutputCell;
+
+export function getInputCell(
+  buildingPacket: BuildingPacketUnpackResult,
+  index: number,
+): InputCell | undefined {
+  const result = {
+    cellInput: buildingPacket.value.payload.inputs[index],
+    cellOutput: buildingPacket.value.resolvedInputs.outputs[index],
+    data: buildingPacket.value.resolvedInputs.outputsData[index],
+  };
+  if (
+    result.cellInput !== undefined &&
+    result.cellOutput !== undefined &&
+    result.data !== undefined
+  ) {
+    return result as InputCell;
+  }
+}
+
+export function getOutputCell(
+  buildingPacket: BuildingPacketUnpackResult,
+  index: number,
+): OutputCell | undefined {
+  const result = {
+    cellOutput: buildingPacket.value.payload.outputs[index],
+    data: buildingPacket.value.payload.outputsData[index],
+  };
+  if (result.cellOutput !== undefined && result.data !== undefined) {
+    return result as OutputCell;
+  }
+}
 
 export default BuildingPacket;

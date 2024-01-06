@@ -1,12 +1,22 @@
+/**
+ * Functions to ease creating various data structures.
+ * @module
+ */
+
 import { blockchain } from "@ckb-lumos/base";
 import { BI, BIish } from "@ckb-lumos/bi";
-import { UnpackResult, number } from "@ckb-lumos/codec";
+import { number } from "@ckb-lumos/codec";
 
 import {
   BuildingPacketUnpackResult,
   BuildingPacketV1UnpackResult,
+  CellDepUnpackResult,
+  CellInputUnpackResult,
+  CellOutputUnpackResult,
+  OutPointUnpackResult,
   ResolvedInputsUnpackResult,
   ScriptInfoUnpackResult,
+  ScriptUnpackResult,
   TransactionUnpackResult,
 } from "./building-packet";
 import {
@@ -19,7 +29,7 @@ import {
 } from "./witness-layout";
 
 const { Uint256 } = number;
-const { Byte32, OutPoint, CellInput, Script, CellOutput, CellDep } = blockchain;
+const { Byte32 } = blockchain;
 
 export const BI_ZERO = BI.from(0);
 
@@ -116,7 +126,6 @@ export function makeScriptInfo({
   return { name, url, scriptHash, schema, messageType };
 }
 
-export type OutPointUnpackResult = UnpackResult<typeof OutPoint>;
 /** @param attrs */
 export function makeOutPoint({
   txHash = BYTE32_ZEROS,
@@ -125,7 +134,6 @@ export function makeOutPoint({
   return { txHash, index };
 }
 
-export type CellInputUnpackResult = UnpackResult<typeof CellInput>;
 /** @param attrs */
 export function makeCellInput({
   previousOutput,
@@ -137,7 +145,6 @@ export function makeCellInput({
   };
 }
 
-export type ScriptUnpackResult = UnpackResult<typeof Script>;
 /** @param attrs */
 export function makeScript({
   codeHash = BYTE32_ZEROS,
@@ -147,7 +154,6 @@ export function makeScript({
   return { codeHash, hashType, args };
 }
 
-export type CellOutputUnpackResult = UnpackResult<typeof CellOutput>;
 /** @param attrs */
 export function makeCellOutput({
   capacity = BI_ZERO,
@@ -161,7 +167,6 @@ export function makeCellOutput({
   };
 }
 
-export type CellDepUnpackResult = UnpackResult<typeof CellDep>;
 /** @param attrs */
 export function makeCellDep({
   outPoint,
