@@ -1,12 +1,13 @@
 import { blockchain } from "@ckb-lumos/base";
 import {
+  PackParam,
   UnpackResult,
   createBytesCodec,
   molecule,
   number,
 } from "@ckb-lumos/codec";
 
-import { Message, ActionVec } from "./witness-layout";
+import { ActionVec, Message } from "./witness-layout";
 
 const { Uint32LE } = number;
 const { option, table, vector, union } = molecule;
@@ -37,13 +38,16 @@ export const ResolvedInputs = table(
   ["outputs", "outputsData"],
 );
 
-export type TransactionUnpackResult = UnpackResult<
-  typeof blockchain.Transaction
->;
-// Make life easier by using the same type for the pack parameter and the unpack result.
+export type TransactionUnpackResult =
+  | PackParam<typeof blockchain.Transaction>
+  | UnpackResult<typeof blockchain.Transaction>;
+// Make life easier by allowing packing the unpack result.
 export const Transaction = createBytesCodec({
   pack: (unpacked: TransactionUnpackResult) =>
-    blockchain.Transaction.pack(unpacked as any),
+    // It's safe to pack the unpacked result because of the flexibility of the underlying codecs.
+    blockchain.Transaction.pack(
+      unpacked as unknown as PackParam<typeof blockchain.Transaction>,
+    ),
   unpack: blockchain.Transaction.unpack,
 });
 
