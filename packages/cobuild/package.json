@@ -17,10 +17,11 @@
       "cjs",
       "esm"
     ],
-    "dts": true
+    "dts": true,
+    "sourcemap": true
   },
   "scripts": {
-    "build": "tsup",
+    "build": "tsup --clean",
     "dev": "tsup --watch",
     "lint": "eslint . --max-warnings 0",
     "test": "jest",

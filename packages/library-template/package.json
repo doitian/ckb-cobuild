@@ -11,7 +11,7 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
-    "build": "echo tsup",
+    "build": "echo tsup --clean",
     "dev": "echo tsup --watch",
     "lint": "eslint . --max-warnings 0",
     "test": "jest",
@@ -28,7 +28,8 @@
       "cjs",
       "esm"
     ],
-    "dts": true
+    "dts": true,
+    "sourcemap": true
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",
