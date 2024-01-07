@@ -7,6 +7,7 @@ import {
   WitnessArgs,
   WitnessLayoutUnpackResult,
 } from "../witness-layout";
+import { makeByte32 } from "../factory";
 
 const { Bytes } = blockchain;
 
@@ -91,8 +92,8 @@ describe("WitnessLayout", () => {
         message: {
           actions: [
             {
-              scriptInfoHash: `0x02${"0".repeat(62)}`,
-              scriptHash: `0x03${"0".repeat(62)}`,
+              scriptInfoHash: makeByte32(2),
+              scriptHash: makeByte32(3),
               data: "0x04",
             },
           ],

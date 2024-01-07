@@ -38,7 +38,7 @@ export const BI_ZERO = BI.from(0);
 /**
  * Create an unpacked Byte32 by pack a 32-byte unsigned integer in little-endian.
  */
-export function makeByte32(uint256: BIish) {
+export function makeByte32(uint256: BIish): string {
   return Byte32.unpack(Uint256.pack(uint256));
 }
 

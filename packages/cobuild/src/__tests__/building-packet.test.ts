@@ -5,6 +5,7 @@ import {
   getInputCell,
   getOutputCell,
 } from "../building-packet";
+import { makeByte32 } from "../factory";
 
 describe("BuildingPacket", () => {
   const sampleBuildingPacket: BuildingPacketUnpackResult = {
@@ -19,7 +20,7 @@ describe("BuildingPacket", () => {
           {
             since: BI.from(0),
             previousOutput: {
-              txHash: `0x01${"0".repeat(62)}`,
+              txHash: makeByte32(1),
               index: 2,
             },
           },
@@ -28,7 +29,7 @@ describe("BuildingPacket", () => {
           {
             capacity: BI.from(3),
             lock: {
-              codeHash: `0x04${"0".repeat(62)}`,
+              codeHash: makeByte32(4),
               hashType: "type",
               args: "0x05",
             },
@@ -44,7 +45,7 @@ describe("BuildingPacket", () => {
           {
             capacity: BI.from(7),
             lock: {
-              codeHash: `0x08${"0".repeat(62)}`,
+              codeHash: makeByte32(8),
               hashType: "type",
               args: "0x09",
             },
@@ -57,7 +58,7 @@ describe("BuildingPacket", () => {
         {
           name: "a",
           url: "b",
-          scriptHash: `0x11${"0".repeat(62)}`,
+          scriptHash: makeByte32(11),
           schema: "c",
           messageType: "d",
         },
