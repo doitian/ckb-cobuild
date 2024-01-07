@@ -16,11 +16,19 @@
  * ```
  */
 
+import { bytes } from "@ckb-lumos/codec";
 import {
   BuildingPacketUnpackResult,
+  CellDepUnpackResult,
   InputCell,
   OutputCell,
 } from "./building-packet";
+import { makeDefaultWitnessLayout, makeWitnessArgs } from "./factory";
+import WitnessLayout, {
+  WitnessArgs,
+  WitnessArgsUnpackResult,
+  WitnessLayoutUnpackResult,
+} from "./witness-layout";
 
 export type WritableDraft<T> = { -readonly [K in keyof T]: Draft<T[K]> };
 export type Draft<T> = T extends number | string | boolean
@@ -55,6 +63,128 @@ export function addOutputCell(
   const index = Math.max(outputs.length, outputsData.length);
   outputs[index] = cell.cellOutput;
   outputsData[index] = cell.data;
+
+  return buildingPacket;
+}
+
+/**
+ * Update the witness as a {@link WintessArgs}.
+
+ * Empty witness is considered as a empty WitnessArgs.
+
+ * @param update - callback to update the unpacked WitnessArgs. It can modify in place or return a new WitnessArgs.
+ * @throws Error if the witness is present but is not a valid WitnessArgs.
+ */
+export function updateWitnessArgs(
+  buildingPacket: WritableDraft<BuildingPacketUnpackResult>,
+  index: number,
+  update: (
+    args: WitnessArgsUnpackResult,
+  ) => WitnessArgsUnpackResult | undefined,
+) {
+  const witnesses = buildingPacket.value.payload.witnesses;
+  const witness = witnesses[index];
+  const unpacked =
+    witness !== "0x" && witness !== undefined && witness !== null
+      ? WitnessArgs.unpack(witness)
+      : makeWitnessArgs();
+
+  witnesses[index] = bytes.hexify(
+    WitnessArgs.pack(update(unpacked) ?? unpacked),
+  );
+
+  return buildingPacket;
+}
+
+/**
+ * Update the witness as a {@link WintessLayout}.
+ *
+ * Empty witness is considered as a default {@link SighashAll}.
+ *
+ * @param update - callback to update the unpacked WitnessLayout. It can modify in place or return a new WitnessLayout.
+ * @throws Error if the witness is present but is not a valid WitnessLayout.
+ */
+export function updateWitnessLayout(
+  buildingPacket: WritableDraft<BuildingPacketUnpackResult>,
+  index: number,
+  update: (
+    args: WitnessLayoutUnpackResult,
+  ) => WitnessLayoutUnpackResult | undefined,
+) {
+  const witnesses = buildingPacket.value.payload.witnesses;
+  const witness = witnesses[index];
+  const unpacked =
+    witness !== "0x" && witness !== undefined && witness !== null
+      ? WitnessLayout.unpack(witness)
+      : makeDefaultWitnessLayout();
+
+  witnesses[index] = bytes.hexify(
+    WitnessLayout.pack(update(unpacked) ?? unpacked),
+  );
+
+  return buildingPacket;
+}
+
+type CellDepPredicate = (cellDep: CellDepUnpackResult) => boolean;
+
+function cellDepEqualWithoutCurry(
+  a: CellDepUnpackResult,
+  b: CellDepUnpackResult,
+) {
+  return (
+    a.outPoint.txHash === b.outPoint.txHash &&
+    a.outPoint.index === b.outPoint.index &&
+    a.depType === b.depType
+  );
+}
+
+/**
+ * Test whether two @{link CellDepUnpackResult} equals by using `Object.is` on fields.
+ *
+ * @example
+ * This function is curried when only one argument is passed. This is useful to find a CellDep in an array.
+ *
+ * ```ts
+ * cellDeps.findIndex(cellDepEqual(cellDepToFind));
+ * ```
+ */
+export function cellDepEqual(a: CellDepUnpackResult): CellDepPredicate;
+export function cellDepEqual(
+  a: CellDepUnpackResult,
+  b: CellDepUnpackResult,
+): boolean;
+export function cellDepEqual(
+  a: CellDepUnpackResult,
+  ...rest: CellDepUnpackResult[]
+) {
+  if (rest.length > 0) {
+    return cellDepEqualWithoutCurry(a, rest[0]!);
+  }
+  return (b: CellDepUnpackResult) => cellDepEqualWithoutCurry(a, b);
+}
+
+export function addDistinctCellDep(
+  buildingPacket: WritableDraft<BuildingPacketUnpackResult>,
+  cellDep: CellDepUnpackResult,
+): WritableDraft<BuildingPacketUnpackResult> {
+  const cellDeps = buildingPacket.value.payload.cellDeps;
+
+  if (cellDeps.findIndex(cellDepEqual(cellDep)) === -1) {
+    cellDeps.push(cellDep);
+  }
+
+  return buildingPacket;
+}
+
+export function addDistinctHeaderDep(
+  buildingPacket: WritableDraft<BuildingPacketUnpackResult>,
+  blockHash: string,
+): WritableDraft<BuildingPacketUnpackResult> {
+  const headerDeps = buildingPacket.value.payload.headerDeps;
+
+  if (headerDeps.indexOf(blockHash) === -1) {
+    headerDeps.push(blockHash);
+  }
 
   return buildingPacket;
 }
