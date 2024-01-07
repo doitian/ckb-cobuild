@@ -36,7 +36,7 @@ jobs:
         run: pnpm install
 
       - name: typedoc
-        run: pnpm typedoc
+        run: pnpm typedoc --treatWarningsAsErrors
 
       - name: Build
         run: pnpm build
