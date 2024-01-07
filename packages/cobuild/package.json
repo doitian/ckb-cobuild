@@ -1,6 +1,6 @@
 {
   "name": "@ckb-cobuild/cobuild",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "homepage": "https://github.com/doitian/ckb-cobuild",

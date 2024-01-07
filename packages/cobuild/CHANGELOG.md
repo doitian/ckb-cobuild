@@ -1,5 +1,11 @@
 # @ckb-cobuild/cobuild
 
+## 0.0.4
+
+### Patch Changes
+
+- db73b36: fix exporting the json module with wrong path
+
 ## 0.0.3
 
 ### Patch Changes
