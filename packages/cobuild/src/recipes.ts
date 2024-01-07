@@ -24,9 +24,10 @@ import {
   OutputCell,
 } from "./building-packet";
 import { makeDefaultWitnessLayout, makeWitnessArgs } from "./factory";
-import WitnessLayout, {
+import {
   WitnessArgs,
   WitnessArgsUnpackResult,
+  WitnessLayout,
   WitnessLayoutUnpackResult,
 } from "./witness-layout";
 
@@ -68,7 +69,7 @@ export function addOutputCell(
 }
 
 /**
- * Update the witness as a {@link WintessArgs}.
+ * Update the witness as a {@link WitnessArgs}.
 
  * Empty witness is considered as a empty WitnessArgs.
 
@@ -97,7 +98,7 @@ export function updateWitnessArgs(
 }
 
 /**
- * Update the witness as a {@link WintessLayout}.
+ * Update the witness as a {@link WitnessLayout}.
  *
  * Empty witness is considered as a default {@link SighashAll}.
  *
@@ -139,7 +140,7 @@ function cellDepEqualWithoutCurry(
 }
 
 /**
- * Test whether two @{link CellDepUnpackResult} equals by using `Object.is` on fields.
+ * Test whether two {@link CellDepUnpackResult} equals by using `Object.is` to equality on all fields.
  *
  * @example
  * This function is curried when only one argument is passed. This is useful to find a CellDep in an array.
@@ -163,6 +164,10 @@ export function cellDepEqual(
   return (b: CellDepUnpackResult) => cellDepEqualWithoutCurry(a, b);
 }
 
+/**
+ * Add distnce cell dep using deep `Object.is` equality check.
+ * @see {@link cellDepEqual}
+ */
 export function addDistinctCellDep(
   buildingPacket: WritableDraft<BuildingPacketUnpackResult>,
   cellDep: CellDepUnpackResult,
