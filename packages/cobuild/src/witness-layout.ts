@@ -33,10 +33,16 @@ export const SighashAll = table({ seal: Bytes, message: Message }, [
 
 export const SighashAllOnly = table({ seal: Bytes }, ["seal"]);
 
-// TODO: TBD
+/**
+ * Schema TBD
+ * @experimental
+ */
 export const OtxStart = table({}, []);
 
-// TODO: TBD
+/**
+ * Schema TBD
+ * @experimental
+ */
 export const Otx = table({}, []);
 
 export const WitnessLayoutTags = {
@@ -45,7 +51,7 @@ export const WitnessLayoutTags = {
   Otx: 4278190083,
   OtxStart: 4278190084,
 };
-/** Minimal union tag for @{link WitnessLayout}. */
+/** Minimal union tag for {@link WitnessLayout}. */
 export const MinWitnessLayoutTag = WitnessLayoutTags.SighashAll;
 export const WitnessLayout = union(
   { SighashAll, SighashAllOnly, Otx, OtxStart },
@@ -69,6 +75,7 @@ export type WitnessArgsUnpackResult = UnpackResult<typeof WitnessArgs>;
  *
  * @returns "WitnessArgs" for WitnessArgs, or a variant name of WitnessLayout.
  * @throws Error if the witness is neither WitnessArgs nor WitnessLayout buffer.
+ * @see {@link tryParseWitness}
  */
 export function parseWitnessType(
   witness: BytesLike | null | undefined,
@@ -104,6 +111,7 @@ export type ParseWitnessResult =
  * @param witness - The witness bytes
  * @returns Unpacked WitnessArgs or WitnessLayout
  * @throws Error if the witness is neither WitnessArgs nor WitnessLayout buffer.
+ * @see {@link parseWitnessType}
  */
 export function tryParseWitness(
   witness: BytesLike | null | undefined,

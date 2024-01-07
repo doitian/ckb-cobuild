@@ -25,6 +25,9 @@ const {
 
 export const Uint32Opt = option(Uint32LE);
 
+/**
+ * A codec which packs JavaScript string as utf-8 buffer into molecule `vector<byte>`.
+ */
 export const StringCodec = createBytesCodec<string>({
   pack: (str) => new TextEncoder().encode(str),
   unpack: (bytes) => new TextDecoder().decode(bytes),
@@ -33,9 +36,11 @@ export const StringCodec = createBytesCodec<string>({
  * An alias of {@link StringCodec}.
  *
  * Use StringCodec to avoid name conflict with the builtin String class.
+ * @experimental
  */
 export const String = StringCodec;
 
+/** @alpha the fields are not finalized in this strcutre */
 export const ScriptInfo = table(
   {
     name: StringCodec,
