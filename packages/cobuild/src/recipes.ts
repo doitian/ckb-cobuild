@@ -31,11 +31,20 @@ import {
   WitnessLayoutUnpackResult,
 } from "./witness-layout";
 
+/** Make functions compatible with Immer */
 export type WritableDraft<T> = { -readonly [K in keyof T]: Draft<T[K]> };
-export type Draft<T> = T extends number | string | boolean
-  ? T
-  : WritableDraft<T>;
+type Draft<T> = T extends number | string | boolean ? T : WritableDraft<T>;
 
+/**
+ * Add the transaction input, its resolved cell output and data.
+ *
+ * This function will set the properties into the following three lists at the same position.
+ * The position is the maxium length of these lists before adding this input.
+ *
+ * - `value.payload.inputs`
+ * - `value.resolvedInputs.outputs`
+ * - `value.resolvedInputs.outputsData`
+ */
 export function addInputCell(
   buildingPacket: WritableDraft<BuildingPacketUnpackResult>,
   cell: InputCell,
@@ -53,6 +62,15 @@ export function addInputCell(
   return buildingPacket;
 }
 
+/**
+ * Add the transaction output and its data.
+ *
+ * This function will set the properties into the following two lists at the same position.
+ * The position is the maxium length of these lists before adding this output.
+ *
+ * - `value.payload.outputs`
+ * - `value.payload.outputsData`
+ */
 export function addOutputCell(
   buildingPacket: WritableDraft<BuildingPacketUnpackResult>,
   cell: OutputCell,
@@ -140,7 +158,7 @@ function cellDepEqualWithoutCurry(
 }
 
 /**
- * Test whether two {@link CellDepUnpackResult} equals by using `Object.is` to equality on all fields.
+ * Check whether two cell deps equal using deep `===` equality check.
  *
  * @example
  * This function is curried when only one argument is passed. This is useful to find a CellDep in an array.
@@ -165,7 +183,7 @@ export function cellDepEqual(
 }
 
 /**
- * Add distnce cell dep using deep `Object.is` equality check.
+ * Add distinct cell dep using deep `===` equality check.
  * @see {@link cellDepEqual}
  */
 export function addDistinctCellDep(
