@@ -20,6 +20,9 @@
     "dts": true,
     "sourcemap": true
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsup --clean",
     "clean": "rm -rf node_modules dist .turbo",
