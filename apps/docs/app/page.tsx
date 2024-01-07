@@ -57,7 +57,7 @@ const LINKS = [
   },
   {
     title: "Repo",
-    href: "https://github.com/doitian/ckb-cobuild",
+    href: "https://github.com/doitian/ckb-cobuild-js",
     description: "Join the community and contribute.",
   },
   {

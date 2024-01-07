@@ -2,10 +2,10 @@
   "name": "@repo/library-template",
   "version": "0.0.0",
   "private": true,
-  "homepage": "https://github.com/doitian/ckb-cobuild",
+  "homepage": "https://github.com/doitian/ckb-cobuild-js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/doitian/ckb-cobuild.git"
+    "url": "https://github.com/doitian/ckb-cobuild-js.git"
   },
   "license": "MIT",
   "main": "src/index.ts",
