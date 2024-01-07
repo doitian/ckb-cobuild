@@ -1,10 +1,16 @@
 name: "✨ Feature"
 description: Request a feature
-title: "[Feature] <title>"
-labels: ["feature", "triage"]
+title: ":sparkles: <title>"
+labels: ["enhancement"]
 # projects: []
 # assignees: []
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this feature request!
+
+        Remember, contributions to this repository should follow its [contributing guidelines](../blob/develop/docs/CONTRIBUTING.md).
   - type: checkboxes
     attributes:
       label: Is there an existing issue for this?

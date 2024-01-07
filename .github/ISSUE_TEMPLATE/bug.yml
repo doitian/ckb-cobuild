@@ -1,10 +1,16 @@
 name: "🐛 Bug"
 description: File a bug/issue
-title: "[BUG] <title>"
-labels: ["bug", "triage"]
+title: ":bug: <title>"
+labels: ["bug"]
 # projects: []
 # assignees: []
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+
+        Remember, contributions to this repository should follow its [contributing guidelines](../blob/develop/docs/CONTRIBUTING.md).
   - type: checkboxes
     attributes:
       label: Is there an existing issue for this?

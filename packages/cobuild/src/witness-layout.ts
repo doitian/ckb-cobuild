@@ -9,10 +9,16 @@ import {
 
 const { Uint32LE } = number;
 const { table, union, vector } = molecule;
-const { WitnessArgs, Bytes, Byte32 } = blockchain;
+const {
+  /** @group Molecule Codecs */
+  WitnessArgs,
+  Bytes,
+  Byte32,
+} = blockchain;
 
 export { WitnessArgs };
 
+/** @group Molecule Codecs */
 export const Action = table(
   {
     scriptInfoHash: Byte32,
@@ -22,25 +28,31 @@ export const Action = table(
   ["scriptInfoHash", "scriptHash", "data"],
 );
 
+/** @group Molecule Codecs */
 export const ActionVec = vector(Action);
 
+/** @group Molecule Codecs */
 export const Message = table({ actions: ActionVec }, ["actions"]);
 
+/** @group Molecule Codecs */
 export const SighashAll = table({ seal: Bytes, message: Message }, [
   "seal",
   "message",
 ]);
 
+/** @group Molecule Codecs */
 export const SighashAllOnly = table({ seal: Bytes }, ["seal"]);
 
 /**
  * Schema TBD
+ * @group Molecule Codecs
  * @experimental
  */
 export const OtxStart = table({}, []);
 
 /**
  * Schema TBD
+ * @group Molecule Codecs
  * @experimental
  */
 export const Otx = table({}, []);
@@ -51,19 +63,26 @@ export const WitnessLayoutTags = {
   Otx: 4278190083,
   OtxStart: 4278190084,
 };
+export type WitnessLayoutTagNames = keyof typeof WitnessLayoutTags;
 /** Minimal union tag for {@link WitnessLayout}. */
 export const MinWitnessLayoutTag = WitnessLayoutTags.SighashAll;
+/** @group Molecule Codecs */
 export const WitnessLayout = union(
   { SighashAll, SighashAllOnly, Otx, OtxStart },
   WitnessLayoutTags,
 );
 
+/** @group Molecule Unpack Result */
 export type ActionUnpackResult = UnpackResult<typeof Action>;
+/** @group Molecule Unpack Result */
 export type MessageUnpackResult = UnpackResult<typeof Message>;
+/** @group Molecule Unpack Result */
 export type SighashAllUnpackResult = UnpackResult<typeof SighashAll>;
+/** @group Molecule Unpack Result */
 export type SighashAllOnlyUnpackResult = UnpackResult<typeof SighashAllOnly>;
+/** @group Molecule Unpack Result */
 export type WitnessLayoutUnpackResult = UnpackResult<typeof WitnessLayout>;
-export type WitnessLayoutTagNames = keyof typeof WitnessLayoutTags;
+/** @group Molecule Unpack Result */
 export type WitnessArgsUnpackResult = UnpackResult<typeof WitnessArgs>;
 
 /**
