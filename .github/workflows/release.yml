@@ -35,8 +35,8 @@ jobs:
         uses: changesets/action@v1
         with:
           publish: pnpm release
-          commit: "chore: release package(s)"
-          title: "chore: release package(s)"
+          commit: ":bookmark: release package(s)"
+          title: ":bookmark: release package(s)"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
