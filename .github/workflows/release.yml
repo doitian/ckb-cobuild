@@ -57,7 +57,9 @@ jobs:
             -d "token=${PUSHOVER_APP_TOKEN}" \
             -d 'monospace=1' \
             -d "title=%F0%9F%93%A6%20${GITHUB_REPOSITORY} published packages" \
-            -d 'message=${{ toJSON(fromJSON(steps.changesets.outputs.publishedPackages)) }}'
+            -d 'message=```json
+          ${{ toJSON(fromJSON(steps.changesets.outputs.publishedPackages)) }}
+          ```'
         env:
           PUSHOVER_USER_KEY: "${{ secrets.PUSHOVER_USER_KEY }}"
           PUSHOVER_APP_TOKEN: "${{ secrets.PUSHOVER_APP_TOKEN }}"
