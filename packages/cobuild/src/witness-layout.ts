@@ -45,7 +45,7 @@ export const WitnessLayoutTags = {
   Otx: 4278190083,
   OtxStart: 4278190084,
 };
-/** Minimal union tag for @{link WitnessLayout}. */
+/** Minimal union tag for {@link WitnessLayout}. */
 export const MinWitnessLayoutTag = WitnessLayoutTags.SighashAll;
 export const WitnessLayout = union(
   { SighashAll, SighashAllOnly, Otx, OtxStart },
