@@ -53,7 +53,15 @@ describe("BuildingPacket", () => {
         outputsData: ["0x10"],
       },
       changeOutput: undefined,
-      scriptInfos: [],
+      scriptInfos: [
+        {
+          name: "a",
+          url: "b",
+          scriptHash: `0x11${"0".repeat(62)}`,
+          schema: "c",
+          messageType: "d",
+        },
+      ],
       lockActions: [],
     },
   };

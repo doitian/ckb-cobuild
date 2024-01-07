@@ -13,7 +13,6 @@ import { ActionVec, Message } from "./witness-layout";
 const { Uint32LE } = number;
 const { option, table, vector, union } = molecule;
 const {
-  Bytes,
   Byte32,
   BytesVec,
   CellOutputVec,
@@ -26,15 +25,24 @@ const {
 
 export const Uint32Opt = option(Uint32LE);
 
-export const String = Bytes;
+export const StringCodec = createBytesCodec<string>({
+  pack: (str) => new TextEncoder().encode(str),
+  unpack: (bytes) => new TextDecoder().decode(bytes),
+});
+/**
+ * An alias of {@link StringCodec}.
+ *
+ * Use StringCodec to avoid name conflict with the builtin String class.
+ */
+export const String = StringCodec;
 
 export const ScriptInfo = table(
   {
-    name: String,
-    url: String,
+    name: StringCodec,
+    url: StringCodec,
     scriptHash: Byte32,
-    schema: String,
-    messageType: String,
+    schema: StringCodec,
+    messageType: StringCodec,
   },
   ["name", "url", "scriptHash", "schema", "messageType"],
 );
