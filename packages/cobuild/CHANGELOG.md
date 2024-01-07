@@ -1,5 +1,11 @@
 # @ckb-cobuild/cobuild
 
+## 1.0.0
+
+### Major Changes
+
+- 98805be: bump to 1.0.0
+
 ## 0.0.5
 
 ### Patch Changes
