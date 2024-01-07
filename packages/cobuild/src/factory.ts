@@ -13,7 +13,9 @@ import {
   CellDepUnpackResult,
   CellInputUnpackResult,
   CellOutputUnpackResult,
+  InputCell,
   OutPointUnpackResult,
+  OutputCell,
   ResolvedInputsUnpackResult,
   ScriptInfoUnpackResult,
   ScriptUnpackResult,
@@ -42,19 +44,27 @@ export function makeByte32(uint256: BIish) {
 
 export const BYTE32_ZEROS = makeByte32(0);
 
+export type FactoryParam<T> = { [P in keyof T]?: FactoryParamAny<T[P]> };
+type FactoryParamArray<T> = Array<FactoryParamAny<T>>;
+type FactoryParamAny<T> = T extends number | string | boolean | BI
+  ? T
+  : T extends Array<infer Item>
+    ? FactoryParamArray<Item>
+    : FactoryParam<T>;
+
 /** @param attrs */
 export function makeAction({
   scriptInfoHash = BYTE32_ZEROS,
   scriptHash = BYTE32_ZEROS,
   data = "0x",
-}: Partial<ActionUnpackResult> = {}): ActionUnpackResult {
+}: FactoryParam<ActionUnpackResult> = {}): ActionUnpackResult {
   return { scriptInfoHash, scriptHash, data };
 }
 
 /** @param attrs */
 export function makeMessage({
   actions = [],
-}: Partial<MessageUnpackResult> = {}): MessageUnpackResult {
+}: FactoryParam<MessageUnpackResult> = {}): MessageUnpackResult {
   return { actions: actions.map(makeAction) };
 }
 
@@ -67,15 +77,15 @@ export function makePayload({
   cellDeps = [],
   headerDeps = [],
   witnesses = [],
-}: Partial<TransactionUnpackResult> = {}): TransactionUnpackResult {
+}: FactoryParam<TransactionUnpackResult> = {}): TransactionUnpackResult {
   return {
     version,
-    inputs,
-    outputs,
     outputsData,
-    cellDeps,
     headerDeps,
     witnesses,
+    inputs: inputs.map(makeCellInput),
+    outputs: outputs.map(makeCellOutput),
+    cellDeps: cellDeps.map(makeCellDep),
   };
 }
 
@@ -83,8 +93,8 @@ export function makePayload({
 export function makeResolvedInputs({
   outputs = [],
   outputsData = [],
-}: Partial<ResolvedInputsUnpackResult> = {}): ResolvedInputsUnpackResult {
-  return { outputs, outputsData };
+}: FactoryParam<ResolvedInputsUnpackResult> = {}): ResolvedInputsUnpackResult {
+  return { outputsData, outputs: outputs.map(makeCellOutput) };
 }
 
 /** @param attrs */
@@ -95,19 +105,19 @@ export function makeBuildingPacketV1({
   changeOutput,
   scriptInfos = [],
   lockActions = [],
-}: Partial<BuildingPacketV1UnpackResult> = {}): BuildingPacketV1UnpackResult {
+}: FactoryParam<BuildingPacketV1UnpackResult> = {}): BuildingPacketV1UnpackResult {
   return {
+    changeOutput,
     message: makeMessage(message),
     payload: makePayload(payload),
     resolvedInputs: makeResolvedInputs(resolvedInputs),
-    changeOutput,
-    scriptInfos,
-    lockActions,
+    scriptInfos: scriptInfos.map(makeScriptInfo),
+    lockActions: lockActions.map(makeAction),
   };
 }
 
 export function makeBuildingPacket(
-  attrs: Partial<BuildingPacketV1UnpackResult> = {},
+  attrs: FactoryParam<BuildingPacketV1UnpackResult> = {},
 ): BuildingPacketUnpackResult {
   return {
     type: "BuildingPacketV1",
@@ -122,7 +132,7 @@ export function makeScriptInfo({
   scriptHash = BYTE32_ZEROS,
   schema = "0x",
   messageType = "0x",
-}: Partial<ScriptInfoUnpackResult> = {}): ScriptInfoUnpackResult {
+}: FactoryParam<ScriptInfoUnpackResult> = {}): ScriptInfoUnpackResult {
   return { name, url, scriptHash, schema, messageType };
 }
 
@@ -130,7 +140,7 @@ export function makeScriptInfo({
 export function makeOutPoint({
   txHash = BYTE32_ZEROS,
   index = 0,
-}: Partial<OutPointUnpackResult> = {}): OutPointUnpackResult {
+}: FactoryParam<OutPointUnpackResult> = {}): OutPointUnpackResult {
   return { txHash, index };
 }
 
@@ -138,7 +148,7 @@ export function makeOutPoint({
 export function makeCellInput({
   previousOutput,
   since = BI_ZERO,
-}: Partial<CellInputUnpackResult> = {}): CellInputUnpackResult {
+}: FactoryParam<CellInputUnpackResult> = {}): CellInputUnpackResult {
   return {
     previousOutput: makeOutPoint(previousOutput),
     since,
@@ -150,7 +160,7 @@ export function makeScript({
   codeHash = BYTE32_ZEROS,
   hashType = "data",
   args = "0x",
-}: Partial<ScriptUnpackResult> = {}): ScriptUnpackResult {
+}: FactoryParam<ScriptUnpackResult> = {}): ScriptUnpackResult {
   return { codeHash, hashType, args };
 }
 
@@ -159,7 +169,7 @@ export function makeCellOutput({
   capacity = BI_ZERO,
   lock,
   type,
-}: Partial<CellOutputUnpackResult> = {}): CellOutputUnpackResult {
+}: FactoryParam<CellOutputUnpackResult> = {}): CellOutputUnpackResult {
   return {
     capacity,
     lock: makeScript(lock),
@@ -167,11 +177,33 @@ export function makeCellOutput({
   };
 }
 
+export function makeInputCell({
+  cellInput,
+  cellOutput,
+  data = "0x",
+}: FactoryParam<InputCell> = {}): InputCell {
+  return {
+    cellInput: makeCellInput(cellInput),
+    cellOutput: makeCellOutput(cellOutput),
+    data,
+  };
+}
+
+export function makeOutputCell({
+  cellOutput,
+  data = "0x",
+}: FactoryParam<OutputCell> = {}): OutputCell {
+  return {
+    cellOutput: makeCellOutput(cellOutput),
+    data,
+  };
+}
+
 /** @param attrs */
 export function makeCellDep({
   outPoint,
   depType = "code",
-}: Partial<CellDepUnpackResult> = {}): CellDepUnpackResult {
+}: FactoryParam<CellDepUnpackResult> = {}): CellDepUnpackResult {
   return { outPoint: makeOutPoint(outPoint), depType };
 }
 
@@ -180,7 +212,7 @@ export function makeWitnessArgs({
   lock,
   inputType,
   outputType,
-}: Partial<WitnessArgsUnpackResult> = {}): WitnessArgsUnpackResult {
+}: FactoryParam<WitnessArgsUnpackResult> = {}): WitnessArgsUnpackResult {
   return { lock, inputType, outputType };
 }
 
@@ -188,7 +220,7 @@ export function makeWitnessArgs({
 export function makeSighashAllWitnessLayout({
   message,
   seal = "0x",
-}: Partial<SighashAllUnpackResult> = {}): WitnessLayoutUnpackResult {
+}: FactoryParam<SighashAllUnpackResult> = {}): WitnessLayoutUnpackResult {
   return {
     type: "SighashAll",
     value: {
@@ -201,7 +233,7 @@ export function makeSighashAllWitnessLayout({
 /** @param attrs */
 export function makeSighashAllOnlyWitnessLayout({
   seal = "0x",
-}: Partial<SighashAllOnlyUnpackResult> = {}): WitnessLayoutUnpackResult {
+}: FactoryParam<SighashAllOnlyUnpackResult> = {}): WitnessLayoutUnpackResult {
   return {
     type: "SighashAllOnly",
     value: { seal },
