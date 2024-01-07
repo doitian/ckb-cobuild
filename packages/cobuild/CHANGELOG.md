@@ -1,5 +1,11 @@
 # @ckb-cobuild/cobuild
 
+## 0.0.5
+
+### Patch Changes
+
+- 6d61439: improve docs and adjust module exports
+
 ## 0.0.4
 
 ### Patch Changes
