@@ -1,0 +1,14 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "docs": "1.0.0",
+    "@ckb-cobuild/cobuild": "1.0.0",
+    "@repo/eslint-config": "0.0.0",
+    "@repo/library-template": "0.0.0",
+    "@repo/tsup-patcher": "0.0.0",
+    "@repo/typescript-config": "0.0.0",
+    "@repo/ui": "0.0.0"
+  },
+  "changesets": []
+}
