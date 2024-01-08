@@ -28,6 +28,9 @@ export const Uint32Opt = option(Uint32LE);
 
 /**
  * A codec which packs JavaScript string as utf-8 buffer into molecule `vector<byte>`.
+ *
+ * Note that this codec uses the TextEncoder/TextDecoder API which [is available in most browsers](https://caniuse.com/textencoder).
+ * To support older browsers, consider a polyfill like [fast-text-encoding](https://github.com/samthor/fast-text-encoding)
  * @group Molecule Codecs
  */
 export const StringCodec = createBytesCodec<string>({
