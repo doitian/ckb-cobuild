@@ -10,10 +10,9 @@
  * const parsed = json.fromJson(BuildingPacket, JSON.parse(buildingPacketJson));
  * ```
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { BI } from "@ckb-lumos/bi";
 import { bytes, AnyCodec, PackParam, UnpackResult } from "@ckb-lumos/codec";
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
 
 type CompatibleType = string | boolean | null;
 type HexStringType = number | BI | Uint8Array;
@@ -80,7 +79,7 @@ export function toJson<T = any>(value: T): JsonValue<T> {
 /**
  * Convert a Json value to the codec unpacked result.
  *
- * Internnly, this function packs the Json value and then unpacks.
+ * Internally, this function packs the Json value and then unpacks.
  *
  * @example
  * ```ts
