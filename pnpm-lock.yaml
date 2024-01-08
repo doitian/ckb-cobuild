@@ -176,6 +176,10 @@ importers:
         version: 8.0.1(typescript@5.2.2)
 
   packages/papp:
+    dependencies:
+      '@ckb-lumos/codec':
+        specifier: ^v0.22.0-next.0
+        version: 0.22.0-next.1
     devDependencies:
       "@repo/eslint-config":
         specifier: workspace:*
