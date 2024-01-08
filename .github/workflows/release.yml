@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - "release/**"
+      # next
+      - "develop"
+
+permissions:
+  contents: write
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
