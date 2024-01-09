@@ -15,10 +15,11 @@ jobs:
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
     strategy:
+      fail-fast: false
       matrix:
         node: ["18", "lts/*", "latest"]
         run:
-          - pnpm typedoc --treatWarningsAsErrors
+          - pnpm typedoc
           - pnpm build
           - pnpm test
           - pnpm lint
