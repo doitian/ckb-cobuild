@@ -15,32 +15,62 @@
  * });
  * ```
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { bytes } from "@ckb-lumos/codec";
 import { BuildingPacket, InputCell, OutputCell } from "./building-packet";
 import { CellDep, WitnessArgs } from "./builtins";
 import { makeDefaultWitnessLayout, makeWitnessArgs } from "./factory";
 import { WitnessLayout } from "./witness-layout";
 
+type WritableDraft<T> = { -readonly [K in keyof T]: Draft<T[K]> };
+type Draft<T> = T extends number | string | boolean ? T : WritableDraft<T>;
+
 /** Make functions compatible with Immer */
-export type WritableDraft<T> = { -readonly [K in keyof T]: Draft<T[K]> };
-export type Draft<T> = T extends number | string | boolean
-  ? T
-  : WritableDraft<T>;
+export type BuildingPacketDraft = WritableDraft<BuildingPacket>;
+
+/**
+ * A recipe is a function to modify a {@link BuildingPacket}.
+ *
+ * The function does not need to return the modified version. If it does, the returned value will be used as the new value.
+ */
+export type BuildingPacketRecipe<TArgs extends any[] = []> = (
+  buildingPacket: WritableDraft<BuildingPacket>,
+  ...args: TArgs
+) => WritableDraft<BuildingPacket> | void | undefined;
+
+/**
+ * A sync curry recipe returns a {@link BuildingPacketRecipe} when called.
+ */
+export type BuildingPacketSyncCurryRecipe<TArgs extends any[] = []> = (
+  ...args: TArgs
+) => BuildingPacketRecipe;
+/**
+ * A sync curry recipe returns a Promise of {@link BuildingPacketRecipe} when called.
+ */
+export type BuildingPacketAsyncCurryRecipe<TArgs extends any[] = []> = (
+  ...args: TArgs
+) => Promise<BuildingPacketRecipe>;
+/**
+ * A curry recipe returns a {@link BuildingPacketRecipe} or a Promise.
+ */
+export type BuildingPacketCurryRecipe<TArgs extends any[] = []> =
+  | BuildingPacketSyncCurryRecipe<TArgs>
+  | BuildingPacketAsyncCurryRecipe<TArgs>;
 
 /**
  * Add the transaction input, its resolved cell output and data.
  *
  * This function will set the properties into the following three lists at the same position.
- * The position is the maxium length of these lists before adding this input.
+ * The position is the maximum length of these lists before adding this input.
  *
  * - `value.payload.inputs`
  * - `value.resolvedInputs.outputs`
  * - `value.resolvedInputs.outputsData`
  */
 export function addInputCell(
-  buildingPacket: WritableDraft<BuildingPacket>,
+  buildingPacket: BuildingPacketDraft,
   cell: InputCell,
-): WritableDraft<BuildingPacket> {
+): BuildingPacketDraft {
   const {
     payload: { inputs },
     resolvedInputs: { outputs, outputsData },
@@ -58,15 +88,15 @@ export function addInputCell(
  * Add the transaction output and its data.
  *
  * This function will set the properties into the following two lists at the same position.
- * The position is the maxium length of these lists before adding this output.
+ * The position is the maximum length of these lists before adding this output.
  *
  * - `value.payload.outputs`
  * - `value.payload.outputsData`
  */
 export function addOutputCell(
-  buildingPacket: WritableDraft<BuildingPacket>,
+  buildingPacket: BuildingPacketDraft,
   cell: OutputCell,
-): WritableDraft<BuildingPacket> {
+): BuildingPacketDraft {
   const {
     payload: { outputs, outputsData },
   } = buildingPacket.value;
@@ -87,7 +117,7 @@ export function addOutputCell(
  * @throws Error if the witness is present but is not a valid WitnessArgs.
  */
 export function updateWitnessArgs(
-  buildingPacket: WritableDraft<BuildingPacket>,
+  buildingPacket: BuildingPacketDraft,
   index: number,
   update: (args: WitnessArgs) => WitnessArgs | undefined,
 ) {
@@ -114,7 +144,7 @@ export function updateWitnessArgs(
  * @throws Error if the witness is present but is not a valid WitnessLayout.
  */
 export function updateWitnessLayout(
-  buildingPacket: WritableDraft<BuildingPacket>,
+  buildingPacket: BuildingPacketDraft,
   index: number,
   update: (args: WitnessLayout) => WitnessLayout | undefined,
 ) {
@@ -166,7 +196,7 @@ export function cellDepEqual(a: CellDep, ...rest: CellDep[]) {
  * @see {@link cellDepEqual}
  */
 export function addDistinctCellDep(
-  buildingPacket: WritableDraft<BuildingPacket>,
+  buildingPacket: BuildingPacketDraft,
   cellDep: CellDep,
 ): WritableDraft<BuildingPacket> {
   const cellDeps = buildingPacket.value.payload.cellDeps;
