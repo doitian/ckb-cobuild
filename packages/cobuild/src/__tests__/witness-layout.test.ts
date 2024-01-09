@@ -1,13 +1,12 @@
 import { blockchain } from "@ckb-lumos/base";
 import { PackParam } from "@ckb-lumos/codec";
-import {
-  tryParseWitness,
-  parseWitnessType,
-  WitnessLayout,
-  WitnessArgs,
-  WitnessLayoutUnpackResult,
-} from "../witness-layout";
+import { WitnessArgs } from "../builtins";
 import { makeByte32 } from "../factory";
+import {
+  WitnessLayout,
+  parseWitnessType,
+  tryParseWitness,
+} from "../witness-layout";
 
 const { Bytes } = blockchain;
 
@@ -103,7 +102,7 @@ describe("WitnessLayout", () => {
     ["SighashAllOnly", { seal: "0x10" }],
   ])("unpack(pack(%s))", (type, value) => {
     const unpack = WitnessLayout.unpack(
-      WitnessLayout.pack({ type, value } as WitnessLayoutUnpackResult),
+      WitnessLayout.pack({ type, value } as WitnessLayout),
     );
     expect(unpack).toEqual({ type, value });
   });

@@ -15,25 +15,17 @@
  * });
  * ```
  */
-
 import { bytes } from "@ckb-lumos/codec";
-import {
-  BuildingPacketUnpackResult,
-  CellDepUnpackResult,
-  InputCell,
-  OutputCell,
-} from "./building-packet";
+import { BuildingPacket, InputCell, OutputCell } from "./building-packet";
+import { CellDep, WitnessArgs } from "./builtins";
 import { makeDefaultWitnessLayout, makeWitnessArgs } from "./factory";
-import {
-  WitnessArgs,
-  WitnessArgsUnpackResult,
-  WitnessLayout,
-  WitnessLayoutUnpackResult,
-} from "./witness-layout";
+import { WitnessLayout } from "./witness-layout";
 
 /** Make functions compatible with Immer */
 export type WritableDraft<T> = { -readonly [K in keyof T]: Draft<T[K]> };
-type Draft<T> = T extends number | string | boolean ? T : WritableDraft<T>;
+export type Draft<T> = T extends number | string | boolean
+  ? T
+  : WritableDraft<T>;
 
 /**
  * Add the transaction input, its resolved cell output and data.
@@ -46,9 +38,9 @@ type Draft<T> = T extends number | string | boolean ? T : WritableDraft<T>;
  * - `value.resolvedInputs.outputsData`
  */
 export function addInputCell(
-  buildingPacket: WritableDraft<BuildingPacketUnpackResult>,
+  buildingPacket: WritableDraft<BuildingPacket>,
   cell: InputCell,
-): WritableDraft<BuildingPacketUnpackResult> {
+): WritableDraft<BuildingPacket> {
   const {
     payload: { inputs },
     resolvedInputs: { outputs, outputsData },
@@ -72,9 +64,9 @@ export function addInputCell(
  * - `value.payload.outputsData`
  */
 export function addOutputCell(
-  buildingPacket: WritableDraft<BuildingPacketUnpackResult>,
+  buildingPacket: WritableDraft<BuildingPacket>,
   cell: OutputCell,
-): WritableDraft<BuildingPacketUnpackResult> {
+): WritableDraft<BuildingPacket> {
   const {
     payload: { outputs, outputsData },
   } = buildingPacket.value;
@@ -95,11 +87,9 @@ export function addOutputCell(
  * @throws Error if the witness is present but is not a valid WitnessArgs.
  */
 export function updateWitnessArgs(
-  buildingPacket: WritableDraft<BuildingPacketUnpackResult>,
+  buildingPacket: WritableDraft<BuildingPacket>,
   index: number,
-  update: (
-    args: WitnessArgsUnpackResult,
-  ) => WitnessArgsUnpackResult | undefined,
+  update: (args: WitnessArgs) => WitnessArgs | undefined,
 ) {
   const witnesses = buildingPacket.value.payload.witnesses;
   const witness = witnesses[index];
@@ -124,11 +114,9 @@ export function updateWitnessArgs(
  * @throws Error if the witness is present but is not a valid WitnessLayout.
  */
 export function updateWitnessLayout(
-  buildingPacket: WritableDraft<BuildingPacketUnpackResult>,
+  buildingPacket: WritableDraft<BuildingPacket>,
   index: number,
-  update: (
-    args: WitnessLayoutUnpackResult,
-  ) => WitnessLayoutUnpackResult | undefined,
+  update: (args: WitnessLayout) => WitnessLayout | undefined,
 ) {
   const witnesses = buildingPacket.value.payload.witnesses;
   const witness = witnesses[index];
@@ -144,12 +132,9 @@ export function updateWitnessLayout(
   return buildingPacket;
 }
 
-type CellDepPredicate = (cellDep: CellDepUnpackResult) => boolean;
+type CellDepPredicate = (cellDep: CellDep) => boolean;
 
-function cellDepEqualWithoutCurry(
-  a: CellDepUnpackResult,
-  b: CellDepUnpackResult,
-) {
+function cellDepEqualWithoutCurry(a: CellDep, b: CellDep) {
   return (
     a.outPoint.txHash === b.outPoint.txHash &&
     a.outPoint.index === b.outPoint.index &&
@@ -167,19 +152,13 @@ function cellDepEqualWithoutCurry(
  * cellDeps.findIndex(cellDepEqual(cellDepToFind));
  * ```
  */
-export function cellDepEqual(a: CellDepUnpackResult): CellDepPredicate;
-export function cellDepEqual(
-  a: CellDepUnpackResult,
-  b: CellDepUnpackResult,
-): boolean;
-export function cellDepEqual(
-  a: CellDepUnpackResult,
-  ...rest: CellDepUnpackResult[]
-) {
+export function cellDepEqual(a: CellDep): CellDepPredicate;
+export function cellDepEqual(a: CellDep, b: CellDep): boolean;
+export function cellDepEqual(a: CellDep, ...rest: CellDep[]) {
   if (rest.length > 0) {
     return cellDepEqualWithoutCurry(a, rest[0]!);
   }
-  return (b: CellDepUnpackResult) => cellDepEqualWithoutCurry(a, b);
+  return (b: CellDep) => cellDepEqualWithoutCurry(a, b);
 }
 
 /**
@@ -187,9 +166,9 @@ export function cellDepEqual(
  * @see {@link cellDepEqual}
  */
 export function addDistinctCellDep(
-  buildingPacket: WritableDraft<BuildingPacketUnpackResult>,
-  cellDep: CellDepUnpackResult,
-): WritableDraft<BuildingPacketUnpackResult> {
+  buildingPacket: WritableDraft<BuildingPacket>,
+  cellDep: CellDep,
+): WritableDraft<BuildingPacket> {
   const cellDeps = buildingPacket.value.payload.cellDeps;
 
   if (cellDeps.findIndex(cellDepEqual(cellDep)) === -1) {
@@ -200,9 +179,9 @@ export function addDistinctCellDep(
 }
 
 export function addDistinctHeaderDep(
-  buildingPacket: WritableDraft<BuildingPacketUnpackResult>,
+  buildingPacket: WritableDraft<BuildingPacket>,
   blockHash: string,
-): WritableDraft<BuildingPacketUnpackResult> {
+): WritableDraft<BuildingPacket> {
   const headerDeps = buildingPacket.value.payload.headerDeps;
 
   if (headerDeps.indexOf(blockHash) === -1) {
