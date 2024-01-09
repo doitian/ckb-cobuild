@@ -10,5 +10,7 @@
     "@repo/typescript-config": "0.0.0",
     "@repo/ui": "0.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "wet-lobsters-roll"
+  ]
 }
