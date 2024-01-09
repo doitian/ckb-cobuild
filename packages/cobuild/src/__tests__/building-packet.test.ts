@@ -1,14 +1,13 @@
 import { BI } from "@ckb-lumos/bi";
 import {
   BuildingPacket,
-  BuildingPacketUnpackResult,
   getInputCell,
   getOutputCell,
 } from "../building-packet";
 import { makeByte32 } from "../factory";
 
 describe("BuildingPacket", () => {
-  const sampleBuildingPacket: BuildingPacketUnpackResult = {
+  const sampleBuildingPacket: BuildingPacket = {
     type: "BuildingPacketV1",
     value: {
       message: {
