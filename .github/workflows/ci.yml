@@ -6,7 +6,7 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  build:
+  matrix:
     name: Build and Test
     timeout-minutes: 15
     runs-on: ubuntu-latest
@@ -47,3 +47,12 @@ jobs:
 
       - name: Run Command
         run: ${{ matrix.run }}
+
+  ci:
+    name: Build and Test
+    needs: matrix
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: ${{ needs.matrix.result == 'success' && 'true' || 'false' }}
