@@ -43,6 +43,7 @@
     "tsup": "^8.0.1"
   },
   "dependencies": {
-    "@ckb-lumos/codec": "^v0.22.0-next.0"
+    "@ckb-lumos/codec": "^v0.22.0-next.0",
+    "@ckb-cobuild/cobuild": "workspace:*"
   }
 }

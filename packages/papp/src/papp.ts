@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AnyBytesCodec } from "./bytes-codec";
+import { recipes } from "@ckb-cobuild/cobuild";
 import { PackParam } from "@ckb-lumos/codec";
+import { AnyBytesCodec } from "./bytes-codec";
 
 type ActionCreator<TActionData, TArgs extends any[]> = (
   ...args: TArgs
@@ -11,6 +12,12 @@ type ActionCreatorRecord<TActionData, TArgsShape extends AnyArgsShape> = {
   [K in keyof TArgsShape]: ActionCreator<TActionData, TArgsShape[K]>;
 };
 
+type RecipeRecord<TActionData, TArgsShape extends AnyArgsShape> = {
+  addAction: recipes.BuildingPacketCurryRecipe<[TActionData]>;
+} & {
+  [K in keyof TArgsShape]: recipes.BuildingPacketCurryRecipe<TArgsShape[K]>;
+};
+
 /**
  * A papp provides various callbacks to handle the transaction building for a type script
  * or a lock script in different stages.
@@ -18,7 +25,8 @@ type ActionCreatorRecord<TActionData, TArgsShape extends AnyArgsShape> = {
  * @example
  * ```ts
  * import { PackParam, molecule, number, bytes } from "@ckb-lumos/codec";
- * import { definePapp } from "@ckb-cobuild/papp";
+ * import { recipes } from "@ckb-cobuild/cobuild";
+ * import { definePapp } from "../papp";
  *
  * const ActionData = molecule.table(
  *   {
@@ -26,22 +34,34 @@ type ActionCreatorRecord<TActionData, TArgsShape extends AnyArgsShape> = {
  *   },
  *   ["value"],
  * );
- *
  * function set(value: number): PackParam<typeof ActionData> {
  *   return { value };
+ * }
+ *
+ * function addAction(actionData: PackParam<typeof ActionData>) {
+ *   return (buildingPacket: recipes.BuildingPacketDraft) => {
+ *     buildingPacket.value.message.actions.push({
+ *       scriptHash: "0x",
+ *       scriptInfoHash: "0x",
+ *       data: bytes.hexify(ActionData.pack(actionData)),
+ *     });
+ *   };
  * }
  *
  * const Counter = definePapp({
  *   actionDataCodec: ActionData,
  *   actionCreators: { set },
+ *   recipes: { addAction },
  * });
  *
  * const actionData = Counter.actionCreators.set(1);
  * const packed = Counter.actionDataCodec.pack(actionData);
+ * console.log(packed);
  */
 export interface Papp<
   TActionDataCodec extends AnyBytesCodec,
   TActionCreatorRecordArgsShape extends AnyArgsShape,
+  TRecipeRecordArgsShape extends AnyArgsShape,
 > {
   /**
    * The codec used to pack and unpack action data for this Papp.
@@ -57,6 +77,14 @@ export interface Papp<
     PackParam<TActionDataCodec>,
     TActionCreatorRecordArgsShape
   >;
+
+  /**
+   * A dictionary of recipes to modify a BuildingPacket.
+   *
+   * The value of the dictionary is a function which returns a {@link recipes.BuildingPacketRecipe}
+   * or a Promise of {@link recipes.BuildingPacketRecipe}.
+   */
+  recipes: RecipeRecord<PackParam<TActionDataCodec>, TRecipeRecordArgsShape>;
 }
 
 /**
@@ -66,9 +94,18 @@ export interface Papp<
  */
 export function definePapp<
   TActionDataCodec extends AnyBytesCodec,
-  TActionCreatorMapArgsShape extends AnyArgsShape,
+  TActionCreatorRecordArgsShape extends AnyArgsShape,
+  TRecipeRecordArgsShape extends AnyArgsShape,
 >(
-  papp: Papp<TActionDataCodec, TActionCreatorMapArgsShape>,
-): Papp<TActionDataCodec, TActionCreatorMapArgsShape> {
+  papp: Papp<
+    TActionDataCodec,
+    TActionCreatorRecordArgsShape,
+    TRecipeRecordArgsShape
+  >,
+): Papp<
+  TActionDataCodec,
+  TActionCreatorRecordArgsShape,
+  TRecipeRecordArgsShape
+> {
   return papp;
 }
