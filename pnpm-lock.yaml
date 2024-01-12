@@ -172,6 +172,9 @@ importers:
       ts-jest:
         specifier: ^29.1.1
         version: 29.1.1(@babel/core@7.23.3)(esbuild@0.19.11)(jest@29.7.0)(typescript@5.2.2)
+      tsup:
+        specifier: ^8.0.1
+        version: 8.0.1(typescript@5.2.2)
 
   packages/tsup-patcher: {}
 
