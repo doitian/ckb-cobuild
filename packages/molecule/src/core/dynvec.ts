@@ -5,6 +5,7 @@ import {
   DynamicSizeCodec,
   Infer,
   InferParseInput,
+  UnknownCodec,
   isFixedSizeCodec,
 } from "../codec";
 import {
@@ -115,6 +116,10 @@ export class DynvecCodec<TCodec extends AnyCodec> extends DynamicSizeCodec<
 
   getSchema(): string {
     return `vector ${this.name} <${this.inner.name}>;`;
+  }
+
+  getDepedencies(): Iterable<UnknownCodec> {
+    return [this.inner];
   }
 }
 

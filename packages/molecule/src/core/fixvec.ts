@@ -4,6 +4,7 @@ import {
   DynamicSizeCodec,
   Infer,
   InferParseInput,
+  UnknownCodec,
 } from "../codec";
 import {
   SafeParseReturnSuccess,
@@ -77,6 +78,10 @@ export class FixvecCodec<
 
   getSchema(): string {
     return `vector ${this.name} <${this.inner.name}>;`;
+  }
+
+  getDepedencies(): Iterable<UnknownCodec> {
+    return [this.inner];
   }
 }
 

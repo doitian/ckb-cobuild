@@ -148,3 +148,54 @@ describe("isFixedSizeCodec", () => {
     expect(mol.isFixedSizeCodec(codec)).toBeFalsy();
   });
 });
+
+describe("exportSchema", () => {
+  const ByteOpt = mol.option("ByteOpt", mol.byte);
+  const ByteOptOpt = mol.option("ByteOptOpt", ByteOpt);
+  const Byte2 = mol.array("Byte2", mol.byte, 2);
+  const Bytes = mol.fixvec("Bytes", mol.byte);
+  const Byte2Vec = mol.fixvec("Byte2Vec", Byte2);
+  const ByteOptVec = mol.dynvec("ByteOptVec", ByteOpt);
+
+  test.each([
+    [mol.byte, []],
+    [ByteOpt, [["ByteOpt", "option ByteOpt (byte);"]]],
+    [
+      ByteOptOpt,
+      [
+        ["ByteOpt", "option ByteOpt (byte);"],
+        ["ByteOptOpt", "option ByteOptOpt (ByteOpt);"],
+      ],
+    ],
+    [Byte2, [["Byte2", "array Byte2 [byte; 2];"]]],
+    [
+      mol.byteArray("Byte2Uint8Array", 2),
+      [["Byte2Uint8Array", "array Byte2Uint8Array [byte; 2];"]],
+    ],
+    [
+      mol.array("Byte2x2", Byte2, 2),
+      [
+        ["Byte2", "array Byte2 [byte; 2];"],
+        ["Byte2x2", "array Byte2x2 [Byte2; 2];"],
+      ],
+    ],
+    [Bytes, [["Bytes", "vector Bytes <byte>;"]]],
+    [
+      Byte2Vec,
+      [
+        ["Byte2", "array Byte2 [byte; 2];"],
+        ["Byte2Vec", "vector Byte2Vec <Byte2>;"],
+      ],
+    ],
+    [
+      ByteOptVec,
+      [
+        ["ByteOpt", "option ByteOpt (byte);"],
+        ["ByteOptVec", "vector ByteOptVec <ByteOpt>;"],
+      ],
+    ],
+  ])("(%s)", (codec, schemaEntries) => {
+    const schema = codec.exportSchema();
+    expect(Array.from(schema.entries())).toEqual(schemaEntries);
+  });
+});

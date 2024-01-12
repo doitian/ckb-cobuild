@@ -3,6 +3,7 @@ import {
   AnyCodec,
   Infer,
   InferParseInput,
+  UnknownCodec,
 } from "../codec";
 import { BinaryWriter, EMPTY_BUFFER } from "../binary-writer";
 import { SafeParseReturnType, parseSuccess } from "../error";
@@ -52,6 +53,10 @@ export class OptionCodec<TCodec extends AnyCodec> extends DynamicSizeCodec<
 
   getSchema(): string {
     return `option ${this.name} (${this.inner.name});`;
+  }
+
+  getDepedencies(): Iterable<UnknownCodec> {
+    return [this.inner];
   }
 }
 

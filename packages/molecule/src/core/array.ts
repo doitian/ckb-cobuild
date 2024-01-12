@@ -4,6 +4,7 @@ import {
   FixedSizeCodec,
   Infer,
   InferParseInput,
+  UnknownCodec,
 } from "../codec";
 import {
   SafeParseReturnSuccess,
@@ -70,6 +71,10 @@ export class ArrayCodec<
 
   getSchema(): string {
     return `array ${this.name} [${this.inner.name}; ${this.length}];`;
+  }
+
+  getDepedencies(): Iterable<UnknownCodec> {
+    return [this.inner];
   }
 }
 
