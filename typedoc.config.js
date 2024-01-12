@@ -9,9 +9,9 @@ const config = {
 };
 
 for (const package of fs.readdirSync("./packages")) {
-  const packageJsonPath = `./packages/${package}/package.json`
+  const packageJsonPath = `./packages/${package}/package.json`;
   if (fs.existsSync(packageJsonPath)) {
-    const packageJson = require(packageJsonPath)
+    const packageJson = require(packageJsonPath);
     if (packageJson.private !== true) {
       config.entryPoints.push(`packages/${package}`);
     }
