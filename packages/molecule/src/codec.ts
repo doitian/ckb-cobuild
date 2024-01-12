@@ -122,6 +122,23 @@ export abstract class Codec<T, TParseInput = T> {
   }): Codec<TOutter, TOutterParseInput> {
     return new AroundCodec(this, safeParse, willPack, didUnpack);
   }
+
+  /** @internal */
+  expectByteLength(byteLength: number, buffer: Uint8Array) {
+    if (buffer.length !== byteLength) {
+      throw CodecError.expectByteLength(byteLength, buffer.length);
+    }
+  }
+
+  /** @internal */
+  expectMinimalByteLength(minimalByteLength: number, buffer: Uint8Array) {
+    if (buffer.length < minimalByteLength) {
+      throw CodecError.expectMinimalByteLength(
+        minimalByteLength,
+        buffer.length,
+      );
+    }
+  }
 }
 
 /**
@@ -150,20 +167,6 @@ export abstract class FixedSizeCodec<T, TParseInput = T> extends Codec<
    */
   protected abstract _unpack(buffer: Uint8Array): T;
 
-  /** @internal */
-  expectFixedByteLength(buffer: Uint8Array) {
-    if (
-      this.fixedByteLength !== undefined &&
-      this.fixedByteLength !== null &&
-      buffer.length !== this.fixedByteLength
-    ) {
-      throw CodecError.expectFixedByteLength(
-        this.fixedByteLength,
-        buffer.length,
-      );
-    }
-  }
-
   around<TOutter, TOutterParseInput>({
     safeParse,
     willPack,
@@ -174,6 +177,11 @@ export abstract class FixedSizeCodec<T, TParseInput = T> extends Codec<
     didUnpack: (value: T) => TOutter;
   }): FixedSizeCodec<TOutter, TOutterParseInput> {
     return new FixedSizeAroundCodec(this, safeParse, willPack, didUnpack);
+  }
+
+  /** @internal */
+  expectFixedByteLength(buffer: Uint8Array) {
+    this.expectByteLength(this.fixedByteLength, buffer);
   }
 }
 

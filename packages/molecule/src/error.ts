@@ -105,7 +105,7 @@ export class CodecError extends Error {
     return this;
   }
 
-  static expectFixedByteLength(
+  static expectByteLength(
     expectedLength: number,
     actualLength: number,
     options?: ErrorOptions,

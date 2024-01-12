@@ -42,8 +42,8 @@ describe("byte", () => {
   describe(".unpack", () => {
     describe("/* success */", () => {
       test.each([
-        [new Uint8Array([0]), 0],
-        [new Uint8Array([1]), 1],
+        [Uint8Array.of(0), 0],
+        [Uint8Array.of(1), 1],
       ])("(%p)", (input, expected) => {
         const result = mol.byte.unpack(input);
         expect(result).toBe(expected);
@@ -61,9 +61,9 @@ describe("byte", () => {
 
   describe(".pack", () => {
     test.each([
-      [0, new Uint8Array([0])],
-      [1, new Uint8Array([1])],
-      [255, new Uint8Array([255])],
+      [0, Uint8Array.of(0)],
+      [1, Uint8Array.of(1)],
+      [255, Uint8Array.of(255)],
     ])("(%p)", (input, expected) => {
       const result = mol.byte.pack(input);
       expect(result).toEqual(expected);
@@ -100,8 +100,8 @@ describe("option", () => {
 
     describe(".pack", () => {
       test.each([
-        [1, new Uint8Array([1])],
-        [null, new Uint8Array()],
+        [1, Uint8Array.of(1)],
+        [null, Uint8Array.of()],
       ])("(%p)", (input, expected) => {
         const result = ByteOpt.pack(input);
         expect(result).toEqual(expected);
@@ -111,8 +111,8 @@ describe("option", () => {
     describe(".unpack", () => {
       describe("/* success */", () => {
         test.each([
-          [new Uint8Array([1]), 1],
-          [new Uint8Array(), null],
+          [Uint8Array.of(1), 1],
+          [Uint8Array.of(), null],
         ])("(%p)", (input, expected) => {
           const result = ByteOpt.unpack(input);
           expect(result).toEqual(expected);
@@ -122,8 +122,8 @@ describe("option", () => {
       describe("/* throws */", () => {
         test("([2, 3])", () => {
           expect(() => {
-            ByteOpt.unpack(new Uint8Array([2, 3]));
-          }).toThrow(`Expected bytes length 1, found 2`);
+            ByteOpt.unpack(Uint8Array.of(2, 3));
+          }).toThrow("Expected bytes length 1, found 2");
         });
       });
     });
@@ -171,7 +171,7 @@ describe("array", () => {
 
     describe(".unpack", () => {
       describe("/* success */", () => {
-        test.each([[new Uint8Array([1, 2]), [1, 2]]])(
+        test.each([[Uint8Array.of(1, 2), [1, 2]]])(
           "(%p)",
           (input, expected) => {
             const result = Byte2.unpack(input);
@@ -184,19 +184,16 @@ describe("array", () => {
         test.each([[[]], [[1]], [[1, 2, 3]]])("(%p)", (input) => {
           expect(() => {
             Byte2.unpack(new Uint8Array(input));
-          }).toThrow("Expected bytes length 2, found");
+          }).toThrow(`Expected bytes length 2, found ${input.length}`);
         });
       });
     });
 
     describe(".pack", () => {
-      test.each([[[0, 1], new Uint8Array([0, 1])]])(
-        "(%p)",
-        (input, expected) => {
-          const result = Byte2.pack(input);
-          expect(result).toEqual(expected);
-        },
-      );
+      test.each([[[0, 1], Uint8Array.of(0, 1)]])("(%p)", (input, expected) => {
+        const result = Byte2.pack(input);
+        expect(result).toEqual(expected);
+      });
     });
   });
 });
@@ -212,8 +209,8 @@ describe("byteArray", () => {
     describe(".safeParse", () => {
       describe("/* success */", () => {
         test("([1, 2])", () => {
-          const result = Byte2.safeParse(new Uint8Array([1, 2]));
-          expect(result).toEqual(mol.parseSuccess(new Uint8Array([1, 2])));
+          const result = Byte2.safeParse(Uint8Array.of(1, 2));
+          expect(result).toEqual(mol.parseSuccess(Uint8Array.of(1, 2)));
         });
       });
 
@@ -232,7 +229,7 @@ describe("byteArray", () => {
 
     describe(".unpack", () => {
       describe("/* success */", () => {
-        test.each([[new Uint8Array([1, 2]), [1, 2]]])(
+        test.each([[Uint8Array.of(1, 2), [1, 2]]])(
           "(%p)",
           (input, expected) => {
             const result = Byte2.unpack(input);
@@ -245,19 +242,144 @@ describe("byteArray", () => {
         test.each([[[]], [[1]], [[1, 2, 3]]])("(%p)", (input) => {
           expect(() => {
             Byte2.unpack(new Uint8Array(input));
-          }).toThrow("Expected bytes length 2, found");
+          }).toThrow(`Expected bytes length 2, found ${input.length}`);
         });
       });
     });
 
     describe(".pack", () => {
-      test.each([[[0, 1], new Uint8Array([0, 1])]])(
-        "(%p)",
-        (input, expected) => {
-          const result = Byte2.pack(new Uint8Array(input));
-          expect(result).toEqual(expected);
-        },
-      );
+      test.each([[[0, 1], Uint8Array.of(0, 1)]])("(%p)", (input, expected) => {
+        const result = Byte2.pack(new Uint8Array(input));
+        expect(result).toEqual(expected);
+      });
+    });
+  });
+});
+
+describe("fixvec", () => {
+  const Bytes = mol.fixvec("Bytes", mol.byte);
+
+  test(".getSchema", () => {
+    expect(Bytes.getSchema()).toEqual("vector Bytes <byte>;");
+  });
+
+  describe(".safeParse", () => {
+    describe("/* success */", () => {
+      test.each([[[]], [[1, 2]]])("(%p)", (input) => {
+        const result = Bytes.safeParse(input);
+        expect(result).toEqual(mol.parseSuccess(input));
+      });
+    });
+
+    describe("/* error */", () => {
+      test("([-1, 2])", () => {
+        const result = Bytes.safeParse([-1, 2]);
+        expect(result.success).toBeFalsy();
+        if (!result.success) {
+          expect(result.error.toString()).toMatch("Array member parse failed");
+        }
+      });
+    });
+  });
+
+  describe(".unpack", () => {
+    describe("/* success */", () => {
+      test.each([
+        [Uint8Array.of(0, 0, 0, 0), []],
+        [Uint8Array.of(2, 0, 0, 0, 1, 2), [1, 2]],
+      ])("(%p)", (input, expected) => {
+        const result = Bytes.unpack(input);
+        expect(result).toEqual(expected);
+      });
+    });
+
+    describe("/* throws */", () => {
+      test.each([[[]], [[1, 2, 3]]])("(%p)", (input) => {
+        expect(() => {
+          Bytes.unpack(new Uint8Array(input));
+        }).toThrow(`Expected bytes length at least 4, found ${input.length}`);
+      });
+
+      test.each([
+        [[0, 0, 0, 0, 0], 4],
+        [[1, 0, 0, 0], 5],
+        [[2, 0, 0, 0, 0], 6],
+      ])("(%p)", (input, byteLength) => {
+        expect(() => {
+          Bytes.unpack(new Uint8Array(input));
+        }).toThrow(
+          `Expected bytes length ${byteLength}, found ${input.length}`,
+        );
+      });
+    });
+  });
+
+  describe(".pack", () => {
+    test.each([
+      [[], Uint8Array.of(0, 0, 0, 0)],
+      [[0, 1], Uint8Array.of(2, 0, 0, 0, 0, 1)],
+    ])("(%p)", (input, expected) => {
+      const result = Bytes.pack(input);
+      expect(result).toEqual(expected);
+    });
+  });
+});
+
+describe("byteFixvec", () => {
+  const Bytes = mol.byteFixvec("Bytes");
+
+  test(".getSchema", () => {
+    expect(Bytes.getSchema()).toEqual("vector Bytes <byte>;");
+  });
+
+  describe(".safeParse", () => {
+    describe("/* success */", () => {
+      test.each([[[]], [[1, 2]]])("(%p)", (input) => {
+        const result = Bytes.safeParse(new Uint8Array(input));
+        expect(result).toEqual(mol.parseSuccess(new Uint8Array(input)));
+      });
+    });
+  });
+
+  describe(".unpack", () => {
+    describe("/* success */", () => {
+      test.each([
+        [Uint8Array.of(0, 0, 0, 0), []],
+        [Uint8Array.of(2, 0, 0, 0, 1, 2), [1, 2]],
+      ])("(%p)", (input, expected) => {
+        const result = Bytes.unpack(input);
+        expect(result).toEqual(new Uint8Array(expected));
+      });
+    });
+
+    describe("/* throws */", () => {
+      test.each([[[]], [[1, 2, 3]]])("(%p)", (input) => {
+        expect(() => {
+          Bytes.unpack(new Uint8Array(input));
+        }).toThrow(`Expected bytes length at least 4, found ${input.length}`);
+      });
+
+      test.each([
+        [[0, 0, 0, 0, 0], 4],
+        [[1, 0, 0, 0], 5],
+        [[2, 0, 0, 0, 0], 6],
+      ])("(%p)", (input, byteLength) => {
+        expect(() => {
+          Bytes.unpack(new Uint8Array(input));
+        }).toThrow(
+          `Expected bytes length ${byteLength}, found ${input.length}`,
+        );
+      });
+    });
+  });
+
+  describe(".pack", () => {
+    test.each([
+      [[], Uint8Array.of(0, 0, 0, 0)],
+      [[0, 1], Uint8Array.of(2, 0, 0, 0, 0, 1)],
+    ])("(%p)", (input, expected) => {
+      const result = Bytes.pack(new Uint8Array(input));
+      expect(result).toEqual(expected);
     });
   });
 });
