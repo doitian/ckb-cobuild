@@ -26,11 +26,11 @@ export abstract class Codec<T, TParseInput = T> {
   abstract unpack(buffer: Uint8Array): T;
 
   /** @internal */
-  checkFixedByteLength(buffer: Uint8Array) {
+  expectFixedByteLength(buffer: Uint8Array) {
     if (
       this.fixedByteLength !== undefined &&
       this.fixedByteLength !== null &&
-      buffer.length < this.fixedByteLength
+      buffer.length !== this.fixedByteLength
     ) {
       throw CodecError.expectFixedByteLength(
         this.fixedByteLength,
@@ -55,9 +55,7 @@ export abstract class Codec<T, TParseInput = T> {
   /**
    * Get the schema specification of this codec as in the `.mol` file.
    */
-  getSchema(): string {
-    return "";
-  }
+  abstract getSchema(): string;
 
   /**
    * Direct dependencies of this codec.
@@ -71,9 +69,9 @@ export abstract class Codec<T, TParseInput = T> {
    *
    * The order of the map is guaranteed that the dependency is always exported before the dependent.
    */
-  exportSchema(exported: Map<string, string>) {
+  exportSchemaTo(exported: Map<string, string>): Map<string, string> {
     for (const dep of this.getDepedencies()) {
-      dep.exportSchema(exported);
+      dep.exportSchemaTo(exported);
     }
     if (!exported.has(this.name)) {
       const schema = this.getSchema();
@@ -81,6 +79,13 @@ export abstract class Codec<T, TParseInput = T> {
         exported.set(this.name, schema);
       }
     }
+
+    return exported;
+  }
+
+  exportSchema(): Map<string, string> {
+    const exported = new Map();
+    return this.exportSchemaTo(exported);
   }
 
   /**

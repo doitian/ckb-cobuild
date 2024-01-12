@@ -11,7 +11,7 @@ export class ByteCodec extends Codec<number> {
   }
 
   unpack(buffer: Uint8Array): number {
-    this.checkFixedByteLength(buffer);
+    this.expectFixedByteLength(buffer);
     return buffer[0]!;
   }
 
@@ -38,6 +38,13 @@ export class ByteCodec extends Codec<number> {
         `Expected integer from 0 to 255, found ${input}`,
       ),
     };
+  }
+
+  /**
+   * No need to define schema fo builtin types.
+   */
+  getSchema(): string {
+    return "";
   }
 }
 

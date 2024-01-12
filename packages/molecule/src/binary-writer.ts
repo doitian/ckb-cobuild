@@ -1,4 +1,4 @@
-const EMPTY_BUFFER = new Uint8Array();
+export const EMPTY_BUFFER = new Uint8Array();
 
 export class BinaryWriter {
   blocks: Uint8Array[] = [];

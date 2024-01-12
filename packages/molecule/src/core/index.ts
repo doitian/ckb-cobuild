@@ -3,3 +3,4 @@
  * @module
  */
 export * from "./byte";
+export * from "./option";
