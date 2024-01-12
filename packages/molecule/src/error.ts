@@ -110,8 +110,7 @@ export class CodecError extends Error {
     actualLength: number,
     options?: ErrorOptions,
   ): CodecError {
-    return new CodecError(
-      "unpack",
+    return unpackError(
       `Expected bytes length ${expectedLength}, found ${actualLength}`,
       options,
     );
@@ -122,8 +121,7 @@ export class CodecError extends Error {
     actualLength: number,
     options?: ErrorOptions,
   ): CodecError {
-    return new CodecError(
-      "unpack",
+    return unpackError(
       `Expected bytes length at least ${expectedMinimalLength}, found ${actualLength}`,
       options,
     );
@@ -161,6 +159,13 @@ export function parseError(
     success: false,
     error: CodecError.create("parse", error, options),
   };
+}
+
+export function unpackError(
+  error?: string,
+  options?: ErrorOptions,
+): CodecError {
+  return CodecError.create("unpack", error, options);
 }
 
 export function createSafeParse<TIn, TOut>(

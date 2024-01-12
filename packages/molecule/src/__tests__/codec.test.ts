@@ -128,3 +128,23 @@ describe("coerce", () => {
     });
   });
 });
+
+describe("isFixedSizeCodec", () => {
+  const ByteOpt = mol.option("ByteOpt", mol.byte);
+  test.each([
+    mol.byte,
+    mol.array("Byte32", mol.byte, 32),
+    mol.byteArray("ByteArray32", 32),
+  ])("(%s) => true", (codec) => {
+    expect(mol.isFixedSizeCodec(codec)).toBeTruthy();
+  });
+  test.each([
+    ByteOpt,
+    mol.fixvec("Fixvec", mol.byte),
+    mol.byteFixvec("ByteFixvec"),
+    mol.dynvec("Dynvec", ByteOpt),
+    mol.vector("ByteOptVec", ByteOpt),
+  ])("(%s) => false", (codec) => {
+    expect(mol.isFixedSizeCodec(codec)).toBeFalsy();
+  });
+});

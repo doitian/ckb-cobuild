@@ -125,7 +125,7 @@ export function array<TCodec extends AnyFixedSizeCodec>(
 }
 
 /**
- * Codec for `array [byte; n]` and store the data as `Uint8Array` internally.
+ * High performance `array [byte; n]` which stores bytes in Uint8Array.
  * @group Core Codecs
  * @see {@link array} for general purpuse array.
  * @example

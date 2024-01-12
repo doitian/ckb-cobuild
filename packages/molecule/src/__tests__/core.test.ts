@@ -383,3 +383,130 @@ describe("byteFixvec", () => {
     });
   });
 });
+
+describe("dynvec", () => {
+  const ByteOpt = mol.option("ByteOpt", mol.byte);
+  const ByteOptVec = mol.dynvec("ByteOptVec", ByteOpt);
+
+  test(".getSchema", () => {
+    expect(ByteOptVec.getSchema()).toEqual("vector ByteOptVec <ByteOpt>;");
+  });
+
+  describe(".safeParse", () => {
+    describe("/* success */", () => {
+      test.each([[[]], [[1, 2]], [[null]]])("(%p)", (input) => {
+        const result = ByteOptVec.safeParse(input);
+        expect(result).toEqual(mol.parseSuccess(input));
+      });
+    });
+
+    describe("/* error */", () => {
+      test("([-1, 2])", () => {
+        const result = ByteOptVec.safeParse([-1, 2]);
+        expect(result.success).toBeFalsy();
+        if (!result.success) {
+          expect(result.error.toString()).toMatch("Array member parse failed");
+        }
+      });
+    });
+  });
+
+  describe(".unpack", () => {
+    describe("/* success */", () => {
+      test.each([
+        [Uint8Array.of(4, 0, 0, 0), []],
+        [Uint8Array.of(8, 0, 0, 0, 8, 0, 0, 0), [null]],
+        [Uint8Array.of(9, 0, 0, 0, 8, 0, 0, 0, 1), [1]],
+        [Uint8Array.of(13, 0, 0, 0, 12, 0, 0, 0, 12, 0, 0, 0, 1), [null, 1]],
+        [Uint8Array.of(13, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 1), [1, null]],
+      ])("(%p)", (input, expected) => {
+        const result = ByteOptVec.unpack(input);
+        expect(result).toStrictEqual(expected);
+      });
+    });
+
+    describe("/* throws */", () => {
+      test.each([
+        [[], 4],
+        [[1, 2, 3], 4],
+      ])("(%p)", (input, expectedMinimalByteLength) => {
+        expect(() => {
+          ByteOptVec.unpack(new Uint8Array(input));
+        }).toThrow(
+          `Expected bytes length at least ${expectedMinimalByteLength}, found ${input.length}`,
+        );
+      });
+
+      test.each([
+        [[5, 0, 0, 0, 0], 5],
+        [[7, 0, 0, 0, 0, 0, 0], 7],
+      ])("(%p)", (input, byteLength) => {
+        expect(() => {
+          ByteOptVec.unpack(new Uint8Array(input));
+        }).toThrow(`Invalid dynvec bytes length: ${byteLength}`);
+      });
+
+      test.each([
+        [[5, 0, 0, 0], 5],
+        [[3, 0, 0, 0], 3],
+      ])("(%p)", (input, expectedByteLength) => {
+        expect(() => {
+          ByteOptVec.unpack(new Uint8Array(input));
+        }).toThrow(
+          `Expected bytes length ${expectedByteLength}, found ${input.length}`,
+        );
+      });
+
+      test.each([
+        [
+          [8, 0, 0, 0, 0, 0, 0, 0],
+          [8, 0],
+        ],
+        [
+          [8, 0, 0, 0, 4, 0, 0, 0],
+          [8, 4],
+        ],
+        [
+          [8, 0, 0, 0, 9, 0, 0, 0],
+          [8, 9],
+        ],
+        [
+          [12, 0, 0, 0, 12, 0, 0, 0, 8, 0, 0, 0],
+          [12, 12, 8],
+        ],
+      ])("(%p)", (input, parsedHeader) => {
+        expect(() => {
+          ByteOptVec.unpack(new Uint8Array(input));
+        }).toThrow(`Invalid dynvec header parsed so far: ${parsedHeader}`);
+      });
+    });
+  });
+
+  describe(".pack", () => {
+    test.each([
+      [[], Uint8Array.of(4, 0, 0, 0)],
+      [[null], Uint8Array.of(8, 0, 0, 0, 8, 0, 0, 0)],
+      [[1], Uint8Array.of(9, 0, 0, 0, 8, 0, 0, 0, 1)],
+      [[null, 1], Uint8Array.of(13, 0, 0, 0, 12, 0, 0, 0, 12, 0, 0, 0, 1)],
+      [[1, null], Uint8Array.of(13, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 1)],
+    ])("(%p)", (input, expected) => {
+      const result = ByteOptVec.pack(input);
+      expect(result).toEqual(expected);
+    });
+  });
+});
+
+describe("vector", () => {
+  test("(byte)", () => {
+    const Bytes = mol.vector("Bytes", mol.byte);
+    expect(Bytes.pack([1, 1])).toEqual(Uint8Array.of(2, 0, 0, 0, 1, 1));
+  });
+
+  test("(ByteOpt)", () => {
+    const ByteOpt = mol.option("ByteOpt", mol.byte);
+    const Bytes = mol.vector("ByteOptVec", ByteOpt);
+    expect(Bytes.pack([1, 1])).toEqual(
+      Uint8Array.of(14, 0, 0, 0, 12, 0, 0, 0, 13, 0, 0, 0, 1, 1),
+    );
+  });
+});

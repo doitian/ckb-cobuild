@@ -46,6 +46,29 @@ export abstract class Codec<T, TParseInput = T> {
   abstract getSchema(): string;
 
   /**
+   * Pack value into a molecule buffer.
+   *
+   * @see {@link packTo}
+   */
+  pack(value: T): Uint8Array {
+    const writer = new BinaryWriter();
+    this.packTo(value, writer);
+    return writer.getResultBuffer();
+  }
+
+  /**
+   * Parse a compatible input.
+   * @throws {@link CodecError}
+   */
+  parse(input: TParseInput): T {
+    const result = this.safeParse(input);
+    if (result.success) {
+      return result.data;
+    }
+    throw result.error;
+  }
+
+  /**
    * Direct dependencies of this codec.
    */
   getDepedencies(): Iterable<UnknownCodec> {
@@ -76,27 +99,8 @@ export abstract class Codec<T, TParseInput = T> {
     return this.exportSchemaTo(exported);
   }
 
-  /**
-   * Pack value into a molecule buffer.
-   *
-   * @see {@link packTo}
-   */
-  pack(value: T): Uint8Array {
-    const writer = new BinaryWriter();
-    this.packTo(value, writer);
-    return writer.getResultBuffer();
-  }
-
-  /**
-   * Parse a compatible input.
-   * @throws {@link CodecError}
-   */
-  parse(input: TParseInput): T {
-    const result = this.safeParse(input);
-    if (result.success) {
-      return result.data;
-    }
-    throw result.error;
+  toString(): string {
+    return this.name;
   }
 
   /**
@@ -253,6 +257,12 @@ export type InferParseInput<TCodec> = TCodec extends Codec<
 >
   ? TParseInput
   : never;
+
+export function isFixedSizeCodec(
+  codec: AnyCodec | AnyFixedSizeCodec,
+): codec is AnyFixedSizeCodec {
+  return (codec as any).fixedByteLength !== undefined;
+}
 
 /** @internal */
 export class AroundCodec<
