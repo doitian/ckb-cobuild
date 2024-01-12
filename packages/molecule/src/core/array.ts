@@ -83,7 +83,7 @@ export class Uint8ArrayCodec extends FixedSizeCodec<Uint8Array> {
   }
 
   _unpack(buffer: Uint8Array): Uint8Array {
-    // Create a copy to avoid accidental changes
+    // Create a copy to prevent accidental changes.
     return new Uint8Array(buffer);
   }
 
@@ -127,6 +127,7 @@ export function array<TCodec extends AnyFixedSizeCodec>(
 /**
  * Codec for `array [byte; n]` and store the data as `Uint8Array` internally.
  * @group Core Codecs
+ * @see {@link array} for general purpuse array.
  * @example
  * ```ts
  * import { mol } from "@ckb-cobuild/molecule";
