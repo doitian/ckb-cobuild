@@ -8,9 +8,11 @@
     "@repo/library-template": "0.0.0",
     "@repo/tsup-patcher": "0.0.0",
     "@repo/typescript-config": "0.0.0",
-    "@repo/ui": "0.0.0"
+    "@repo/ui": "0.0.0",
+    "@ckb-cobuild/molecule": "0.0.1"
   },
   "changesets": [
+    "stupid-icons-relax",
     "wet-lobsters-roll"
   ]
 }
