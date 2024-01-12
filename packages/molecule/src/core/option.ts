@@ -1,11 +1,16 @@
-import { Codec, AnyCodec, Infer, InferParseInput } from "../codec";
+import {
+  DynamicSizeCodec,
+  AnyCodec,
+  Infer,
+  InferParseInput,
+} from "../codec";
 import { BinaryWriter, EMPTY_BUFFER } from "../binary-writer";
 import { SafeParseReturnType, parseSuccess } from "../error";
 
 /**
  * @internal
  */
-export class OptionCodec<TCodec extends AnyCodec> extends Codec<
+export class OptionCodec<TCodec extends AnyCodec> extends DynamicSizeCodec<
   Infer<TCodec> | null,
   InferParseInput<TCodec>
 > {

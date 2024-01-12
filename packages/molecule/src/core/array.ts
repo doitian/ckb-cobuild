@@ -1,10 +1,10 @@
+import { BinaryWriter } from "../binary-writer";
 import {
-  FixedSizeCodec,
   AnyFixedSizeCodec,
+  FixedSizeCodec,
   Infer,
   InferParseInput,
 } from "../codec";
-import { BinaryWriter } from "../binary-writer";
 import {
   SafeParseReturnSuccess,
   SafeParseReturnType,

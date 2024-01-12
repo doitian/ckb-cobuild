@@ -70,7 +70,7 @@ export class CodecIssue {
   }
 }
 
-export type CodecErrorSource = "parse" | "unpack";
+export type CodecErrorSource = "parse" | "unpack" | "schema";
 
 export class CodecError extends Error {
   readonly source: CodecErrorSource;

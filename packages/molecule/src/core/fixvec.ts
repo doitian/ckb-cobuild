@@ -1,5 +1,10 @@
 import { BinaryWriter } from "../binary-writer";
-import { AnyFixedSizeCodec, Codec, Infer, InferParseInput } from "../codec";
+import {
+  AnyFixedSizeCodec,
+  DynamicSizeCodec,
+  Infer,
+  InferParseInput,
+} from "../codec";
 import {
   SafeParseReturnSuccess,
   SafeParseReturnType,
@@ -9,10 +14,9 @@ import {
 import { UINT32_BYTE_LENGTH } from "./constants";
 
 /** @internal */
-export class FixvecCodec<TCodec extends AnyFixedSizeCodec> extends Codec<
-  Infer<TCodec>[],
-  InferParseInput<TCodec>[]
-> {
+export class FixvecCodec<
+  TCodec extends AnyFixedSizeCodec,
+> extends DynamicSizeCodec<Infer<TCodec>[], InferParseInput<TCodec>[]> {
   readonly inner: TCodec;
 
   constructor(name: string, inner: TCodec) {
@@ -77,7 +81,7 @@ export class FixvecCodec<TCodec extends AnyFixedSizeCodec> extends Codec<
 }
 
 /** @internal */
-export class Uint8ArrayFixvecCodec extends Codec<Uint8Array> {
+export class Uint8ArrayFixvecCodec extends DynamicSizeCodec<Uint8Array> {
   constructor(name: string) {
     super(name);
   }

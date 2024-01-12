@@ -1,4 +1,10 @@
-import { AnyCodec, AnyFixedSizeCodec, isFixedSizeCodec } from "../codec";
+import {
+  AnyCodec,
+  AnyDynamicSizeCodec,
+  AnyFixedSizeCodec,
+  isDynamicSizeCodec,
+  isFixedSizeCodec,
+} from "../codec";
 import { DynvecCodec, dynvec } from "./dynvec";
 import { FixvecCodec, byteFixvec, fixvec } from "./fixvec";
 
@@ -8,7 +14,7 @@ import { FixvecCodec, byteFixvec, fixvec } from "./fixvec";
  */
 export const byteVector = byteFixvec;
 
-export function vector<TCodec extends AnyCodec>(
+export function vector<TCodec extends AnyDynamicSizeCodec>(
   name: string,
   inner: TCodec,
 ): DynvecCodec<TCodec>;
@@ -32,5 +38,8 @@ export function vector<TCodec extends AnyCodec>(
   if (isFixedSizeCodec(inner)) {
     return fixvec(name, inner);
   }
-  return dynvec(name, inner);
+  if (isDynamicSizeCodec(inner)) {
+    return dynvec(name, inner);
+  }
+  throw new Error(`Unreachable`);
 }

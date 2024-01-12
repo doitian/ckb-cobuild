@@ -1,6 +1,14 @@
 import { BinaryWriter } from "../binary-writer";
-import { AnyCodec, Codec, Infer, InferParseInput } from "../codec";
 import {
+  AnyCodec,
+  AnyDynamicSizeCodec,
+  DynamicSizeCodec,
+  Infer,
+  InferParseInput,
+  isFixedSizeCodec,
+} from "../codec";
+import {
+  CodecError,
   SafeParseReturnSuccess,
   SafeParseReturnType,
   parseError,
@@ -9,7 +17,7 @@ import {
 } from "../error";
 import { UINT32_BYTE_LENGTH } from "./constants";
 
-export class DynvecCodec<TCodec extends AnyCodec> extends Codec<
+export class DynvecCodec<TCodec extends AnyCodec> extends DynamicSizeCodec<
   Infer<TCodec>[],
   InferParseInput<TCodec>[]
 > {
@@ -112,6 +120,9 @@ export class DynvecCodec<TCodec extends AnyCodec> extends Codec<
 
 /**
  * Dynvec codec for the molecule primitive type `vector` when the inner type has a dynamic size.
+ *
+ * **Attention** that it is invalid to create dynvec on fixed size inner type.
+ *
  * @group Core Codecs
  * @internal
  * @example
@@ -121,9 +132,13 @@ export class DynvecCodec<TCodec extends AnyCodec> extends Codec<
  * const ByteOptVec = mol.dynvec("ByteOptVec", ByteOpt);
  * ```
  */
-export function dynvec<TCodec extends AnyCodec>(
+export function dynvec<TCodec extends AnyDynamicSizeCodec>(
   name: string,
   inner: TCodec,
 ): DynvecCodec<TCodec> {
+  const innerName = inner.name;
+  if (isFixedSizeCodec(inner)) {
+    throw new CodecError("schema", `dynvec<${innerName}> is invalid`);
+  }
   return new DynvecCodec(name, inner);
 }

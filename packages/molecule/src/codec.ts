@@ -124,7 +124,7 @@ export abstract class Codec<T, TParseInput = T> {
    * });
    * ```
    */
-  around<TOutter, TOutterParseInput>({
+  abstract around<TOutter, TOutterParseInput>({
     safeParse,
     willPack,
     didUnpack,
@@ -132,9 +132,7 @@ export abstract class Codec<T, TParseInput = T> {
     safeParse: (input: TOutterParseInput) => SafeParseReturnType<TOutter>;
     willPack: (input: TOutter) => T;
     didUnpack: (value: T) => TOutter;
-  }): Codec<TOutter, TOutterParseInput> {
-    return new AroundCodec(this, safeParse, willPack, didUnpack);
-  }
+  }): Codec<TOutter, TOutterParseInput>;
 
   /**
    * Chain a `parse` method before.
@@ -193,6 +191,26 @@ export abstract class Codec<T, TParseInput = T> {
   }
 }
 
+export abstract class DynamicSizeCodec<T, TParseInput = T> extends Codec<
+  T,
+  TParseInput
+> {
+  // Let type check works.
+  _dynamicSizeCodec: void = void 0;
+
+  around<TOutter, TOutterParseInput>({
+    safeParse,
+    willPack,
+    didUnpack,
+  }: {
+    safeParse: (input: TOutterParseInput) => SafeParseReturnType<TOutter>;
+    willPack: (input: TOutter) => T;
+    didUnpack: (value: T) => TOutter;
+  }): DynamicSizeCodec<TOutter, TOutterParseInput> {
+    return new DynamicSizeAroundCodec(this, safeParse, willPack, didUnpack);
+  }
+}
+
 /**
  * The fixed size codec does not require length header when used inside other structures.
  * @see [Molecule Encoding Spec](https://github.com/nervosnetwork/molecule/blob/master/docs/encoding_spec.md)
@@ -240,6 +258,7 @@ export abstract class FixedSizeCodec<T, TParseInput = T> extends Codec<
 export type UnknownCodec = Codec<unknown, unknown>;
 export type AnyCodec = Codec<any, any>;
 export type AnyFixedSizeCodec = FixedSizeCodec<any, any>;
+export type AnyDynamicSizeCodec = DynamicSizeCodec<any, any>;
 
 /**
  * Given a codec type, infer the JavaScript type.
@@ -258,19 +277,22 @@ export type InferParseInput<TCodec> = TCodec extends Codec<
   ? TParseInput
   : never;
 
-export function isFixedSizeCodec(
-  codec: AnyCodec | AnyFixedSizeCodec,
-): codec is AnyFixedSizeCodec {
+export function isFixedSizeCodec(codec: AnyCodec): codec is AnyFixedSizeCodec {
   return (codec as any).fixedByteLength !== undefined;
+}
+export function isDynamicSizeCodec(
+  codec: AnyCodec,
+): codec is AnyDynamicSizeCodec {
+  return (codec as any).fixedByteLength === undefined;
 }
 
 /** @internal */
-export class AroundCodec<
+export class DynamicSizeAroundCodec<
   T,
   TParseInput,
   TInner,
   TInnerParseInput,
-> extends Codec<T, TParseInput> {
+> extends DynamicSizeCodec<T, TParseInput> {
   readonly inner: Codec<TInner, TInnerParseInput>;
   private readonly _safeParse: (input: TParseInput) => SafeParseReturnType<T>;
   private readonly _willPack: (input: T) => TInner;
@@ -322,7 +344,7 @@ export class FixedSizeAroundCodec<
   TInnerParseInput,
 > extends FixedSizeCodec<T, TParseInput> {
   readonly inner: FixedSizeCodec<TInner, TInnerParseInput>;
-  private readonly _parseInner: AroundCodec<
+  private readonly _parseInner: DynamicSizeAroundCodec<
     T,
     TParseInput,
     TInner,
@@ -337,7 +359,12 @@ export class FixedSizeAroundCodec<
   ) {
     super(inner.name, inner.fixedByteLength);
     this.inner = inner;
-    this._parseInner = new AroundCodec(inner, safeParse, willPack, didUnpack);
+    this._parseInner = new DynamicSizeAroundCodec(
+      inner,
+      safeParse,
+      willPack,
+      didUnpack,
+    );
   }
 
   safeParse(input: TParseInput): SafeParseReturnType<T> {
