@@ -7,7 +7,7 @@ Basic data structures and help functions.
 
 ## Browser Compatibility
 
-This library uses `TextEncoder` which is [available in most browsers](https://caniuse.com/textencoder). To support old browser, consider a polyfill like [fast-text-encoding](https://github.com/samthor/fast-text-encoding).
+- `TextEncoder`: [Can I Use?](https://caniuse.com/textencoder), Polyfill: [fast-text-encoding](https://github.com/samthor/fast-text-encoding).
 
 ## Useful Projects
 
