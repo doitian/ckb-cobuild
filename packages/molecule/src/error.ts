@@ -1,15 +1,3 @@
-export type SafeParseReturnSuccess<T> = {
-  success: true;
-  data: T;
-};
-export type SafeParseReturnError = {
-  success: false;
-  error: CodecError;
-};
-export type SafeParseReturnType<T> =
-  | SafeParseReturnSuccess<T>
-  | SafeParseReturnError;
-
 export function formatCodecError(path: (string | number)[], message: string) {
   return `//${path.join("/")}: ${message}`;
 }
@@ -18,7 +6,7 @@ export type CodecErrorFormatter = typeof formatCodecError;
 export const PARSE_ROOT_PATH = "//";
 
 export class CodecIssue {
-  message?: string = undefined;
+  readonly message?: string = undefined;
   children?: Map<string | number, CodecIssue> = undefined;
 
   constructor(message: string | undefined = undefined) {
@@ -85,12 +73,12 @@ export class CodecIssue {
 export type CodecErrorSource = "parse" | "unpack";
 
 export class CodecError extends Error {
-  source: CodecErrorSource;
-  issue: CodecIssue;
+  readonly source: CodecErrorSource;
+  readonly issue: CodecIssue;
 
   constructor(
     source: CodecErrorSource,
-    message: string,
+    message?: string,
     options?: ErrorOptions,
   ) {
     super(message, options);
@@ -101,10 +89,20 @@ export class CodecError extends Error {
 
   static create(
     source: CodecErrorSource,
-    message: string,
+    message?: string,
     options?: ErrorOptions,
   ): CodecError {
     return new CodecError(source, message, options);
+  }
+
+  addChild(key: string | number, issue: CodecIssue): CodecError {
+    this.issue.addChild(key, issue);
+    return this;
+  }
+
+  addChildren(children: Iterable<[string | number, CodecIssue]>): CodecError {
+    this.issue.addChildren(children);
+    return this;
   }
 
   static expectFixedByteLength(
@@ -134,4 +132,33 @@ export class CodecError extends Error {
   collectMessages(formatter?: CodecErrorFormatter): string[] {
     return this.issue.collectMessages(formatter);
   }
+}
+
+export type SafeParseReturnSuccess<T> = {
+  success: true;
+  data: T;
+};
+export type SafeParseReturnError = {
+  success: false;
+  error: CodecError;
+};
+export type SafeParseReturnType<T> =
+  | SafeParseReturnSuccess<T>
+  | SafeParseReturnError;
+
+export function parseSuccess<T>(data: T): SafeParseReturnSuccess<T> {
+  return {
+    success: true,
+    data,
+  };
+}
+
+export function parseError(
+  error?: string,
+  options?: ErrorOptions,
+): SafeParseReturnError {
+  return {
+    success: false,
+    error: CodecError.create("parse", error, options),
+  };
 }

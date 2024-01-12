@@ -1,6 +1,6 @@
 import { Codec, AnyCodec, Infer, InferParseInput } from "../codec";
 import { BinaryWriter, EMPTY_BUFFER } from "../binary-writer";
-import { SafeParseReturnType } from "../error";
+import { SafeParseReturnType, parseSuccess } from "../error";
 
 /**
  * @internal
@@ -9,10 +9,10 @@ export class OptionCodec<TCodec extends AnyCodec> extends Codec<
   Infer<TCodec> | null,
   InferParseInput<TCodec>
 > {
-  inner: TCodec;
+  readonly inner: TCodec;
 
   constructor(name: string, inner: TCodec) {
-    super(name, undefined);
+    super(name);
     this.inner = inner;
   }
 
@@ -42,10 +42,7 @@ export class OptionCodec<TCodec extends AnyCodec> extends Codec<
     if (input !== null && input !== undefined) {
       return this.inner.safeParse(input);
     }
-    return {
-      success: true,
-      data: null,
-    };
+    return parseSuccess(null);
   }
 
   getSchema(): string {

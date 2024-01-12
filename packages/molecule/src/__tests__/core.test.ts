@@ -4,10 +4,7 @@ describe("byte", () => {
   describe(".safeParse", () => {
     test("(1)", () => {
       const result = mol.byte.safeParse(1);
-      expect(result).toEqual({
-        success: true,
-        data: 1,
-      });
+      expect(result).toEqual(mol.parseSuccess(1));
     });
 
     test.each([-1, 1.1, 256])("(%p)", (input) => {
@@ -77,10 +74,7 @@ describe("option", () => {
 
     describe(".safeParse", () => {
       test.each([0, 1, 255, null])("(%p)", (input) => {
-        expect(ByteOpt.safeParse(input)).toEqual({
-          success: true,
-          data: input,
-        });
+        expect(ByteOpt.safeParse(input)).toEqual(mol.parseSuccess(input));
       });
       test("(-1)", () => {
         const result = ByteOpt.safeParse(-1);

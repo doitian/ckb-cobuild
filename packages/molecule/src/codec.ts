@@ -8,15 +8,8 @@ export abstract class Codec<T, TParseInput = T> {
    */
   readonly name: string;
 
-  /**
-   * The byte length of a fixed size molecule type.
-   * @see [Molecule Encoding Spec](https://github.com/nervosnetwork/molecule/blob/master/docs/encoding_spec.md)
-   */
-  readonly fixedByteLength?: number;
-
-  constructor(name: string, fixedByteLength?: number) {
+  constructor(name: string) {
     this.name = name;
-    this.fixedByteLength = fixedByteLength;
   }
 
   /**
@@ -24,20 +17,6 @@ export abstract class Codec<T, TParseInput = T> {
    * @throws {@link CodecError}
    */
   abstract unpack(buffer: Uint8Array): T;
-
-  /** @internal */
-  expectFixedByteLength(buffer: Uint8Array) {
-    if (
-      this.fixedByteLength !== undefined &&
-      this.fixedByteLength !== null &&
-      buffer.length !== this.fixedByteLength
-    ) {
-      throw CodecError.expectFixedByteLength(
-        this.fixedByteLength,
-        buffer.length,
-      );
-    }
-  }
 
   /**
    * Pack the value and append the buffer to the provided writer.
@@ -112,17 +91,95 @@ export abstract class Codec<T, TParseInput = T> {
   }
 
   /**
-   * Create a new codec which `parse` will call the preprocess function first.
+   * Create a new codec which shares the same underlying molecule type but with different JavaScript type.
+   *
+   * This is useful to create a different view wrapper.
+   *
+   * @param callbacks
+   * @param callbacks.safeParse - Implements the `safeParse` for the new codec.
+   * @param callbacks.willPack - Conversion callback before calling the inner `pack`.
+   * @param callbacks.didUnpack - Conversion callback after calling the inner `unpack`.
+   * @example
+   * ```
+   * import { mol } from "@ckb-cobuild/molecule";
+   * const ByteOpt = mol.option("ByteOpt", mol.byte);
+   * const BooleanOpt = ByteOpt.around({
+   *   safeParse: (input: boolean | null) => mol.parseSuccess(input),
+   *   willPack: (input: boolean | null) =>
+   *     input !== null ? (input ? 1 : 0) : null,
+   *   didUnpack: (value: number | null) => (value !== null ? value !== 0 : null),
+   * });
+   * ```
    */
-  preprocess<TOutterParseInput>(
-    preprocess: (input: TOutterParseInput) => SafeParseReturnType<TParseInput>,
-  ) {
-    return new ParseCodec(this, preprocess);
+  around<TOutter, TOutterParseInput>({
+    safeParse,
+    willPack,
+    didUnpack,
+  }: {
+    safeParse: (input: TOutterParseInput) => SafeParseReturnType<TOutter>;
+    willPack: (input: TOutter) => T;
+    didUnpack: (value: T) => TOutter;
+  }): Codec<TOutter, TOutterParseInput> {
+    return new AroundCodec(this, safeParse, willPack, didUnpack);
+  }
+}
+
+/**
+ * The fixed size codec does not require length header when used inside other structures.
+ * @see [Molecule Encoding Spec](https://github.com/nervosnetwork/molecule/blob/master/docs/encoding_spec.md)
+ */
+export abstract class FixedSizeCodec<T, TParseInput = T> extends Codec<
+  T,
+  TParseInput
+> {
+  readonly fixedByteLength: number;
+
+  constructor(name: string, fixedByteLength: number) {
+    super(name);
+    this.fixedByteLength = fixedByteLength;
+  }
+
+  unpack(buffer: Uint8Array): T {
+    this.expectFixedByteLength(buffer);
+    return this._unpack(buffer);
+  }
+
+  /**
+   * Fixed size codec should implement this function instead of `unpack`.
+   * @throws {@link CodecError}
+   */
+  protected abstract _unpack(buffer: Uint8Array): T;
+
+  /** @internal */
+  expectFixedByteLength(buffer: Uint8Array) {
+    if (
+      this.fixedByteLength !== undefined &&
+      this.fixedByteLength !== null &&
+      buffer.length !== this.fixedByteLength
+    ) {
+      throw CodecError.expectFixedByteLength(
+        this.fixedByteLength,
+        buffer.length,
+      );
+    }
+  }
+
+  around<TOutter, TOutterParseInput>({
+    safeParse,
+    willPack,
+    didUnpack,
+  }: {
+    safeParse: (input: TOutterParseInput) => SafeParseReturnType<TOutter>;
+    willPack: (input: TOutter) => T;
+    didUnpack: (value: T) => TOutter;
+  }): FixedSizeCodec<TOutter, TOutterParseInput> {
+    return new FixedSizeAroundCodec(this, safeParse, willPack, didUnpack);
   }
 }
 
 export type UnknownCodec = Codec<unknown, unknown>;
 export type AnyCodec = Codec<any, any>;
+export type AnyFixedSizeCodec = FixedSizeCodec<any, any>;
 
 /**
  * Given a codec type, infer the JavaScript type.
@@ -141,45 +198,107 @@ export type InferParseInput<TCodec> = TCodec extends Codec<
   ? TParseInput
   : never;
 
-export class ParseCodec<T, TParseInput, TInnerParseInput> extends Codec<
+/** @internal */
+export class AroundCodec<
   T,
-  TParseInput
-> {
-  private _inner: Codec<T, TInnerParseInput>;
-  private _preprocess: (
-    input: TParseInput,
-  ) => SafeParseReturnType<TInnerParseInput>;
+  TParseInput,
+  TInner,
+  TInnerParseInput,
+> extends Codec<T, TParseInput> {
+  readonly inner: Codec<TInner, TInnerParseInput>;
+  private readonly _safeParse: (input: TParseInput) => SafeParseReturnType<T>;
+  private readonly _willPack: (input: T) => TInner;
+  private readonly _didUnpack: (value: TInner) => T;
 
   constructor(
-    inner: Codec<T, TInnerParseInput>,
-    preprocess: (input: TParseInput) => SafeParseReturnType<TInnerParseInput>,
+    inner: Codec<TInner, TInnerParseInput>,
+    safeParse: (input: TParseInput) => SafeParseReturnType<T>,
+    willPack: (input: T) => TInner,
+    didUnpack: (value: TInner) => T,
   ) {
-    super(inner.name, inner.fixedByteLength);
-    this._inner = inner;
-    this._preprocess = preprocess;
+    super(inner.name);
+    this.inner = inner;
+    this._safeParse = safeParse;
+    this._willPack = willPack;
+    this._didUnpack = didUnpack;
   }
 
   safeParse(input: TParseInput): SafeParseReturnType<T> {
-    const result = this._preprocess(input);
-    if (result.success) {
-      return this._inner.safeParse(result.data);
-    }
-    return result;
+    return this._safeParse(input);
   }
 
   unpack(buffer: Uint8Array): T {
-    return this._inner.unpack(buffer);
+    return this._didUnpack(this.inner.unpack(buffer));
   }
 
   packTo(value: T, writer: BinaryWriter) {
-    return this._inner.packTo(value, writer);
+    return this.inner.packTo(this._willPack(value), writer);
+  }
+
+  pack(value: T): Uint8Array {
+    return this.inner.pack(this._willPack(value));
   }
 
   getSchema(): string {
-    return this._inner.getSchema();
+    return this.inner.getSchema();
   }
 
   getDepedencies(): Iterable<UnknownCodec> {
-    return this._inner.getDepedencies();
+    return this.inner.getDepedencies();
+  }
+}
+
+/** @internal */
+export class FixedSizeAroundCodec<
+  T,
+  TParseInput,
+  TInner,
+  TInnerParseInput,
+> extends FixedSizeCodec<T, TParseInput> {
+  readonly inner: FixedSizeCodec<TInner, TInnerParseInput>;
+  private readonly _parseInner: AroundCodec<
+    T,
+    TParseInput,
+    TInner,
+    TInnerParseInput
+  >;
+
+  constructor(
+    inner: FixedSizeCodec<TInner, TInnerParseInput>,
+    safeParse: (input: TParseInput) => SafeParseReturnType<T>,
+    willPack: (input: T) => TInner,
+    didUnpack: (value: TInner) => T,
+  ) {
+    super(inner.name, inner.fixedByteLength);
+    this.inner = inner;
+    this._parseInner = new AroundCodec(inner, safeParse, willPack, didUnpack);
+  }
+
+  safeParse(input: TParseInput): SafeParseReturnType<T> {
+    return this._parseInner.safeParse(input);
+  }
+
+  unpack(buffer: Uint8Array): T {
+    return this._parseInner.unpack(buffer);
+  }
+
+  _unpack(): T {
+    throw new Error("Unreachable");
+  }
+
+  packTo(value: T, writer: BinaryWriter) {
+    return this._parseInner.packTo(value, writer);
+  }
+
+  pack(value: T): Uint8Array {
+    return this._parseInner.pack(value);
+  }
+
+  getSchema(): string {
+    return this.inner.getSchema();
+  }
+
+  getDepedencies(): Iterable<UnknownCodec> {
+    return this.inner.getDepedencies();
   }
 }
