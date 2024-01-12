@@ -162,3 +162,34 @@ export function parseError(
     error: CodecError.create("parse", error, options),
   };
 }
+
+export function createSafeParse<TIn, TOut>(
+  parse: (input: TIn) => TOut,
+): (input: TIn) => SafeParseReturnType<TOut> {
+  return (input) => {
+    try {
+      return parseSuccess(parse(input));
+    } catch (error: unknown) {
+      if (error instanceof CodecError) {
+        return {
+          success: false,
+          error,
+        };
+      } else if (error instanceof Error) {
+        return parseError(error.message);
+      } else {
+        return parseError(String(error));
+      }
+    }
+  };
+}
+
+export function parseSuccessThen<TIn, TOut = TIn>(
+  result: SafeParseReturnType<TIn>,
+  mapper: (input: TIn) => SafeParseReturnType<TOut>,
+): SafeParseReturnType<TOut> {
+  if (result.success) {
+    return mapper(result.data);
+  }
+  return result;
+}

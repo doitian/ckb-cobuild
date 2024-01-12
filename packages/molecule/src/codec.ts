@@ -1,6 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import BinaryWriter from "./binary-writer";
-import { CodecError, SafeParseReturnType } from "./error";
+import {
+  CodecError,
+  SafeParseReturnType,
+  createSafeParse,
+  parseSuccessThen,
+} from "./error";
+
+export function identity<T>(input: T): T {
+  return input;
+}
 
 export abstract class Codec<T, TParseInput = T> {
   /**
@@ -121,6 +130,45 @@ export abstract class Codec<T, TParseInput = T> {
     didUnpack: (value: T) => TOutter;
   }): Codec<TOutter, TOutterParseInput> {
     return new AroundCodec(this, safeParse, willPack, didUnpack);
+  }
+
+  /**
+   * Chain a `parse` method before.
+   * @example
+   * ```ts
+   * import { mol } from "@ckb-cobuild/molecule";
+   * const ByteCoerce = mol.byte.beforeParse((input: any) => Number(input));
+   * ```
+   */
+  beforeParse<TOutterParseInput>(
+    parse: (input: TOutterParseInput) => TParseInput,
+  ): Codec<T, TOutterParseInput> {
+    return this.beforeSafeParse(createSafeParse(parse));
+  }
+
+  /**
+   * Chain a `safeParse` method before.
+   * @example
+   * ```ts
+   * import { mol } from "@ckb-cobuild/molecule";
+   * const ByteCoerce = mol.byte.beforeSafeParse((input: any) => {
+   *   const result = parseInt(input);
+   *   if (!Number.isNaN(result)) {
+   *     return mol.parseSuccess(result);
+   *   }
+   *   return mol.parseError("Not a number");
+   * });
+   * ```
+   */
+  beforeSafeParse<TOutterParseInput>(
+    safeParse: (input: TOutterParseInput) => SafeParseReturnType<TParseInput>,
+  ): Codec<T, TOutterParseInput> {
+    return this.around({
+      safeParse: (input) =>
+        parseSuccessThen(safeParse(input), (data) => this.safeParse(data)),
+      willPack: identity,
+      didUnpack: identity,
+    });
   }
 
   /** @internal */

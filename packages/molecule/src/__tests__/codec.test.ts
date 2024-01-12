@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { mol } from "../";
 
 describe("AroundCodec", () => {
@@ -66,6 +67,64 @@ describe("FixedSizeCodec", () => {
       [new Uint8Array([0]), false],
     ])("(%p)", (input, expected) => {
       expect(BooleanCodec.unpack(input)).toEqual(expected);
+    });
+  });
+});
+
+describe("coerce", () => {
+  describe("Number", () => {
+    const ByteCoerce = mol.byte.beforeParse((input: any) => Number(input));
+
+    describe(".safeParse", () => {
+      describe("/* success */", () => {
+        test.each([0, 1, "1", "0xa", true, false, null])("(%p)", (input) => {
+          expect(ByteCoerce.safeParse(input)).toEqual(
+            mol.parseSuccess(Number(input)),
+          );
+        });
+      });
+
+      describe("/* error */", () => {
+        test.each(["a", undefined])("(%p)", (input) => {
+          const result = ByteCoerce.safeParse(input);
+          expect(result.success).toBeFalsy();
+          if (!result.success) {
+            expect(result.error.toString()).toMatch(
+              "Expected integer from 0 to 255, found NaN",
+            );
+          }
+        });
+      });
+    });
+  });
+
+  describe("parseInt", () => {
+    const ByteCoerce = mol.byte.beforeSafeParse((input: any) => {
+      const result = parseInt(input);
+      if (!Number.isNaN(result)) {
+        return mol.parseSuccess(result);
+      }
+      return mol.parseError("Not a number");
+    });
+
+    describe(".safeParse", () => {
+      describe("/* success */", () => {
+        test.each([0, 1, "1", "0xa"])("(%p)", (input) => {
+          expect(ByteCoerce.safeParse(input)).toEqual(
+            mol.parseSuccess(Number(input)),
+          );
+        });
+      });
+
+      describe("/* error */", () => {
+        test.each([true, false, null, "a", undefined])("(%p)", (input) => {
+          const result = ByteCoerce.safeParse(input);
+          expect(result.success).toBeFalsy();
+          if (!result.success) {
+            expect(result.error.toString()).toMatch("Not a number");
+          }
+        });
+      });
     });
   });
 });
