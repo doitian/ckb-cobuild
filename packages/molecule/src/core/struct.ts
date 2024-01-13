@@ -91,7 +91,7 @@ export class StructCodec<
   }
 
   getSchema(): string {
-    const lines = [`table ${this.name} {`];
+    const lines = [`struct ${this.name} {`];
     for (const key of this.order) {
       const codec = this.inner[key]!;
       lines.push(`    ${key as string}: ${codec.name},`);

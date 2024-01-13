@@ -583,13 +583,13 @@ describe("struct", () => {
 
   describe(".getSchema", () => {
     test("(Byte2n4)", () => {
-      expect(Byte2n4.getSchema()).toEqual(`table Byte2n4 {
+      expect(Byte2n4.getSchema()).toEqual(`struct Byte2n4 {
     b2: Byte2,
     b4: Byte4,
 }`);
     });
     test("(Byte4n2)", () => {
-      expect(Byte4n2.getSchema()).toEqual(`table Byte4n2 {
+      expect(Byte4n2.getSchema()).toEqual(`struct Byte4n2 {
     b4: Byte4,
     b2: Byte2,
 }`);
@@ -679,7 +679,7 @@ describe("structFromEntries", () => {
 
   describe(".getSchema", () => {
     test("(Byte2n4)", () => {
-      expect(Byte2n4.getSchema()).toEqual(`table Byte2n4 {
+      expect(Byte2n4.getSchema()).toEqual(`struct Byte2n4 {
     b2: Byte2,
     b4: Byte4,
 }`);

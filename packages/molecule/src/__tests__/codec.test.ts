@@ -212,7 +212,7 @@ describe("complex types", () => {
           ["Byte4", "array Byte4 [byte; 4];"],
           [
             "Byte2n4",
-            `table Byte2n4 {
+            `struct Byte2n4 {
     b2: Byte2,
     b4: Byte4,
 }`,
