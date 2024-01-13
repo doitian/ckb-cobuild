@@ -156,6 +156,15 @@ describe("exportSchema", () => {
   const Bytes = mol.fixvec("Bytes", mol.byte);
   const Byte2Vec = mol.fixvec("Byte2Vec", Byte2);
   const ByteOptVec = mol.dynvec("ByteOptVec", ByteOpt);
+  const Byte4 = mol.array("Byte4", mol.byte, 4);
+  const Byte2n4 = mol.struct(
+    "Byte2n4",
+    {
+      b2: Byte2,
+      b4: Byte4,
+    },
+    ["b2", "b4"],
+  );
 
   test.each([
     [mol.byte, []],
@@ -192,6 +201,20 @@ describe("exportSchema", () => {
       [
         ["ByteOpt", "option ByteOpt (byte);"],
         ["ByteOptVec", "vector ByteOptVec <ByteOpt>;"],
+      ],
+    ],
+    [
+      Byte2n4,
+      [
+        ["Byte2", "array Byte2 [byte; 2];"],
+        ["Byte4", "array Byte4 [byte; 4];"],
+        [
+          "Byte2n4",
+          `table Byte2n4 {
+    b2: Byte2,
+    b4: Byte4,
+}`,
+        ],
       ],
     ],
   ])("(%s)", (codec, schemaEntries) => {

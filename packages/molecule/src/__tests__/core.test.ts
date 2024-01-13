@@ -560,3 +560,111 @@ describe("vector", () => {
     );
   });
 });
+
+describe("struct", () => {
+  const Byte2 = mol.array("Byte2", mol.byte, 2);
+  const Byte4 = mol.array("Byte4", mol.byte, 4);
+  const Byte2n4 = mol.struct(
+    "Byte2n4",
+    {
+      b2: Byte2,
+      b4: Byte4,
+    },
+    ["b2", "b4"],
+  );
+  const Byte4n2 = mol.struct(
+    "Byte4n2",
+    {
+      b2: Byte2,
+      b4: Byte4,
+    },
+    ["b4", "b2"],
+  );
+
+  describe(".getSchema", () => {
+    test("(Byte2n4)", () => {
+      expect(Byte2n4.getSchema()).toEqual(`table Byte2n4 {
+    b2: Byte2,
+    b4: Byte4,
+}`);
+    });
+    test("(Byte4n2)", () => {
+      expect(Byte4n2.getSchema()).toEqual(`table Byte4n2 {
+    b4: Byte4,
+    b2: Byte2,
+}`);
+    });
+  });
+
+  describe(".safeParse", () => {
+    describe("/* success */", () => {
+      test.each([
+        [
+          { b2: [1, 2], b4: [1, 2, 3, 4], bn: true },
+          { b2: [1, 2], b4: [1, 2, 3, 4] },
+        ],
+      ])("(%p)", (input) => {
+        const result = Byte4n2.safeParse(input);
+        expect(result).toEqual(
+          mol.parseSuccess({ b2: input.b2, b4: input.b4 }),
+        );
+      });
+    });
+
+    describe("/* error */", () => {
+      test.each(["str", []])("([%p])", (input) => {
+        const result = Byte4n2.safeParse(input as any);
+        expect(result.success).toBeFalsy();
+        if (!result.success) {
+          expect(result.error.toString()).toMatch(
+            `Expected object, found ${input}`,
+          );
+        }
+      });
+
+      test.each([{}, { b2: [1, 2] }, { b2: [1, 2], b4: [1, 2, 3, 4, 5] }])(
+        "([%p])",
+        (input) => {
+          const result = Byte4n2.safeParse(input as any);
+          expect(result.success).toBeFalsy();
+          if (!result.success) {
+            expect(result.error.toString()).toMatch(
+              "Struct member parse failed",
+            );
+          }
+        },
+      );
+    });
+  });
+
+  describe(".unpack", () => {
+    describe("/* success */", () => {
+      test.each([
+        [Uint8Array.of(4, 0, 0, 0, 2, 0), { b2: [2, 0], b4: [4, 0, 0, 0] }],
+      ])("(%p)", (input, expected) => {
+        const result = Byte4n2.unpack(input);
+        expect(result).toStrictEqual(expected);
+      });
+    });
+
+    describe("/* throws */", () => {
+      test.each([[[]], [[1, 2, 3, 4, 5]], [[1, 2, 3, 4, 5, 6, 7]]])(
+        "(%p)",
+        (input) => {
+          expect(() => {
+            Byte4n2.unpack(new Uint8Array(input));
+          }).toThrow(`Expected bytes length 6, found ${input.length}`);
+        },
+      );
+    });
+  });
+
+  describe(".pack", () => {
+    test.each([
+      [{ b2: [2, 2], b4: [4, 4, 4, 4] }, Uint8Array.of(4, 4, 4, 4, 2, 2)],
+    ])("(%p)", (input, expected) => {
+      const result = Byte4n2.pack(input);
+      expect(result).toEqual(expected);
+    });
+  });
+});

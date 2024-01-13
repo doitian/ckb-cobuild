@@ -8,3 +8,4 @@ export * from "./array";
 export * from "./fixvec";
 export * from "./dynvec";
 export * from "./vector";
+export * from "./struct";
