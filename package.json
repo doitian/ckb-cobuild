@@ -10,6 +10,7 @@
   "scripts": {
     "build": "turbo build",
     "clean": "turbo clean && rm -rf node_modules .turbo",
+    "coverage": "turbo coverage",
     "dev": "turbo dev",
     "lint": "turbo lint",
     "test": "turbo test",

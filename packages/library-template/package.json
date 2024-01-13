@@ -12,7 +12,8 @@
   "types": "src/index.ts",
   "scripts": {
     "build": "echo tsup --clean",
-    "clean": "rm -rf node_modules dist .turbo",
+    "clean": "rm -rf node_modules dist .turbo coverage",
+    "coverage": "jest --coverage --coverageReporters lcov",
     "lint": "eslint . --max-warnings 0",
     "test": "jest",
     "test:watch": "jest --watch",
