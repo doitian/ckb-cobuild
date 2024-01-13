@@ -113,7 +113,7 @@ export abstract class Codec<T, TParseInput = T> {
    * @param callbacks.willPack - Conversion callback before calling the inner `pack`.
    * @param callbacks.didUnpack - Conversion callback after calling the inner `unpack`.
    * @example
-   * ```
+   * ```ts
    * import { mol } from "@ckb-cobuild/molecule";
    * const ByteOpt = mol.option("ByteOpt", mol.byte);
    * const BooleanOpt = ByteOpt.around({
