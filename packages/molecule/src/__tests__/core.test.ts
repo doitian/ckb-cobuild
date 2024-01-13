@@ -668,3 +668,25 @@ describe("struct", () => {
     });
   });
 });
+
+describe("structFromEntries", () => {
+  const Byte2 = mol.array("Byte2", mol.byte, 2);
+  const Byte4 = mol.array("Byte4", mol.byte, 4);
+  const Byte2n4 = mol.structFromEntries("Byte2n4", [
+    ["b2", Byte2],
+    ["b4", Byte4],
+  ]);
+
+  describe(".getSchema", () => {
+    test("(Byte2n4)", () => {
+      expect(Byte2n4.getSchema()).toEqual(`table Byte2n4 {
+    b2: Byte2,
+    b4: Byte4,
+}`);
+    });
+  });
+
+  test(".order", () => {
+    expect(Byte2n4.order).toEqual(["b2", "b4"]);
+  });
+});
