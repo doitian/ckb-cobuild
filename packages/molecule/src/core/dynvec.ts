@@ -99,19 +99,23 @@ export class DynvecCodec<TCodec extends AnyCodec> extends DynamicSizeCodec<
   safeParse(
     input: InferParseInput<TCodec>[],
   ): SafeParseReturnType<Infer<TCodec>[]> {
-    const results = input.map((e) => this.inner.safeParse(e));
-    if (results.every((r) => r.success)) {
-      return parseSuccess(
-        results.map((r) => (r as SafeParseReturnSuccess<Infer<TCodec>>).data),
-      );
-    }
-    const result = parseError("Array member parse failed");
-    for (const [i, r] of results.entries()) {
-      if (!r.success) {
-        result.error.addChild(i, r.error.issue);
+    if (Array.isArray(input)) {
+      const results = input.map((e) => this.inner.safeParse(e));
+      if (results.every((r) => r.success)) {
+        return parseSuccess(
+          results.map((r) => (r as SafeParseReturnSuccess<Infer<TCodec>>).data),
+        );
       }
+      const errorResult = parseError("Array member parse failed");
+      for (const [i, r] of results.entries()) {
+        if (!r.success) {
+          errorResult.error.addChild(i, r.error.issue);
+        }
+      }
+      return errorResult;
     }
-    return result;
+
+    return parseError(`Expected array, found ${input}`);
   }
 
   getSchema(): string {
@@ -124,7 +128,7 @@ export class DynvecCodec<TCodec extends AnyCodec> extends DynamicSizeCodec<
 }
 
 /**
- * Dynvec codec for the molecule primitive type `vector` when the inner type has a dynamic size.
+ * Dynvec codec for the molecule built-in type `vector` when the inner type has a dynamic size.
  *
  * **Attention** that it is invalid to create dynvec on fixed size inner type.
  *

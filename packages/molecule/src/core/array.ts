@@ -48,24 +48,29 @@ export class ArrayCodec<
   safeParse(
     input: InferParseInput<TCodec>[],
   ): SafeParseReturnType<Infer<TCodec>[]> {
-    if (input.length === this.length) {
+    if (Array.isArray(input) && input.length === this.length) {
       const results = input.map((e) => this.inner.safeParse(e));
       if (results.every((r) => r.success)) {
         return parseSuccess(
           results.map((r) => (r as SafeParseReturnSuccess<Infer<TCodec>>).data),
         );
       }
-      const result = parseError("Array member parse failed");
+      const errorResult = parseError("Array member parse failed");
       for (const [i, r] of results.entries()) {
         if (!r.success) {
-          result.error.addChild(i, r.error.issue);
+          errorResult.error.addChild(i, r.error.issue);
         }
       }
-      return result;
+      return errorResult;
     }
 
+    if (Array.isArray(input)) {
+      return parseError(
+        `Expected array length ${this.length}, found ${input.length}`,
+      );
+    }
     return parseError(
-      `Expected array length ${this.length}, found ${input.length}`,
+      `Expected array of length ${this.length}, found ${input}`,
     );
   }
 
@@ -97,12 +102,21 @@ export class Uint8ArrayCodec extends FixedSizeCodec<Uint8Array> {
   }
 
   safeParse(input: Uint8Array): SafeParseReturnType<Uint8Array> {
-    if (input.length === this.length) {
+    if (
+      ArrayBuffer.isView(input) &&
+      input.byteLength === this.length &&
+      input.byteLength === input.length
+    ) {
       return parseSuccess(input);
     }
 
+    if (ArrayBuffer.isView(input) && input.byteLength !== this.length) {
+      return parseError(
+        `Expected array length ${this.length}, found ${input.byteLength}`,
+      );
+    }
     return parseError(
-      `Expected array length ${this.length}, found ${input.length}`,
+      `Expected Uint8Array of length ${this.length}, found ${input}`,
     );
   }
 
@@ -112,7 +126,7 @@ export class Uint8ArrayCodec extends FixedSizeCodec<Uint8Array> {
 }
 
 /**
- * Codec for the molecule primitive type `array`.
+ * Codec for the molecule built-in type `array`.
  * @group Core Codecs
  * @see {@link byteArray} for byte array which has a better performance.
  * @example

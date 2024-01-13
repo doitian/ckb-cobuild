@@ -61,19 +61,23 @@ export class FixvecCodec<
   safeParse(
     input: InferParseInput<TCodec>[],
   ): SafeParseReturnType<Infer<TCodec>[]> {
-    const results = input.map((e) => this.inner.safeParse(e));
-    if (results.every((r) => r.success)) {
-      return parseSuccess(
-        results.map((r) => (r as SafeParseReturnSuccess<Infer<TCodec>>).data),
-      );
-    }
-    const result = parseError("Array member parse failed");
-    for (const [i, r] of results.entries()) {
-      if (!r.success) {
-        result.error.addChild(i, r.error.issue);
+    if (Array.isArray(input)) {
+      const results = input.map((e) => this.inner.safeParse(e));
+      if (results.every((r) => r.success)) {
+        return parseSuccess(
+          results.map((r) => (r as SafeParseReturnSuccess<Infer<TCodec>>).data),
+        );
       }
+      const errorResult = parseError("Array member parse failed");
+      for (const [i, r] of results.entries()) {
+        if (!r.success) {
+          errorResult.error.addChild(i, r.error.issue);
+        }
+      }
+      return errorResult;
     }
-    return result;
+
+    return parseError(`Expected array, found ${input}`);
   }
 
   getSchema(): string {
@@ -110,7 +114,10 @@ export class Uint8ArrayFixvecCodec extends DynamicSizeCodec<Uint8Array> {
   }
 
   safeParse(input: Uint8Array): SafeParseReturnType<Uint8Array> {
-    return parseSuccess(input);
+    if (ArrayBuffer.isView(input) && input.byteLength === input.length) {
+      return parseSuccess(input);
+    }
+    return parseError(`Expected Uint8Array, found ${input}`);
   }
 
   getSchema(): string {
@@ -119,7 +126,7 @@ export class Uint8ArrayFixvecCodec extends DynamicSizeCodec<Uint8Array> {
 }
 
 /**
- * Fixvec codec for the molecule primitive type `vector` when the inner type has a fixed size.
+ * Fixvec codec for the molecule built-in type `vector` when the inner type has a fixed size.
  * @group Core Codecs
  * @see {@link byteFixvec} for byte fixvec which has a better performance.
  * @internal
@@ -137,10 +144,9 @@ export function fixvec<TCodec extends AnyFixedSizeCodec>(
 }
 
 /**
- * Fixvec codec for the molecule primitive type `vector <byte>`.
+ * Fixvec codec for the molecule built-in type `vector <byte>`.
  * @group Core Codecs
  * @see {@link fixvec} for general purpuse fixvec.
- * @internal
  * @example
  * ```ts
  * import { mol } from "@ckb-cobuild/molecule";

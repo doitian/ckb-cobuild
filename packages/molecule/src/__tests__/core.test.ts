@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { mol } from "../";
 
 describe("byte", () => {
@@ -10,8 +11,8 @@ describe("byte", () => {
     });
 
     describe("/* error */", () => {
-      test.each([-1, 1.1, 256])("(%p)", (input) => {
-        const result = mol.byte.safeParse(input);
+      test.each([-1, 1.1, 256, null, true, "1"])("(%p)", (input) => {
+        const result = mol.byte.safeParse(input as any);
         expect(result.success).toBeFalsy();
         if (!result.success) {
           expect(result.error.toString()).toMatch(
@@ -86,12 +87,12 @@ describe("option", () => {
         });
       });
       describe("/* error */", () => {
-        test("(-1)", () => {
-          const result = ByteOpt.safeParse(-1);
+        test.each([-1, 1.1, 256, true, "1"])("(%p)", (input) => {
+          const result = ByteOpt.safeParse(input as any);
           expect(result.success).toBeFalsy();
           if (!result.success) {
             expect(result.error.toString()).toMatch(
-              "Expected integer from 0 to 255, found -1",
+              `Expected integer from 0 to 255, found ${input}`,
             );
           }
         });
@@ -140,15 +141,15 @@ describe("array", () => {
 
     describe(".safeParse", () => {
       describe("/* success */", () => {
-        test("([1, 2])", () => {
-          const result = Byte2.safeParse([1, 2]);
-          expect(result).toEqual(mol.parseSuccess([1, 2]));
+        test.each([[[1, 2]]])("(%p)", (input) => {
+          const result = Byte2.safeParse(input as any);
+          expect(result).toEqual(mol.parseSuccess(Array.from(input)));
         });
       });
 
       describe("/* error */", () => {
-        test("([-1, 2])", () => {
-          const result = Byte2.safeParse([-1, 2]);
+        test.each([[[-1, 2]]])("(%p)", (input) => {
+          const result = Byte2.safeParse(input as any);
           expect(result.success).toBeFalsy();
           if (!result.success) {
             expect(result.error.toString()).toMatch(
@@ -156,6 +157,19 @@ describe("array", () => {
             );
           }
         });
+
+        test.each(["12", { "0": 1, "1": 2 }, Uint8Array.of(1, 2)])(
+          "(%p)",
+          (input) => {
+            const result = Byte2.safeParse(input as any);
+            expect(result.success).toBeFalsy();
+            if (!result.success) {
+              expect(result.error.toString()).toMatch(
+                `Expected array of length 2, found ${input}`,
+              );
+            }
+          },
+        );
 
         test.each([[[1]], [[1, 2, 3]]])("(%p)", (input) => {
           const result = Byte2.safeParse(input);
@@ -171,13 +185,10 @@ describe("array", () => {
 
     describe(".unpack", () => {
       describe("/* success */", () => {
-        test.each([[Uint8Array.of(1, 2), [1, 2]]])(
-          "(%p)",
-          (input, expected) => {
-            const result = Byte2.unpack(input);
-            expect(result).toEqual(expected);
-          },
-        );
+        test.each([[[1, 2]]])("(%p)", (input) => {
+          const result = Byte2.unpack(Uint8Array.from(input));
+          expect(result).toEqual(input);
+        });
       });
 
       describe("/* throws */", () => {
@@ -224,6 +235,15 @@ describe("byteArray", () => {
             );
           }
         });
+        test.each([Uint16Array.of(1), "12"])("(%p)", (input) => {
+          const result = Byte2.safeParse(input as any);
+          expect(result.success).toBeFalsy();
+          if (!result.success) {
+            expect(result.error.toString()).toMatch(
+              `Expected Uint8Array of length 2, found ${input}`,
+            );
+          }
+        });
       });
     });
 
@@ -266,17 +286,26 @@ describe("fixvec", () => {
   describe(".safeParse", () => {
     describe("/* success */", () => {
       test.each([[[]], [[1, 2]]])("(%p)", (input) => {
-        const result = Bytes.safeParse(input);
+        const result = Bytes.safeParse(input as any);
         expect(result).toEqual(mol.parseSuccess(input));
       });
     });
 
     describe("/* error */", () => {
-      test("([-1, 2])", () => {
-        const result = Bytes.safeParse([-1, 2]);
+      test.each([[[-1, 2]]])("(%p)", (input) => {
+        const result = Bytes.safeParse(input as any);
         expect(result.success).toBeFalsy();
         if (!result.success) {
           expect(result.error.toString()).toMatch("Array member parse failed");
+        }
+      });
+      test.each(["12", Uint8Array.of(1, 2)])("(%p)", (input) => {
+        const result = Bytes.safeParse(input as any);
+        expect(result.success).toBeFalsy();
+        if (!result.success) {
+          expect(result.error.toString()).toMatch(
+            `Expected array, found ${input}`,
+          );
         }
       });
     });
@@ -337,6 +366,17 @@ describe("byteFixvec", () => {
       test.each([[[]], [[1, 2]]])("(%p)", (input) => {
         const result = Bytes.safeParse(new Uint8Array(input));
         expect(result).toEqual(mol.parseSuccess(new Uint8Array(input)));
+      });
+    });
+    describe("/* error */", () => {
+      test.each(["12", Uint16Array.of(1, 2)])("(%p)", (input) => {
+        const result = Bytes.safeParse(input as any);
+        expect(result.success).toBeFalsy();
+        if (!result.success) {
+          expect(result.error.toString()).toMatch(
+            `Expected Uint8Array, found ${input}`,
+          );
+        }
       });
     });
   });
@@ -408,6 +448,16 @@ describe("dynvec", () => {
           expect(result.error.toString()).toMatch("Array member parse failed");
         }
       });
+    });
+
+    test.each(["12", Uint8Array.of(1, 2)])("(%p)", (input) => {
+      const result = ByteOptVec.safeParse(input as any);
+      expect(result.success).toBeFalsy();
+      if (!result.success) {
+        expect(result.error.toString()).toMatch(
+          `Expected array, found ${input}`,
+        );
+      }
     });
   });
 

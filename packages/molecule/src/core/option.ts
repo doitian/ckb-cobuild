@@ -8,9 +8,7 @@ import {
 import { BinaryWriter, EMPTY_BUFFER } from "../binary-writer";
 import { SafeParseReturnType, parseSuccess } from "../error";
 
-/**
- * @internal
- */
+/** @internal */
 export class OptionCodec<TCodec extends AnyCodec> extends DynamicSizeCodec<
   Infer<TCodec> | null,
   InferParseInput<TCodec>
@@ -61,7 +59,7 @@ export class OptionCodec<TCodec extends AnyCodec> extends DynamicSizeCodec<
 }
 
 /**
- * Codec for the molecule primitive type `option`.
+ * Codec for the molecule bultin-in type `option`.
  * @group Core Codecs
  * @example
  * ```ts

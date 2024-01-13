@@ -2,9 +2,7 @@ import BinaryWriter from "../binary-writer";
 import { FixedSizeCodec } from "../codec";
 import { SafeParseReturnType, parseError, parseSuccess } from "../error";
 
-/**
- * @internal
- */
+/** @internal */
 export class ByteCodec extends FixedSizeCodec<number> {
   constructor() {
     super("byte", 1);
