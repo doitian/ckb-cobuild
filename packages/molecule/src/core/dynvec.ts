@@ -1,6 +1,5 @@
 import { BinaryWriter } from "../binary-writer";
 import {
-  AnyCodec,
   AnyDynamicSizeCodec,
   DynamicSizeCodec,
   Infer,
@@ -18,10 +17,9 @@ import {
 } from "../error";
 import { UINT32_BYTE_LENGTH } from "./constants";
 
-export class DynvecCodec<TCodec extends AnyCodec> extends DynamicSizeCodec<
-  Infer<TCodec>[],
-  InferParseInput<TCodec>[]
-> {
+export class DynvecCodec<
+  TCodec extends AnyDynamicSizeCodec,
+> extends DynamicSizeCodec<Infer<TCodec>[], InferParseInput<TCodec>[]> {
   readonly inner: TCodec;
 
   constructor(name: string, inner: TCodec) {
