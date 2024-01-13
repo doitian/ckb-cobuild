@@ -54,7 +54,12 @@ export class StructCodec<
   safeParse(
     input: InferShapeParseInput<TShape>,
   ): SafeParseReturnType<InferShape<TShape>> {
-    if (typeof input === "object" && !Array.isArray(input)) {
+    if (
+      input !== null &&
+      input !== undefined &&
+      typeof input === "object" &&
+      !Array.isArray(input)
+    ) {
       const results: Partial<InferShapeSafeParseReturnType<TShape>> = {};
       for (const key of this.order) {
         results[key] = this.inner[key]!.safeParse(input[key]);
