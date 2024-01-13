@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { mol } from "../";
 
+function lines(...lines: string[]): string {
+  return lines.join("\n");
+}
+
 describe("byte", () => {
   describe(".safeParse", () => {
     describe("/* success */", () => {
@@ -583,16 +587,14 @@ describe("struct", () => {
 
   describe(".getSchema", () => {
     test("(Byte2n4)", () => {
-      expect(Byte2n4.getSchema()).toEqual(`struct Byte2n4 {
-    b2: Byte2,
-    b4: Byte4,
-}`);
+      expect(Byte2n4.getSchema()).toEqual(
+        lines("struct Byte2n4 {", "    b2: Byte2,", "    b4: Byte4,", "}"),
+      );
     });
     test("(Byte4n2)", () => {
-      expect(Byte4n2.getSchema()).toEqual(`struct Byte4n2 {
-    b4: Byte4,
-    b2: Byte2,
-}`);
+      expect(Byte4n2.getSchema()).toEqual(
+        lines("struct Byte4n2 {", "    b4: Byte4,", "    b2: Byte2,", "}"),
+      );
     });
   });
 
@@ -679,10 +681,287 @@ describe("structFromEntries", () => {
 
   describe(".getSchema", () => {
     test("(Byte2n4)", () => {
-      expect(Byte2n4.getSchema()).toEqual(`struct Byte2n4 {
-    b2: Byte2,
-    b4: Byte4,
-}`);
+      expect(Byte2n4.getSchema()).toEqual(
+        lines("struct Byte2n4 {", "    b2: Byte2,", "    b4: Byte4,", "}"),
+      );
+    });
+  });
+
+  test(".order", () => {
+    expect(Byte2n4.order).toEqual(["b2", "b4"]);
+  });
+});
+
+describe("table", () => {
+  const Byte2 = mol.array("Byte2", mol.byte, 2);
+  const Byte4 = mol.array("Byte4", mol.byte, 4);
+  const Byte2n4 = mol.table(
+    "Byte2n4",
+    {
+      b2: Byte2,
+      b4: Byte4,
+    },
+    ["b2", "b4"],
+  );
+  const Byte4n2 = mol.table(
+    "Byte4n2",
+    {
+      b2: Byte2,
+      b4: Byte4,
+    },
+    ["b4", "b2"],
+  );
+
+  describe(".getSchema", () => {
+    test("(Byte2n4)", () => {
+      expect(Byte2n4.getSchema()).toEqual(
+        lines("table Byte2n4 {", "    b2: Byte2,", "    b4: Byte4,", "}"),
+      );
+    });
+    test("(Byte4n2)", () => {
+      expect(Byte4n2.getSchema()).toEqual(
+        lines("table Byte4n2 {", "    b4: Byte4,", "    b2: Byte2,", "}"),
+      );
+    });
+  });
+
+  describe(".safeParse", () => {
+    describe("/* success */", () => {
+      test.each([
+        [
+          { b2: [1, 2], b4: [1, 2, 3, 4], bn: true },
+          { b2: [1, 2], b4: [1, 2, 3, 4] },
+        ],
+      ])("(%p)", (input) => {
+        const result = Byte4n2.safeParse(input);
+        expect(result).toEqual(
+          mol.parseSuccess({ b2: input.b2, b4: input.b4 }),
+        );
+      });
+    });
+
+    describe("/* error */", () => {
+      test.each(["str", []])("([%p])", (input) => {
+        const result = Byte4n2.safeParse(input as any);
+        expect(result.success).toBeFalsy();
+        if (!result.success) {
+          expect(result.error.toString()).toMatch(
+            `Expected object, found ${input}`,
+          );
+        }
+      });
+
+      test.each([{}, { b2: [1, 2] }, { b2: [1, 2], b4: [1, 2, 3, 4, 5] }])(
+        "([%p])",
+        (input) => {
+          const result = Byte4n2.safeParse(input as any);
+          expect(result.success).toBeFalsy();
+          if (!result.success) {
+            expect(result.error.toString()).toMatch(
+              "Table member parse failed",
+            );
+          }
+        },
+      );
+    });
+  });
+
+  describe(".unpack", () => {
+    describe("/* success */", () => {
+      test.each([
+        [
+          Uint8Array.from(
+            [
+              [18, 0, 0, 0],
+              [12, 0, 0, 0],
+              [16, 0, 0, 0],
+              [4, 0, 0, 0],
+              [2, 0],
+            ].flat(),
+          ),
+          { b2: [2, 0], b4: [4, 0, 0, 0] },
+        ],
+      ])("(%p)", (input, expected) => {
+        const result = Byte4n2.unpack(input);
+        expect(result).toStrictEqual(expected);
+      });
+    });
+
+    describe("/* throws */", () => {
+      test.each([
+        [[], 4],
+        [[1, 2, 3], 4],
+      ])("(%p)", (input, expectedMinimalByteLength) => {
+        expect(() => {
+          Byte4n2.unpack(new Uint8Array(input));
+        }).toThrow(
+          `Expected bytes length at least ${expectedMinimalByteLength}, found ${input.length}`,
+        );
+      });
+
+      test.each([
+        [[5, 0, 0, 0, 0], 5],
+        [[7, 0, 0, 0, 0, 0, 0], 7],
+      ])("(%p)", (input, byteLength) => {
+        expect(() => {
+          Byte4n2.unpack(new Uint8Array(input));
+        }).toThrow(`Invalid table bytes length: ${byteLength}`);
+      });
+
+      test.each([
+        [[5, 0, 0, 0], 5],
+        [[3, 0, 0, 0], 3],
+      ])("(%p)", (input, expectedByteLength) => {
+        expect(() => {
+          Byte4n2.unpack(new Uint8Array(input));
+        }).toThrow(
+          `Expected bytes length ${expectedByteLength}, found ${input.length}`,
+        );
+      });
+
+      test.each([
+        [
+          [8, 0, 0, 0, 0, 0, 0, 0],
+          [8, 0],
+        ],
+        [
+          [8, 0, 0, 0, 4, 0, 0, 0],
+          [8, 4],
+        ],
+        [
+          [8, 0, 0, 0, 9, 0, 0, 0],
+          [8, 9],
+        ],
+        [
+          [12, 0, 0, 0, 12, 0, 0, 0, 8, 0, 0, 0],
+          [12, 12, 8],
+        ],
+      ])("(%p)", (input, parsedHeader) => {
+        expect(() => {
+          Byte4n2.unpack(new Uint8Array(input));
+        }).toThrow(`Invalid table header parsed so far: ${parsedHeader}`);
+      });
+    });
+
+    describe("/* compatibility */", () => {
+      const ByteOpt = mol.option("ByteOpt", mol.byte);
+      const TableV0 = mol.tableFromEntries("TableV0", [["x", mol.byte]]);
+      const TableV1 = mol.tableFromEntries("TableV1", [
+        ["x", mol.byte],
+        ["y", mol.byte],
+      ]);
+      const TableV2 = mol.tableFromEntries("TableV2", [
+        ["x", mol.byte],
+        ["y", mol.byte],
+        ["z", ByteOpt],
+      ]);
+
+      describe("/* forward */", () => {
+        // Whether the old version can be unpacked by new version.
+        // Strict mode does not affect forward compatibility.
+        describe.each([true, false])("/* strict=%s */", (strict) => {
+          test.each([
+            [TableV0, TableV1, { x: 1 }, "Expected bytes length 1, found 0"],
+            [TableV0, TableV2, { x: 1 }, "Expected bytes length 1, found 0"],
+            // Adding option in the end is comptabile
+            [TableV1, TableV2, { x: 1, y: 2 }, { x: 1, y: 2, z: null }],
+          ])("(%p) => %p", (oldCodec, newCodec, input, output) => {
+            const packed = oldCodec.pack(input as any);
+            if (typeof output !== "string") {
+              const unpacked = newCodec.unpack(packed, strict);
+              expect(unpacked).toStrictEqual(output);
+            } else {
+              expect(() => {
+                newCodec.unpack(packed);
+              }).toThrow(output);
+            }
+          });
+        });
+      });
+
+      describe("/* backward */", () => {
+        // Whether the new version can be unpacked by old version.
+        test.each([
+          // Works for non-strict mode.
+          [false, TableV2, TableV1, { x: 1, y: 2, z: null }, { x: 1, y: 2 }],
+          [false, TableV2, TableV1, { x: 1, y: 2, z: 3 }, { x: 1, y: 2 }],
+          [false, TableV2, TableV0, { x: 1, y: 2, z: null }, { x: 1 }],
+          [false, TableV1, TableV0, { x: 1, y: 2 }, { x: 1 }],
+          // Strict mode.
+          [true, TableV2, TableV1, { x: 1, y: 2, z: null }, { x: 1, y: 2 }],
+          [
+            true,
+            TableV2,
+            TableV1,
+            { x: 1, y: 2, z: 3 },
+            "Table strict mode is on, found 1 extra fields and 1 bytes",
+          ],
+          [
+            true,
+            TableV2,
+            TableV0,
+            { x: 1, y: 2, z: null },
+            "Table strict mode is on, found 2 extra fields and 1 bytes",
+          ],
+          [
+            true,
+            TableV1,
+            TableV0,
+            { x: 1, y: 2 },
+            "Table strict mode is on, found 1 extra fields and 1 bytes",
+          ],
+        ])(
+          "/* strict=%s */ (%s) => %s",
+          (strict, oldCodec, newCodec, input, output) => {
+            const packed = oldCodec.pack(input as any);
+            if (typeof output !== "string") {
+              const unpacked = newCodec.unpack(packed, strict);
+              expect(unpacked).toStrictEqual(output);
+            } else {
+              expect(() => {
+                newCodec.unpack(packed, strict);
+              }).toThrow(output);
+            }
+          },
+        );
+      });
+    });
+  });
+
+  describe(".pack", () => {
+    test.each([
+      [
+        { b2: [2, 2], b4: [4, 4, 4, 4] },
+        Uint8Array.from(
+          [
+            [18, 0, 0, 0],
+            [12, 0, 0, 0],
+            [16, 0, 0, 0],
+            [4, 4, 4, 4],
+            [2, 2],
+          ].flat(),
+        ),
+      ],
+    ])("(%p)", (input, expected) => {
+      const result = Byte4n2.pack(input);
+      expect(result).toEqual(expected);
+    });
+  });
+});
+
+describe("tableFromEntries", () => {
+  const Byte2 = mol.array("Byte2", mol.byte, 2);
+  const Byte4 = mol.array("Byte4", mol.byte, 4);
+  const Byte2n4 = mol.tableFromEntries("Byte2n4", [
+    ["b2", Byte2],
+    ["b4", Byte4],
+  ]);
+
+  describe(".getSchema", () => {
+    test("(Byte2n4)", () => {
+      expect(Byte2n4.getSchema()).toEqual(
+        lines("table Byte2n4 {", "    b2: Byte2,", "    b4: Byte4,", "}"),
+      );
     });
   });
 

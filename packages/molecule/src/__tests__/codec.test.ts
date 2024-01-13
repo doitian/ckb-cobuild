@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { mol } from "../";
 
+function lines(...lines: string[]): string {
+  return lines.join("\n");
+}
+
 describe("FixedSizeAroundCodec", () => {
   const ByteOpt = mol.option("ByteOpt", mol.byte);
   const BooleanOpt = ByteOpt.around({
@@ -166,6 +170,14 @@ describe("complex types", () => {
     },
     ["b2", "b4"],
   );
+  const TableByte2n4 = mol.table(
+    "TableByte2n4",
+    {
+      b2: Byte2,
+      b4: Byte4,
+    },
+    ["b2", "b4"],
+  );
 
   describe("exportSchema", () => {
     test.each([
@@ -212,10 +224,23 @@ describe("complex types", () => {
           ["Byte4", "array Byte4 [byte; 4];"],
           [
             "Byte2n4",
-            `struct Byte2n4 {
-    b2: Byte2,
-    b4: Byte4,
-}`,
+            lines("struct Byte2n4 {", "    b2: Byte2,", "    b4: Byte4,", "}"),
+          ],
+        ],
+      ],
+      [
+        TableByte2n4,
+        [
+          ["Byte2", "array Byte2 [byte; 2];"],
+          ["Byte4", "array Byte4 [byte; 4];"],
+          [
+            "TableByte2n4",
+            lines(
+              "table TableByte2n4 {",
+              "    b2: Byte2,",
+              "    b4: Byte4,",
+              "}",
+            ),
           ],
         ],
       ],
@@ -249,6 +274,35 @@ describe("complex types", () => {
           "//b: Array member parse failed",
           "//b/0: Expected object, found null",
           "//b/2: Struct member parse failed",
+          "//b/2/b2: Array member parse failed",
+          "//b/2/b2/1: Expected integer from 0 to 255, found -1",
+        ]);
+      }
+    });
+
+    test("table parse errors", () => {
+      // a/1 a/1/a
+      const TableByte2n4Vec = mol.vector("Byte2n4x2", TableByte2n4);
+      const codec = mol.tableFromEntries("Codec", [
+        ["a", mol.byte],
+        ["b", TableByte2n4Vec],
+      ]);
+      const result = codec.safeParse({
+        b: [
+          null,
+          { b2: [0, 0], b4: [0, 0, 0, 0] },
+          { b2: [0, -1], b4: [0, 0, 0, 0] },
+        ],
+      });
+      expect(result.success).toBeFalsy();
+      if (!result.success) {
+        const messages = result.error.collectMessages();
+        expect(messages).toEqual([
+          "//: Table member parse failed",
+          "//a: Expected integer from 0 to 255, found undefined",
+          "//b: Array member parse failed",
+          "//b/0: Expected object, found null",
+          "//b/2: Table member parse failed",
           "//b/2/b2: Array member parse failed",
           "//b/2/b2/1: Expected integer from 0 to 255, found -1",
         ]);
