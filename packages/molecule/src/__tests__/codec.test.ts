@@ -254,9 +254,9 @@ describe("complex types", () => {
     test("struct parse errors", () => {
       // a/1 a/1/a
       const Byte2n4x3 = mol.array("Byte2n4x2", Byte2n4, 3);
-      const codec = mol.structFromEntries("Codec", [
-        ["a", mol.byte],
-        ["b", Byte2n4x3],
+      const codec = mol.struct("Codec", { a: mol.byte, b: Byte2n4x3 }, [
+        "a",
+        "b",
       ]);
       const result = codec.safeParse({
         b: [
@@ -264,7 +264,7 @@ describe("complex types", () => {
           { b2: [0, 0], b4: [0, 0, 0, 0] },
           { b2: [0, -1], b4: [0, 0, 0, 0] },
         ],
-      });
+      } as any);
       expect(result.success).toBeFalsy();
       if (!result.success) {
         const messages = result.error.collectMessages();
@@ -283,17 +283,21 @@ describe("complex types", () => {
     test("table parse errors", () => {
       // a/1 a/1/a
       const TableByte2n4Vec = mol.vector("Byte2n4x2", TableByte2n4);
-      const codec = mol.tableFromEntries("Codec", [
-        ["a", mol.byte],
-        ["b", TableByte2n4Vec],
-      ]);
+      const codec = mol.table(
+        "Codec",
+        {
+          a: mol.byte,
+          b: TableByte2n4Vec,
+        },
+        ["a", "b"],
+      );
       const result = codec.safeParse({
         b: [
           null,
           { b2: [0, 0], b4: [0, 0, 0, 0] },
           { b2: [0, -1], b4: [0, 0, 0, 0] },
         ],
-      });
+      } as any);
       expect(result.success).toBeFalsy();
       if (!result.success) {
         const messages = result.error.collectMessages();

@@ -7,10 +7,6 @@ import {
   parseSuccessThen,
 } from "./error";
 
-export function identity<T>(input: T): T {
-  return input;
-}
-
 export abstract class Codec<T, TParseInput = T> {
   /**
    * Name of this codec used to export .mol file.
@@ -168,8 +164,8 @@ export abstract class Codec<T, TParseInput = T> {
     return this.around({
       safeParse: (input) =>
         parseSuccessThen(safeParse(input), (data) => this.safeParse(data)),
-      willPack: identity,
-      didUnpack: identity,
+      willPack: (input) => input,
+      didUnpack: (value) => value,
     });
   }
 

@@ -137,31 +137,3 @@ export function struct<TShape extends CodecShape<AnyFixedSizeCodec>>(
   }
   return new StructCodec(name, inner, order);
 }
-
-/**
- * An alternative syntax to create struct codec to workaround the fields order problem.
- *
- * @group Core Codecs
- * @example
- * ```ts
- * import { mol } from "@ckb-cobuild/molecule";
- * const Point = mol.structFromEntries(
- *   "Point",
- *   [
- *     ["x", mol.byte],
- *     ["y", mol.byte],
- *   ],
- * );
- * ```
- */
-export function structFromEntries<TShape extends CodecShape<AnyFixedSizeCodec>>(
-  name: string,
-  entries: [keyof TShape, TShape[keyof TShape]][],
-): StructCodec<TShape> {
-  const order = entries.map(([key]) => key);
-  const inner: Partial<TShape> = {};
-  for (const [key, codec] of entries) {
-    inner[key] = codec;
-  }
-  return new StructCodec(name, inner as TShape, order);
-}
