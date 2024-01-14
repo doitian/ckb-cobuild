@@ -671,27 +671,6 @@ describe("struct", () => {
   });
 });
 
-describe("structFromEntries", () => {
-  const Byte2 = mol.array("Byte2", mol.byte, 2);
-  const Byte4 = mol.array("Byte4", mol.byte, 4);
-  const Byte2n4 = mol.structFromEntries("Byte2n4", [
-    ["b2", Byte2],
-    ["b4", Byte4],
-  ]);
-
-  describe(".getSchema", () => {
-    test("(Byte2n4)", () => {
-      expect(Byte2n4.getSchema()).toEqual(
-        lines("struct Byte2n4 {", "    b2: Byte2,", "    b4: Byte4,", "}"),
-      );
-    });
-  });
-
-  test(".order", () => {
-    expect(Byte2n4.order).toEqual(["b2", "b4"]);
-  });
-});
-
 describe("table", () => {
   const Byte2 = mol.array("Byte2", mol.byte, 2);
   const Byte4 = mol.array("Byte4", mol.byte, 4);
@@ -845,16 +824,20 @@ describe("table", () => {
 
     describe("/* compatibility */", () => {
       const ByteOpt = mol.option("ByteOpt", mol.byte);
-      const TableV0 = mol.tableFromEntries("TableV0", [["x", mol.byte]]);
-      const TableV1 = mol.tableFromEntries("TableV1", [
-        ["x", mol.byte],
-        ["y", mol.byte],
+      const TableV0 = mol.table("TableV0", { x: mol.byte }, ["x"]);
+      const TableV1 = mol.table("TableV1", { x: mol.byte, y: mol.byte }, [
+        "x",
+        "y",
       ]);
-      const TableV2 = mol.tableFromEntries("TableV2", [
-        ["x", mol.byte],
-        ["y", mol.byte],
-        ["z", ByteOpt],
-      ]);
+      const TableV2 = mol.table(
+        "TableV2",
+        {
+          x: mol.byte,
+          y: mol.byte,
+          z: ByteOpt,
+        },
+        ["x", "y", "z"],
+      );
 
       describe("/* forward */", () => {
         // Whether the old version can be unpacked by new version.
@@ -946,26 +929,5 @@ describe("table", () => {
       const result = Byte4n2.pack(input);
       expect(result).toEqual(expected);
     });
-  });
-});
-
-describe("tableFromEntries", () => {
-  const Byte2 = mol.array("Byte2", mol.byte, 2);
-  const Byte4 = mol.array("Byte4", mol.byte, 4);
-  const Byte2n4 = mol.tableFromEntries("Byte2n4", [
-    ["b2", Byte2],
-    ["b4", Byte4],
-  ]);
-
-  describe(".getSchema", () => {
-    test("(Byte2n4)", () => {
-      expect(Byte2n4.getSchema()).toEqual(
-        lines("table Byte2n4 {", "    b2: Byte2,", "    b4: Byte4,", "}"),
-      );
-    });
-  });
-
-  test(".order", () => {
-    expect(Byte2n4.order).toEqual(["b2", "b4"]);
   });
 });

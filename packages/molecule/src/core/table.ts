@@ -208,31 +208,3 @@ export function table<TShape extends CodecShape<AnyCodec>>(
   }
   return new TableCodec(name, inner, order);
 }
-
-/**
- * An alternative syntax to create table codec to workaround the fields order problem.
- *
- * @group Core Codecs
- * @example
- * ```ts
- * import { mol } from "@ckb-cobuild/molecule";
- * const Point = mol.tableFromEntries(
- *   "Point",
- *   [
- *     ["x", mol.byte],
- *     ["y", mol.byte],
- *   ],
- * );
- * ```
- */
-export function tableFromEntries<TShape extends CodecShape<AnyCodec>>(
-  name: string,
-  entries: [keyof TShape, TShape[keyof TShape]][],
-): TableCodec<TShape> {
-  const order = entries.map(([key]) => key);
-  const inner: Partial<TShape> = {};
-  for (const [key, codec] of entries) {
-    inner[key] = codec;
-  }
-  return new TableCodec(name, inner as TShape, order);
-}
