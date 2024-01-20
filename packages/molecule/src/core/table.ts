@@ -30,7 +30,7 @@ export class TableCodec<
 
   unpack(buffer: Uint8Array, strict?: boolean): InferShape<TShape> {
     this.expectMinimalByteLength(UINT32_BYTE_LENGTH, buffer);
-    const view = new DataView(buffer.buffer);
+    const view = new DataView(buffer.buffer, buffer.byteOffset);
     const byteLength = view.getUint32(0, true);
     this.expectByteLength(byteLength, buffer);
 

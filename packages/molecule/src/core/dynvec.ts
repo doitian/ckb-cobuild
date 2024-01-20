@@ -29,7 +29,7 @@ export class DynvecCodec<
 
   unpack(buffer: Uint8Array, strict?: boolean): Infer<TCodec>[] {
     this.expectMinimalByteLength(UINT32_BYTE_LENGTH, buffer);
-    const view = new DataView(buffer.buffer);
+    const view = new DataView(buffer.buffer, buffer.byteOffset);
     const byteLength = view.getUint32(0, true);
     this.expectByteLength(byteLength, buffer);
 
@@ -65,10 +65,16 @@ export class DynvecCodec<
 
       const result = new Array(length);
       for (let i = 0; i < length; i++) {
-        result[i] = this.inner.unpack(
-          buffer.subarray(offsets[i]!, offsets[i + 1]!),
-          strict,
-        );
+        try {
+          result[i] = this.inner.unpack(
+            buffer.subarray(offsets[i]!, offsets[i + 1]!),
+            strict,
+          );
+        } catch (err) {
+          throw unpackError(`Invalid dynvec item at index ${i}`, {
+            cause: err,
+          });
+        }
       }
       return result;
     }

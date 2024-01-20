@@ -64,7 +64,7 @@ export class UnionCodec<
    */
   unpack(buffer: Uint8Array, strict?: boolean): InferUnion<TShape> {
     this.expectMinimalByteLength(UINT32_BYTE_LENGTH, buffer);
-    const view = new DataView(buffer.buffer);
+    const view = new DataView(buffer.buffer, buffer.byteOffset);
     const tagId = view.getUint32(0, true);
     const tagName = this.tagNameById.get(tagId);
     if (tagName !== undefined) {

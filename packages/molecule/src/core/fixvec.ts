@@ -27,7 +27,7 @@ export class FixvecCodec<
 
   unpack(buffer: Uint8Array): Infer<TCodec>[] {
     this.expectMinimalByteLength(UINT32_BYTE_LENGTH, buffer);
-    const view = new DataView(buffer.buffer);
+    const view = new DataView(buffer.buffer, buffer.byteOffset);
     const length = view.getUint32(0, true);
     this.expectByteLength(
       UINT32_BYTE_LENGTH + length * this.inner.fixedByteLength,
@@ -97,8 +97,9 @@ export class Uint8ArrayFixvecCodec extends DynamicSizeCodec<Uint8Array> {
 
   unpack(buffer: Uint8Array): Uint8Array {
     this.expectMinimalByteLength(UINT32_BYTE_LENGTH, buffer);
-    const view = new DataView(buffer.buffer);
+    const view = new DataView(buffer.buffer, buffer.byteOffset);
     const length = view.getUint32(0, true);
+    console.log({ buffer, length });
     this.expectByteLength(UINT32_BYTE_LENGTH + length, buffer);
 
     // Create a copy to prevent accidental changes.
