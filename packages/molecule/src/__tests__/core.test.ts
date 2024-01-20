@@ -1176,3 +1176,111 @@ describe("union", () => {
     });
   });
 });
+
+describe("shape", () => {
+  describe("table shape", () => {
+    test("missing keys", () => {
+      expect(() => {
+        mol.table("Point", { x: mol.byte, y: mol.byte }, ["x"]);
+      }).toThrow("Missing keys found: y");
+    });
+    test("duplicated key", () => {
+      expect(() => {
+        mol.table("Point", { x: mol.byte, y: mol.byte }, ["x", "y", "x"]);
+      }).toThrow("Duplicate key found: x");
+    });
+    test("unknown key", () => {
+      expect(() => {
+        mol.table("Point", { x: mol.byte, y: mol.byte }, [
+          "x",
+          "y",
+          "z",
+        ] as any);
+      }).toThrow("Unknown key found: z");
+    });
+  });
+
+  describe("struct shape", () => {
+    test("missing keys", () => {
+      expect(() => {
+        mol.struct("Point", { x: mol.byte, y: mol.byte }, ["x"]);
+      }).toThrow("Missing keys found: y");
+    });
+    test("duplicated key", () => {
+      expect(() => {
+        mol.struct("Point", { x: mol.byte, y: mol.byte }, ["x", "y", "x"]);
+      }).toThrow("Duplicate key found: x");
+    });
+    test("unknown key", () => {
+      expect(() => {
+        mol.struct("Point", { x: mol.byte, y: mol.byte }, [
+          "x",
+          "y",
+          "z",
+        ] as any);
+      }).toThrow("Unknown key found: z");
+    });
+  });
+
+  describe("union shape", () => {
+    const MolTrue = mol.struct("MolTrue", { phantom: mol.byte }, ["phantom"]);
+    const MolFalse = mol.struct("MolFalse", { phantom: mol.byte }, ["phantom"]);
+
+    describe("with sequence tags", () => {
+      test("variant name unmatch", () => {
+        expect(() => {
+          mol.union("Bool", { True: MolTrue, MolFalse }, ["True", "MolFalse"]);
+        }).toThrow("Codec name MolTrue does not match the union tag name True");
+      });
+      test("missing keys", () => {
+        expect(() => {
+          mol.union("Bool", { MolTrue, MolFalse }, ["MolTrue"]);
+        }).toThrow("Missing keys found: MolFalse");
+      });
+      test("duplicated key", () => {
+        expect(() => {
+          mol.union("Bool", { MolTrue, MolFalse }, [
+            "MolTrue",
+            "MolFalse",
+            "MolTrue",
+          ]);
+        }).toThrow("Duplicate key found: MolTrue");
+      });
+      test("unknown key", () => {
+        expect(() => {
+          mol.union("Bool", { MolTrue, MolFalse }, [
+            "MolTrue",
+            "MolFalse",
+            "MolNull",
+          ] as any);
+        }).toThrow("Unknown key found: MolNull");
+      });
+    });
+
+    describe("with custom tags", () => {
+      test("variant name unmatch", () => {
+        expect(() => {
+          mol.union(
+            "Bool",
+            { True: MolTrue, MolFalse },
+            { True: 10, MolFalse: 20 },
+          );
+        }).toThrow("Codec name MolTrue does not match the union tag name True");
+      });
+      test("missing keys", () => {
+        expect(() => {
+          mol.union("Bool", { MolTrue, MolFalse }, { MolTrue: 10 } as any);
+        }).toThrow("Missing keys found: MolFalse");
+      });
+      test("unknown key", () => {
+        expect(() => {
+          mol.union("Bool", { MolTrue, MolFalse }, {
+            MolTrue: 10,
+            MolFalse: 20,
+            MolNull: 30,
+          } as any);
+        }).toThrow("Unknown key found: MolNull");
+      });
+    });
+  });
+});
