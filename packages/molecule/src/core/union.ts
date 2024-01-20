@@ -69,10 +69,19 @@ export class UnionCodec<
     const tagName = this.tagNameById.get(tagId);
     if (tagName !== undefined) {
       const codec = this.inner[tagName]!;
-      return {
-        type: tagName,
-        value: codec.unpack(buffer.subarray(UINT32_BYTE_LENGTH), strict),
-      };
+      try {
+        return {
+          type: tagName,
+          value: codec.unpack(buffer.subarray(UINT32_BYTE_LENGTH), strict),
+        };
+      } catch (err) {
+        throw unpackError(
+          `Invalid union variable ${tagName as string}: ${err}`,
+          {
+            cause: err,
+          },
+        );
+      }
     }
     throw unpackError(
       `Expected tag ids ${Array.from(this.tagNameById.keys())}, found ${tagId}`,

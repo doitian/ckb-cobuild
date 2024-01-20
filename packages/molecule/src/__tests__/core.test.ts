@@ -1284,3 +1284,66 @@ describe("shape", () => {
     });
   });
 });
+
+function unpackErr(
+  codec: mol.AnyCodec,
+  buffer: number[],
+): mol.CodecError | undefined {
+  try {
+    codec.unpack(Uint8Array.from(buffer));
+  } catch (err) {
+    return err as mol.CodecError;
+  }
+}
+
+describe("unpack error", () => {
+  const ByteOpt = mol.option("ByteOpt", mol.byte);
+
+  test("dynvec", () => {
+    const err = unpackErr(
+      mol.dynvec("Dynvec", ByteOpt),
+      [11, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0],
+    );
+    expect(err).not.toBeUndefined();
+    if (err !== undefined) {
+      expect(err.toString()).toMatch("Invalid dynvec item at index 0");
+
+      expect(err.cause).not.toBeUndefined();
+      expect((<any>err.cause).toString()).toMatch(
+        "Expected bytes length 1, found 3",
+      );
+    }
+  });
+
+  test("table", () => {
+    const err = unpackErr(
+      mol.table("Table", { f: ByteOpt }, ["f"]),
+      [11, 0, 0, 0, 8, 0, 0, 0, 0, 0, 0],
+    );
+    expect(err).not.toBeUndefined();
+    if (err !== undefined) {
+      expect(err.toString()).toMatch("Invalid table field f");
+
+      expect(err.cause).not.toBeUndefined();
+      expect((<any>err.cause).toString()).toMatch(
+        "Expected bytes length 1, found 3",
+      );
+    }
+  });
+
+  test("union", () => {
+    const err = unpackErr(
+      mol.union("Union", { ByteOpt }, ["ByteOpt"]),
+      [0, 0, 0, 0, 0, 0, 0],
+    );
+    expect(err).not.toBeUndefined();
+    if (err !== undefined) {
+      expect(err.toString()).toMatch("Invalid union variable ByteOpt");
+
+      expect(err.cause).not.toBeUndefined();
+      expect((<any>err.cause).toString()).toMatch(
+        "Expected bytes length 1, found 3",
+      );
+    }
+  });
+});
