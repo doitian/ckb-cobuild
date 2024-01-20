@@ -970,3 +970,209 @@ describe("table", () => {
     });
   });
 });
+
+describe("union", () => {
+  const Byte2 = mol.array("Byte2", mol.byte, 2);
+  const Byte2x2 = mol.array("Byte2x2", Byte2, 2);
+  const Byte4 = mol.array("Byte4", mol.byte, 4);
+  const Word = mol.union(
+    "Word",
+    {
+      Byte4,
+      Byte2x2,
+    },
+    ["Byte4", "Byte2x2"],
+  );
+  const WordCustomTag = mol.union(
+    "WordCustomTag",
+    {
+      Byte4,
+      Byte2x2,
+    },
+    {
+      Byte4: 4,
+      Byte2x2: 2,
+    },
+  );
+
+  test("custom tags", () => {
+    // Order guaranteed
+    expect(Array.from(Word.tagNameById.entries())).toEqual([
+      [0, "Byte4"],
+      [1, "Byte2x2"],
+    ]);
+    expect(Array.from(WordCustomTag.tagNameById.entries())).toEqual([
+      [2, "Byte2x2"],
+      [4, "Byte4"],
+    ]);
+
+    expect(Word.tagIdByName).toEqual({ Byte4: 0, Byte2x2: 1 });
+    expect(WordCustomTag.tagIdByName).toEqual({ Byte4: 4, Byte2x2: 2 });
+  });
+
+  describe(".getSchema", () => {
+    test("(Word)", () => {
+      expect(Word.getSchema()).toEqual(
+        lines("union Word {", "    Byte4: 0,", "    Byte2x2: 1,", "}"),
+      );
+    });
+    test("(WordCustomTag)", () => {
+      expect(WordCustomTag.getSchema()).toEqual(
+        lines("union WordCustomTag {", "    Byte2x2: 2,", "    Byte4: 4,", "}"),
+      );
+    });
+  });
+
+  describe(".safeParse", () => {
+    describe("/* success */", () => {
+      test.each([
+        [
+          {
+            type: "Byte2x2",
+            value: [
+              [1, 2],
+              [3, 4],
+            ],
+          },
+          { type: "Byte4", value: [[1, 2, 3, 4]] },
+        ],
+      ])("(%p)", (input) => {
+        const result = WordCustomTag.safeParse(input as any);
+        expect(result).toEqual(mol.parseSuccess(input));
+      });
+    });
+
+    describe("/* error */", () => {
+      test.each(["str", []])("([%p])", (input) => {
+        const result = WordCustomTag.safeParse(input as any);
+        expect(result.success).toBeFalsy();
+        if (!result.success) {
+          expect(result.error.toString()).toMatch(
+            `Expected object, found ${input}`,
+          );
+        }
+      });
+
+      test.each([{ type: "Byte3", value: [[1, 2, 3, 4]] }])(
+        "([%p])",
+        (input) => {
+          const result = WordCustomTag.safeParse(input as any);
+          expect(result.success).toBeFalsy();
+          if (!result.success) {
+            expect(result.error.toString()).toMatch(
+              `Expected a valid union type, found ${input.type}`,
+            );
+          }
+        },
+      );
+
+      test.each([
+        {
+          type: "Byte4",
+          value: [
+            [1, 2],
+            [3, 4],
+          ],
+        },
+        { type: "Byte2x2", value: [1, 2, 3, 4, 5] },
+      ])("([%p])", (input) => {
+        const result = WordCustomTag.safeParse(input as any);
+        expect(result.success).toBeFalsy();
+        if (!result.success) {
+          expect(result.error.toString()).toMatch("Union variant parse failed");
+        }
+      });
+    });
+  });
+
+  describe(".unpack", () => {
+    describe("/* success */", () => {
+      test.each([
+        [
+          Uint8Array.from(
+            [
+              [4, 0, 0, 0],
+              [1, 2, 3, 4],
+            ].flat(),
+          ),
+          { type: "Byte4", value: [1, 2, 3, 4] },
+        ],
+        [
+          Uint8Array.from(
+            [
+              [2, 0, 0, 0],
+              [1, 2, 3, 4],
+            ].flat(),
+          ),
+          {
+            type: "Byte2x2",
+            value: [
+              [1, 2],
+              [3, 4],
+            ],
+          },
+        ],
+      ])("(%p)", (input, expected) => {
+        const result = WordCustomTag.unpack(input);
+        expect(result).toStrictEqual(expected);
+      });
+    });
+
+    describe("/* throws */", () => {
+      test.each([
+        [[], 4],
+        [[1, 2, 3], 4],
+      ])("(%p)", (input, expectedMinimalByteLength) => {
+        expect(() => {
+          WordCustomTag.unpack(new Uint8Array(input));
+        }).toThrow(
+          `Expected bytes length at least ${expectedMinimalByteLength}, found ${input.length}`,
+        );
+      });
+
+      test.each([[[0, 0, 0, 0, 1, 2, 3, 4], 0]])("(%p)", (input) => {
+        expect(() => {
+          WordCustomTag.unpack(new Uint8Array(input));
+        }).toThrow(`Expected tag ids 2,4, found ${input[0]}`);
+      });
+
+      test.each([[[2, 0, 0, 0, 1, 2, 3]]])("(%p)", (input) => {
+        expect(() => {
+          WordCustomTag.unpack(new Uint8Array(input));
+        }).toThrow(`Expected bytes length 4, found 3`);
+      });
+    });
+  });
+
+  describe(".pack", () => {
+    test.each([
+      [
+        { type: "Byte4", value: [1, 2, 3, 4] },
+        Uint8Array.from(
+          [
+            [4, 0, 0, 0],
+            [1, 2, 3, 4],
+          ].flat(),
+        ),
+      ],
+      [
+        {
+          type: "Byte2x2",
+          value: [
+            [1, 2],
+            [3, 4],
+          ],
+        },
+        Uint8Array.from(
+          [
+            [2, 0, 0, 0],
+            [1, 2, 3, 4],
+          ].flat(),
+        ),
+      ],
+    ])("(%p)", (input, expected) => {
+      const result = WordCustomTag.pack(input as any);
+      expect(result).toEqual(expected);
+    });
+  });
+});

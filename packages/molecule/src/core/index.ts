@@ -10,3 +10,4 @@ export * from "./dynvec";
 export * from "./vector";
 export * from "./struct";
 export * from "./table";
+export * from "./union";
