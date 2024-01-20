@@ -19,6 +19,10 @@ The differences between `@ckb-cobuild/molecule` and `@ckb-lumos/codec`:
 - This library supports schema validation via `parse` and `safeParse`.
 - This library supports exporting molecule schema to `.mol` file.
 
+## About the Interface
+
+This library prefers better type inferring and checking to sipmle schema definition. There will be many type names repetitions because of the limitation of TypeScript.
+
 ## Example
 
 ### Coerce
