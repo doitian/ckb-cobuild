@@ -1,17 +1,14 @@
-import { Codec } from "../codec";
 import BinaryWriter from "../binary-writer";
-import { CodecError, SafeParseReturnType } from "../error";
+import { FixedSizeCodec } from "../codec";
+import { SafeParseReturnType, parseError, parseSuccess } from "../error";
 
-/**
- * @internal
- */
-export class ByteCodec extends Codec<number> {
+/** @internal */
+export class ByteCodec extends FixedSizeCodec<number> {
   constructor() {
     super("byte", 1);
   }
 
-  unpack(buffer: Uint8Array): number {
-    this.checkFixedByteLength(buffer);
+  _unpack(buffer: Uint8Array): number {
     return buffer[0]!;
   }
 
@@ -25,19 +22,17 @@ export class ByteCodec extends Codec<number> {
 
   safeParse(input: number): SafeParseReturnType<number> {
     if (Number.isInteger(input) && input >= 0 && input <= 255) {
-      return {
-        success: true,
-        data: input,
-      };
+      return parseSuccess(input);
     }
 
-    return {
-      success: false,
-      error: CodecError.create(
-        "parse",
-        `Expected integer from 0 to 255, found ${input}`,
-      ),
-    };
+    return parseError(`Expected integer from 0 to 255, found ${input}`);
+  }
+
+  /**
+   * No need to define schema fo builtin types.
+   */
+  getSchema(): string {
+    return "";
   }
 }
 

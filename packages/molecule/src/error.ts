@@ -1,15 +1,3 @@
-export type SafeParseReturnSuccess<T> = {
-  success: true;
-  data: T;
-};
-export type SafeParseReturnError = {
-  success: false;
-  error: CodecError;
-};
-export type SafeParseReturnType<T> =
-  | SafeParseReturnSuccess<T>
-  | SafeParseReturnError;
-
 export function formatCodecError(path: (string | number)[], message: string) {
   return `//${path.join("/")}: ${message}`;
 }
@@ -18,7 +6,7 @@ export type CodecErrorFormatter = typeof formatCodecError;
 export const PARSE_ROOT_PATH = "//";
 
 export class CodecIssue {
-  message?: string = undefined;
+  readonly message?: string = undefined;
   children?: Map<string | number, CodecIssue> = undefined;
 
   constructor(message: string | undefined = undefined) {
@@ -82,15 +70,15 @@ export class CodecIssue {
   }
 }
 
-export type CodecErrorSource = "parse" | "unpack";
+export type CodecErrorSource = "parse" | "unpack" | "schema";
 
 export class CodecError extends Error {
-  source: CodecErrorSource;
-  issue: CodecIssue;
+  readonly source: CodecErrorSource;
+  readonly issue: CodecIssue;
 
   constructor(
     source: CodecErrorSource,
-    message: string,
+    message?: string,
     options?: ErrorOptions,
   ) {
     super(message, options);
@@ -101,19 +89,28 @@ export class CodecError extends Error {
 
   static create(
     source: CodecErrorSource,
-    message: string,
+    message?: string,
     options?: ErrorOptions,
   ): CodecError {
     return new CodecError(source, message, options);
   }
 
-  static expectFixedByteLength(
+  addChild(key: string | number, issue: CodecIssue): CodecError {
+    this.issue.addChild(key, issue);
+    return this;
+  }
+
+  addChildren(children: Iterable<[string | number, CodecIssue]>): CodecError {
+    this.issue.addChildren(children);
+    return this;
+  }
+
+  static expectByteLength(
     expectedLength: number,
     actualLength: number,
     options?: ErrorOptions,
   ): CodecError {
-    return new CodecError(
-      "unpack",
+    return unpackError(
       `Expected bytes length ${expectedLength}, found ${actualLength}`,
       options,
     );
@@ -124,8 +121,7 @@ export class CodecError extends Error {
     actualLength: number,
     options?: ErrorOptions,
   ): CodecError {
-    return new CodecError(
-      "unpack",
+    return unpackError(
       `Expected bytes length at least ${expectedMinimalLength}, found ${actualLength}`,
       options,
     );
@@ -134,4 +130,71 @@ export class CodecError extends Error {
   collectMessages(formatter?: CodecErrorFormatter): string[] {
     return this.issue.collectMessages(formatter);
   }
+}
+
+export type SafeParseReturnSuccess<T> = {
+  success: true;
+  data: T;
+};
+export type SafeParseReturnError = {
+  success: false;
+  error: CodecError;
+};
+export type SafeParseReturnType<T> =
+  | SafeParseReturnSuccess<T>
+  | SafeParseReturnError;
+
+export function parseSuccess<T>(data: T): SafeParseReturnSuccess<T> {
+  return {
+    success: true,
+    data,
+  };
+}
+
+export function parseError(
+  error?: string,
+  options?: ErrorOptions,
+): SafeParseReturnError {
+  return {
+    success: false,
+    error: CodecError.create("parse", error, options),
+  };
+}
+
+export function unpackError(
+  error?: string,
+  options?: ErrorOptions,
+): CodecError {
+  return CodecError.create("unpack", error, options);
+}
+
+export function createSafeParse<TIn, TOut>(
+  parse: (input: TIn) => TOut,
+): (input: TIn) => SafeParseReturnType<TOut> {
+  return (input) => {
+    try {
+      return parseSuccess(parse(input));
+    } catch (error: unknown) {
+      if (error instanceof CodecError) {
+        return {
+          success: false,
+          error,
+        };
+      } else if (error instanceof Error) {
+        return parseError(error.message);
+      } else {
+        return parseError(String(error));
+      }
+    }
+  };
+}
+
+export function parseSuccessThen<TIn, TOut = TIn>(
+  result: SafeParseReturnType<TIn>,
+  mapper: (input: TIn) => SafeParseReturnType<TOut>,
+): SafeParseReturnType<TOut> {
+  if (result.success) {
+    return mapper(result.data);
+  }
+  return result;
 }

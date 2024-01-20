@@ -5,7 +5,6 @@ const config = {
   entryPoints: [],
   entryPointStrategy: "packages",
   plugin: ["typedoc-plugin-missing-exports"],
-  groupOrder: ["Core Codecs", "*"],
   out: "apps/docs/public/api/",
 };
 
