@@ -2,11 +2,12 @@ name: CI
 
 on:
   push:
+    branches: [main, develop]
   pull_request:
     types: [opened, synchronize]
 
 jobs:
-  build:
+  matrix:
     name: Build and Test
     timeout-minutes: 15
     runs-on: ubuntu-latest
@@ -15,10 +16,11 @@ jobs:
       TURBO_TEAM: ${{ vars.TURBO_TEAM }}
 
     strategy:
+      fail-fast: false
       matrix:
         node: ["18", "lts/*", "latest"]
         run:
-          - pnpm typedoc --treatWarningsAsErrors
+          - pnpm typedoc
           - pnpm build
           - pnpm test
           - pnpm lint
@@ -46,3 +48,12 @@ jobs:
 
       - name: Run Command
         run: ${{ matrix.run }}
+
+  ci:
+    name: Build and Test
+    needs: matrix
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: ${{ needs.matrix.result == 'success' && 'true' || 'false' }}

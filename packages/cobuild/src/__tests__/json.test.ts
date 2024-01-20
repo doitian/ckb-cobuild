@@ -8,7 +8,8 @@ import {
   molecule,
 } from "@ckb-lumos/codec";
 
-import { StringCodec, Uint32LE, BytesVec } from "..";
+import { StringCodec } from "..";
+import { Uint32LE, BytesVec } from "../builtins";
 import { fromJson, toJson } from "../json";
 
 const testCaseIn = {

@@ -1,6 +1,7 @@
 import { BI } from "@ckb-lumos/bi";
 import { bytes } from "@ckb-lumos/codec";
 import { freeze, produce } from "immer";
+import { WitnessArgs } from "../builtins";
 import {
   makeBuildingPacket,
   makeByte32,
@@ -20,7 +21,7 @@ import {
   updateWitnessArgs,
   updateWitnessLayout,
 } from "../recipes";
-import { WitnessArgs, WitnessLayout } from "../witness-layout";
+import { WitnessLayout } from "../witness-layout";
 
 const emptyBuildingPacket = freeze(makeBuildingPacket());
 

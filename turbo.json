@@ -9,6 +9,9 @@
     "clean": {
       "cache": false
     },
+    "coverage": {
+      "outputs": ["coverage/**"]
+    },
     "lint": {
       "dependsOn": ["^lint"]
     },

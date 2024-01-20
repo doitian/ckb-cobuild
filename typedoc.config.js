@@ -1,10 +1,22 @@
+const fs = require("node:fs");
+
 /** @type {import('typedoc').TypeDocOptions} */
 const config = {
-  entryPoints: ["packages/cobuild"],
+  entryPoints: [],
   entryPointStrategy: "packages",
   plugin: ["typedoc-plugin-missing-exports"],
   out: "apps/docs/public/api/",
 };
+
+for (const package of fs.readdirSync("./packages")) {
+  const packageJsonPath = `./packages/${package}/package.json`;
+  if (fs.existsSync(packageJsonPath)) {
+    const packageJson = require(packageJsonPath);
+    if (packageJson.private !== true) {
+      config.entryPoints.push(`packages/${package}`);
+    }
+  }
+}
 
 if (process.env.VERCEL !== undefined) {
   const { execSync } = require("node:child_process");

@@ -1,22 +1,7 @@
-import { blockchain } from "@ckb-lumos/base";
-import {
-  BytesLike,
-  UnpackResult,
-  bytes,
-  molecule,
-  number,
-} from "@ckb-lumos/codec";
+import { BytesLike, UnpackResult, bytes, molecule } from "@ckb-lumos/codec";
 
-const { Uint32LE } = number;
+import { Bytes, Byte32, Uint32LE, WitnessArgs } from "./builtins";
 const { table, union, vector } = molecule;
-const {
-  /** @group Molecule Codecs */
-  WitnessArgs,
-  Bytes,
-  Byte32,
-} = blockchain;
-
-export { WitnessArgs };
 
 /** @group Molecule Codecs */
 export const Action = table(
@@ -73,17 +58,21 @@ export const WitnessLayout = union(
 );
 
 /** @group Molecule Unpack Result */
-export type ActionUnpackResult = UnpackResult<typeof Action>;
+export type Action = UnpackResult<typeof Action>;
 /** @group Molecule Unpack Result */
-export type MessageUnpackResult = UnpackResult<typeof Message>;
+export type ActionVec = UnpackResult<typeof ActionVec>;
 /** @group Molecule Unpack Result */
-export type SighashAllUnpackResult = UnpackResult<typeof SighashAll>;
+export type Message = UnpackResult<typeof Message>;
 /** @group Molecule Unpack Result */
-export type SighashAllOnlyUnpackResult = UnpackResult<typeof SighashAllOnly>;
+export type SighashAll = UnpackResult<typeof SighashAll>;
 /** @group Molecule Unpack Result */
-export type WitnessLayoutUnpackResult = UnpackResult<typeof WitnessLayout>;
+export type SighashAllOnly = UnpackResult<typeof SighashAllOnly>;
 /** @group Molecule Unpack Result */
-export type WitnessArgsUnpackResult = UnpackResult<typeof WitnessArgs>;
+export type Otx = UnpackResult<typeof Otx>;
+/** @group Molecule Unpack Result */
+export type OtxStart = UnpackResult<typeof OtxStart>;
+/** @group Molecule Unpack Result */
+export type WitnessLayout = UnpackResult<typeof WitnessLayout>;
 
 /**
  * Parse the witness type from the first 4 bytes.
@@ -117,9 +106,8 @@ export function parseWitnessType(
 }
 
 export type ParseWitnessResult =
-  | WitnessLayoutUnpackResult
-  | { type: "WitnessArgs"; value: WitnessArgsUnpackResult };
-
+  | WitnessLayout
+  | { type: "WitnessArgs"; value: WitnessArgs };
 /**
  * Try to parse the witness as WitnessLayout or WitnessArgs.
  *

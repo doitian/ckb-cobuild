@@ -5,29 +5,27 @@ import {
   UnpackResult,
   createBytesCodec,
   molecule,
-  number,
 } from "@ckb-lumos/codec";
-
 import { ActionVec, Message } from "./witness-layout";
-
-const { Uint32LE } = number;
-const { option, table, vector, union } = molecule;
-const {
+import {
   Byte32,
   BytesVec,
-  CellOutputVec,
-  OutPoint,
   CellInput,
-  Script,
   CellOutput,
-  CellDep,
-} = blockchain;
+  CellOutputVec,
+  Uint32LE,
+} from "./builtins";
+
+const { option, table, vector, union } = molecule;
 
 /** @group Molecule Codecs */
 export const Uint32Opt = option(Uint32LE);
 
 /**
  * A codec which packs JavaScript string as utf-8 buffer into molecule `vector<byte>`.
+ *
+ * Note that this codec uses the TextEncoder/TextDecoder API which [is available in most browsers](https://caniuse.com/textencoder).
+ * To support older browsers, consider a polyfill like [fast-text-encoding](https://github.com/samthor/fast-text-encoding)
  * @group Molecule Codecs
  */
 export const StringCodec = createBytesCodec<string>({
@@ -44,7 +42,7 @@ export const StringCodec = createBytesCodec<string>({
 export const String = StringCodec;
 
 /**
- * @alpha The fields are not finalized in this strcutre
+ * @alpha The fields are not finalized in this structure
  * @group Molecule Codecs
  */
 export const ScriptInfo = table(
@@ -71,12 +69,10 @@ export const ResolvedInputs = table(
 );
 
 /** @group Molecule Unpack Result */
-export type TransactionUnpackResult = UnpackResult<
-  typeof blockchain.Transaction
->;
+export type Transaction = UnpackResult<typeof blockchain.Transaction>;
 type TransactionPackParam =
   | PackParam<typeof blockchain.Transaction>
-  | TransactionUnpackResult;
+  | Transaction;
 
 type TransactionPackFunction = (
   unpacked: TransactionPackParam,
@@ -116,42 +112,34 @@ export const BuildingPacketV1 = table(
 export const BuildingPacket = union({ BuildingPacketV1 }, ["BuildingPacketV1"]);
 
 /** @group Molecule Unpack Result */
-export type ScriptInfoUnpackResult = UnpackResult<typeof ScriptInfo>;
+export type Uint32Opt = UnpackResult<typeof Uint32Opt>;
 /** @group Molecule Unpack Result */
-export type ResolvedInputsUnpackResult = UnpackResult<typeof ResolvedInputs>;
+export type ScriptInfo = UnpackResult<typeof ScriptInfo>;
 /** @group Molecule Unpack Result */
-export type BuildingPacketV1UnpackResult = UnpackResult<
-  typeof BuildingPacketV1
->;
+export type ScriptInfoVec = UnpackResult<typeof ScriptInfoVec>;
 /** @group Molecule Unpack Result */
-export type BuildingPacketUnpackResult = UnpackResult<typeof BuildingPacket>;
+export type ResolvedInputs = UnpackResult<typeof ResolvedInputs>;
 /** @group Molecule Unpack Result */
-export type OutPointUnpackResult = UnpackResult<typeof OutPoint>;
+export type BuildingPacketV1 = UnpackResult<typeof BuildingPacketV1>;
 /** @group Molecule Unpack Result */
-export type CellInputUnpackResult = UnpackResult<typeof CellInput>;
-/** @group Molecule Unpack Result */
-export type ScriptUnpackResult = UnpackResult<typeof Script>;
-/** @group Molecule Unpack Result */
-export type CellOutputUnpackResult = UnpackResult<typeof CellOutput>;
-/** @group Molecule Unpack Result */
-export type CellDepUnpackResult = UnpackResult<typeof CellDep>;
+export type BuildingPacket = UnpackResult<typeof BuildingPacket>;
 
 /** Bundle fields for a transaction input */
 export interface InputCell {
-  cellInput: CellInputUnpackResult;
-  cellOutput: CellOutputUnpackResult;
+  cellInput: CellInput;
+  cellOutput: CellOutput;
   data: string;
 }
 /** Bundle fields for a transaction output */
 export interface OutputCell {
-  cellOutput: CellOutputUnpackResult;
+  cellOutput: CellOutput;
   data: string;
 }
 export type Cell = InputCell | OutputCell;
 
 /** Get transaction input from three parallel lists. */
 export function getInputCell(
-  buildingPacket: BuildingPacketUnpackResult,
+  buildingPacket: BuildingPacket,
   index: number,
 ): InputCell | undefined {
   const result = {
@@ -170,7 +158,7 @@ export function getInputCell(
 
 /** Get transaction output from three parallel lists. */
 export function getOutputCell(
-  buildingPacket: BuildingPacketUnpackResult,
+  buildingPacket: BuildingPacket,
   index: number,
 ): OutputCell | undefined {
   const result = {
