@@ -71,7 +71,7 @@ export class DynvecCodec<
             strict,
           );
         } catch (err) {
-          throw unpackError(`Invalid dynvec item at index ${i}`, {
+          throw unpackError(`Invalid dynvec item at index ${i}: ${err}`, {
             cause: err,
           });
         }
