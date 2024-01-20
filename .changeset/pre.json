@@ -12,7 +12,17 @@
     "@ckb-cobuild/molecule": "0.0.1"
   },
   "changesets": [
+    "beige-wasps-greet",
+    "eighty-tomatoes-design",
+    "eleven-cameras-greet",
+    "gentle-pumas-design",
+    "polite-ligers-serve",
+    "rich-sheep-warn",
+    "seven-crabs-jam",
+    "small-ads-deny",
     "stupid-icons-relax",
-    "wet-lobsters-roll"
+    "warm-bugs-kiss",
+    "wet-lobsters-roll",
+    "wise-owls-hunt"
   ]
 }
