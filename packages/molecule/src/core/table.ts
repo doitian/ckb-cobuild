@@ -28,10 +28,6 @@ export class TableCodec<
     this.order = order;
   }
 
-  /**
-   * @param strict - whehter to allow unknown fields in the buffer.
-   *                 True to enable. It is off by default.
-   */
   unpack(buffer: Uint8Array, strict?: boolean): InferShape<TShape> {
     this.expectMinimalByteLength(UINT32_BYTE_LENGTH, buffer);
     const view = new DataView(buffer.buffer);
@@ -73,13 +69,21 @@ export class TableCodec<
           ? byteLength
           : view.getUint32((knownLength + 1) * UINT32_BYTE_LENGTH, true);
 
-      // strict checking, it's allowed that all the unknown fields are nones.
-      if (strict === true && knownLength < length && sentinel < byteLength) {
-        throw unpackError(
-          `Table strict mode is on, found ${
-            length - knownLength
-          } extra fields and ${byteLength - sentinel} bytes`,
-        );
+      // strict checking
+      if (strict === true) {
+        if (this.order.length > length) {
+          throw unpackError(
+            `Table strict mode is on, found ${
+              this.order.length - length
+            } missing fields`,
+          );
+        } else if (this.order.length < length) {
+          throw unpackError(
+            `Table strict mode is on, found ${
+              length - this.order.length
+            } extra fields and ${byteLength - sentinel} bytes`,
+          );
+        }
       }
 
       // missing offsets are considered as nones
@@ -94,6 +98,7 @@ export class TableCodec<
         const codec = this.inner[key]!;
         result[key] = codec.unpack(
           buffer.subarray(offsets[i]!, offsets[i + 1]!),
+          strict,
         );
       }
       return result as InferShape<TShape>;

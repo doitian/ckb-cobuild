@@ -27,7 +27,7 @@ export class DynvecCodec<
     this.inner = inner;
   }
 
-  unpack(buffer: Uint8Array): Infer<TCodec>[] {
+  unpack(buffer: Uint8Array, strict?: boolean): Infer<TCodec>[] {
     this.expectMinimalByteLength(UINT32_BYTE_LENGTH, buffer);
     const view = new DataView(buffer.buffer);
     const byteLength = view.getUint32(0, true);
@@ -67,6 +67,7 @@ export class DynvecCodec<
       for (let i = 0; i < length; i++) {
         result[i] = this.inner.unpack(
           buffer.subarray(offsets[i]!, offsets[i + 1]!),
+          strict,
         );
       }
       return result;

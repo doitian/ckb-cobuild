@@ -841,25 +841,58 @@ describe("table", () => {
 
       describe("/* forward */", () => {
         // Whether the old version can be unpacked by new version.
-        // Strict mode does not affect forward compatibility.
-        describe.each([true, false])("/* strict=%s */", (strict) => {
-          test.each([
-            [TableV0, TableV1, { x: 1 }, "Expected bytes length 1, found 0"],
-            [TableV0, TableV2, { x: 1 }, "Expected bytes length 1, found 0"],
-            // Adding option in the end is comptabile
-            [TableV1, TableV2, { x: 1, y: 2 }, { x: 1, y: 2, z: null }],
-          ])("(%p) => %p", (oldCodec, newCodec, input, output) => {
+        test.each([
+          [
+            false,
+            TableV0,
+            TableV1,
+            { x: 1 },
+            "Expected bytes length 1, found 0",
+          ],
+          [
+            false,
+            TableV0,
+            TableV2,
+            { x: 1 },
+            "Expected bytes length 1, found 0",
+          ],
+          // Adding option in the end is comptabile
+          [false, TableV1, TableV2, { x: 1, y: 2 }, { x: 1, y: 2, z: null }],
+          [
+            true,
+            TableV0,
+            TableV1,
+            { x: 1 },
+            "Table strict mode is on, found 1 missing fields",
+          ],
+          [
+            true,
+            TableV0,
+            TableV2,
+            { x: 1 },
+            "Table strict mode is on, found 2 missing fields",
+          ],
+          [
+            true,
+            TableV1,
+            TableV2,
+            { x: 1, y: 2 },
+            "Table strict mode is on, found 1 missing fields",
+          ],
+        ])(
+          "/* strict=%s */ (%s) => %s",
+          (strict, oldCodec, newCodec, input, output) => {
             const packed = oldCodec.pack(input as any);
             if (typeof output !== "string") {
               const unpacked = newCodec.unpack(packed, strict);
               expect(unpacked).toStrictEqual(output);
             } else {
               expect(() => {
-                newCodec.unpack(packed);
+                newCodec.unpack(packed, strict);
               }).toThrow(output);
             }
-          });
-        });
+          },
+        );
       });
 
       describe("/* backward */", () => {
@@ -871,7 +904,13 @@ describe("table", () => {
           [false, TableV2, TableV0, { x: 1, y: 2, z: null }, { x: 1 }],
           [false, TableV1, TableV0, { x: 1, y: 2 }, { x: 1 }],
           // Strict mode.
-          [true, TableV2, TableV1, { x: 1, y: 2, z: null }, { x: 1, y: 2 }],
+          [
+            true,
+            TableV2,
+            TableV1,
+            { x: 1, y: 2, z: null },
+            "Table strict mode is on, found 1 extra fields and 0 bytes",
+          ],
           [
             true,
             TableV2,

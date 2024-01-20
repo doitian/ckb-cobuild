@@ -19,9 +19,11 @@ export abstract class Codec<T, TParseInput = T> {
 
   /**
    * Unpack the value from the molecule buffer.
+   * @param strict - whehter to allow unknown fields in the buffer.
+   *                 True to enable. It is off by default.
    * @throws {@link CodecError}
    */
-  abstract unpack(buffer: Uint8Array): T;
+  abstract unpack(buffer: Uint8Array, strict?: boolean): T;
 
   /**
    * Pack the value and append the buffer to the provided writer.
@@ -311,8 +313,8 @@ export class DynamicSizeAroundCodec<
     return this._safeParse(input);
   }
 
-  unpack(buffer: Uint8Array): T {
-    return this._didUnpack(this.inner.unpack(buffer));
+  unpack(buffer: Uint8Array, strict?: boolean): T {
+    return this._didUnpack(this.inner.unpack(buffer, strict));
   }
 
   packTo(value: T, writer: BinaryWriter) {
@@ -367,8 +369,8 @@ export class FixedSizeAroundCodec<
     return this._parseInner.safeParse(input);
   }
 
-  unpack(buffer: Uint8Array): T {
-    return this._parseInner.unpack(buffer);
+  unpack(buffer: Uint8Array, strict?: boolean): T {
+    return this._parseInner.unpack(buffer, strict);
   }
 
   _unpack(): T {

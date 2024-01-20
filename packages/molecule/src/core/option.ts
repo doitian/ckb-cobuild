@@ -20,9 +20,9 @@ export class OptionCodec<TCodec extends AnyCodec> extends DynamicSizeCodec<
     this.inner = inner;
   }
 
-  unpack(buffer: Uint8Array): Infer<TCodec> | null {
+  unpack(buffer: Uint8Array, strict?: boolean): Infer<TCodec> | null {
     if (buffer.length > 0) {
-      return this.inner.unpack(buffer);
+      return this.inner.unpack(buffer, strict);
     }
     return null;
   }
