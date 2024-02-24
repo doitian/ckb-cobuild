@@ -1,6 +1,6 @@
 {
   "name": "@ckb-cobuild/molecule-json",
-  "version": "1.0.0-next.0",
+  "version": "1.0.0",
   "homepage": "https://github.com/doitian/ckb-cobuild-js",
   "repository": {
     "type": "git",
@@ -47,7 +47,7 @@
     "tsup": "^8.0.1"
   },
   "dependencies": {
-    "@ckb-cobuild/hex-encoding": "workspace:1.0.0-next.0",
+    "@ckb-cobuild/hex-encoding": "workspace:1.0.0",
     "@ckb-cobuild/molecule": "workspace:^"
   }
 }
