@@ -1,5 +1,18 @@
 # @ckb-cobuild/ckb-molecule-codecs
 
+## 1.1.0-next.0
+
+### Minor Changes
+
+- e31c7e3: :sparkles: Generate hash for flatten header and tx
+
+### Patch Changes
+
+- Updated dependencies [e31c7e3]
+- Updated dependencies [9bfa7ba]
+  - @ckb-cobuild/ckb-hasher@1.0.0-next.0
+  - @ckb-cobuild/molecule-json@2.0.0-next.0
+
 ## 1.0.0
 
 ### Major Changes
