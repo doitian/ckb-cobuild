@@ -1,5 +1,17 @@
 # @ckb-cobuild/molecule
 
+## 1.0.1-next.0
+
+### Patch Changes
+
+- 3450bf0: :bug: Ensure beforeParse reserve fixed codec
+
+  Ensure beforeParse and beforeSafeParse returns FixedSizeCodec on FixedSizeCodec,
+  and returns DynamicSizeCodec on DynamicSizeCodec.
+
+- abfaa56: :sparkles: Add integer codecs
+- eb6380e: :memo: Fix code example for byteFixvec
+
 ## 1.0.0
 
 ### Major Changes
