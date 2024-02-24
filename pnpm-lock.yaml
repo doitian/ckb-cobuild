@@ -83,7 +83,7 @@ importers:
         version: link:../molecule-json
     devDependencies:
       '@ckb-cobuild/hex-encoding':
-        specifier: workspace:1.0.0-next.0
+        specifier: workspace:1.0.0
         version: link:../hex-encoding
       '@repo/eslint-config':
         specifier: workspace:*
@@ -302,7 +302,7 @@ importers:
   packages/molecule-json:
     dependencies:
       '@ckb-cobuild/hex-encoding':
-        specifier: workspace:1.0.0-next.0
+        specifier: workspace:1.0.0
         version: link:../hex-encoding
       '@ckb-cobuild/molecule':
         specifier: workspace:^
