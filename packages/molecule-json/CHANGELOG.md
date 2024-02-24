@@ -1,5 +1,11 @@
 # @ckb-cobuild/molecule-json
 
+## 2.0.0
+
+### Major Changes
+
+- 9bfa7ba: :bug: Fix molecule-json release
+
 ## 1.0.0
 
 ### Major Changes
