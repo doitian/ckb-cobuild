@@ -9,7 +9,10 @@
     "@ckb-cobuild/molecule": "1.0.0",
     "@repo/tsup-patcher": "0.0.0",
     "@repo/typescript-config": "0.0.0",
-    "@repo/ui": "0.0.0"
+    "@repo/ui": "0.0.0",
+    "@ckb-cobuild/hex-encoding": "0.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "wise-mails-grab"
+  ]
 }
