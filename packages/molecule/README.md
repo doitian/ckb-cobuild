@@ -7,7 +7,8 @@ An opinionated [molecule](https://github.com/nervosnetwork/molecule) library whi
 
 ## More Codecs
 
-- `@ckb-cobuild/molecule-bigint`: 64-bit integer codecs for native bigint.
+- `@ckb-cobuild/molecule-bigint`: BigInt codecs for native bigint.
+- `@ckb-cobuild/molecule-jsbi`: BigInt integer codecs via JSBI.
 
 ## Browser Compatibility
 
