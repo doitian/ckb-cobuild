@@ -2,10 +2,10 @@
 "@ckb-cobuild/molecule-jsbi": major
 ---
 
-:sparkles: Molecule integer codecs for bigint (#20)
+:sparkles: Molecule integer codecs for bigint
 
 ```ts
-import { Uint64 } from "@ckb-lumos/molecule-jsbi";
+import { Uint64 } from "@ckb-cobuild/molecule-jsbi";
 import JSBI from "jsbi";
 const buffer = Uint64.pack(JSBI.BigInt(1));
 console.log(buffer);
