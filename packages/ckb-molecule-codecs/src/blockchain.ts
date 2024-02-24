@@ -7,14 +7,19 @@
 
 import mol from "@ckb-cobuild/molecule";
 import * as JSBICodecs from "@ckb-cobuild/molecule-jsbi";
+import {
+  createNumberJsonCodec,
+  createUint8ArrayJsonCodec,
+  createJSBIJsonCodec,
+} from "@ckb-cobuild/molecule-json";
 
-export const Uint32 = mol.Uint32;
-export const Uint64 = JSBICodecs.Uint64;
-export const Uint128 = JSBICodecs.Uint128;
-export const Byte32 = mol.byteArray("Byte32", 32);
-export const Uint256 = JSBICodecs.Uint256;
+export const Uint32 = createNumberJsonCodec(mol.Uint32);
+export const Uint64 = createJSBIJsonCodec(JSBICodecs.Uint64);
+export const Uint128 = createJSBIJsonCodec(JSBICodecs.Uint128);
+export const Byte32 = createUint8ArrayJsonCodec(mol.byteArray("Byte32", 32));
+export const Uint256 = createJSBIJsonCodec(JSBICodecs.Uint256);
 
-export const Bytes = mol.byteFixvec("Bytes");
+export const Bytes = createUint8ArrayJsonCodec(mol.byteFixvec("Bytes"));
 export const BytesOpt = mol.option("BytesOpt", Bytes);
 export const BytesOptVec = mol.vector("BytesOptVec", BytesOpt);
 export const BytesVec = mol.vector("BytesVec", Bytes);
@@ -51,7 +56,9 @@ export const Script = mol.table(
 );
 export const ScriptOpt = mol.option("ScriptOpt", Script);
 
-export const ProposalShortId = mol.byteArray("ProposalShortId", 10);
+export const ProposalShortId = createUint8ArrayJsonCodec(
+  mol.byteArray("ProposalShortId", 10),
+);
 export const ProposalShortIdVec = mol.vector(
   "ProposalShortIdVec",
   ProposalShortId,

@@ -46,6 +46,7 @@
   },
   "dependencies": {
     "@ckb-cobuild/molecule": "workspace:^",
-    "@ckb-cobuild/molecule-jsbi": "workspace:^"
+    "@ckb-cobuild/molecule-jsbi": "workspace:^",
+    "@ckb-cobuild/molecule-json": "workspace:^"
   }
 }

@@ -78,6 +78,9 @@ importers:
       '@ckb-cobuild/molecule-jsbi':
         specifier: workspace:^
         version: link:../molecule-jsbi
+      '@ckb-cobuild/molecule-json':
+        specifier: workspace:^
+        version: link:../molecule-json
     devDependencies:
       '@ckb-cobuild/hex-encoding':
         specifier: workspace:1.0.0-next.0
