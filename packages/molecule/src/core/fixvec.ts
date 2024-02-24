@@ -150,7 +150,7 @@ export function fixvec<TCodec extends AnyFixedSizeCodec>(
  * @example
  * ```ts
  * import { mol } from "@ckb-cobuild/molecule";
- * const Bytes = mol.byteFixvec("Bytes", mol.byte);
+ * const Bytes = mol.byteFixvec("Bytes");
  * ```
  */
 export function byteFixvec(name: string): Uint8ArrayFixvecCodec {
