@@ -207,6 +207,23 @@ export abstract class DynamicSizeCodec<T, TParseInput = T> extends Codec<
   }): DynamicSizeCodec<TOutter, TOutterParseInput> {
     return new DynamicSizeAroundCodec(this, safeParse, willPack, didUnpack);
   }
+
+  beforeParse<TOutterParseInput>(
+    parse: (input: TOutterParseInput) => TParseInput,
+  ): DynamicSizeCodec<T, TOutterParseInput> {
+    return this.beforeSafeParse(createSafeParse(parse));
+  }
+
+  beforeSafeParse<TOutterParseInput>(
+    safeParse: (input: TOutterParseInput) => SafeParseReturnType<TParseInput>,
+  ): DynamicSizeCodec<T, TOutterParseInput> {
+    return this.around({
+      safeParse: (input) =>
+        parseSuccessThen(safeParse(input), (data) => this.safeParse(data)),
+      willPack: (input) => input,
+      didUnpack: (value) => value,
+    });
+  }
 }
 
 /**
@@ -245,6 +262,23 @@ export abstract class FixedSizeCodec<T, TParseInput = T> extends Codec<
     didUnpack: (value: T) => TOutter;
   }): FixedSizeCodec<TOutter, TOutterParseInput> {
     return new FixedSizeAroundCodec(this, safeParse, willPack, didUnpack);
+  }
+
+  beforeParse<TOutterParseInput>(
+    parse: (input: TOutterParseInput) => TParseInput,
+  ): FixedSizeCodec<T, TOutterParseInput> {
+    return this.beforeSafeParse(createSafeParse(parse));
+  }
+
+  beforeSafeParse<TOutterParseInput>(
+    safeParse: (input: TOutterParseInput) => SafeParseReturnType<TParseInput>,
+  ): FixedSizeCodec<T, TOutterParseInput> {
+    return this.around({
+      safeParse: (input) =>
+        parseSuccessThen(safeParse(input), (data) => this.safeParse(data)),
+      willPack: (input) => input,
+      didUnpack: (value) => value,
+    });
   }
 
   /** @internal */

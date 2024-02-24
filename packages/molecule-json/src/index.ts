@@ -12,7 +12,12 @@
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { encodeHex, decodeHex } from "@ckb-cobuild/hex-encoding";
-import { Codec, CodecError } from "@ckb-cobuild/molecule";
+import {
+  Codec,
+  CodecError,
+  DynamicSizeCodec,
+  FixedSizeCodec,
+} from "@ckb-cobuild/molecule";
 import JSBI from "jsbi";
 
 type CompatibleType = string | boolean | null;
@@ -97,6 +102,12 @@ export function toJson<T = any>(value: T): JsonValue<T> {
  * ```
  */
 export function createNumberJsonCodec(
+  codec: FixedSizeCodec<number>,
+): FixedSizeCodec<number, number | string>;
+export function createNumberJsonCodec(
+  codec: DynamicSizeCodec<number>,
+): DynamicSizeCodec<number, number | string>;
+export function createNumberJsonCodec(
   codec: Codec<number>,
 ): Codec<number, number | string> {
   return codec.beforeParse((input: number | string) =>
@@ -107,6 +118,12 @@ export function createNumberJsonCodec(
 /**
  * Create molecule codec which can parse 0x-prefix into Uint8Array.
  */
+export function createUint8ArrayJsonCodec(
+  codec: FixedSizeCodec<Uint8Array>,
+): FixedSizeCodec<Uint8Array, Uint8Array | string>;
+export function createUint8ArrayJsonCodec(
+  codec: DynamicSizeCodec<Uint8Array>,
+): DynamicSizeCodec<Uint8Array, Uint8Array | string>;
 export function createUint8ArrayJsonCodec(
   codec: Codec<Uint8Array>,
 ): Codec<Uint8Array, Uint8Array | string> {
@@ -128,6 +145,12 @@ export function createUint8ArrayJsonCodec(
 /**
  * Create molecule codec which can parse 0x-prefix into bigint.
  */
+export function createBigIntJsonCodec(
+  codec: FixedSizeCodec<bigint>,
+): FixedSizeCodec<bigint, bigint | string>;
+export function createBigIntJsonCodec(
+  codec: DynamicSizeCodec<bigint>,
+): DynamicSizeCodec<bigint, bigint | string>;
 export function createBigIntJsonCodec(
   codec: Codec<bigint>,
 ): Codec<bigint, bigint | string> {
@@ -151,6 +174,12 @@ export function createBigIntJsonCodec(
 /**
  * Create molecule codec which can parse 0x-prefix into JSBI.
  */
+export function createJSBIJsonCodec(
+  codec: FixedSizeCodec<JSBI>,
+): FixedSizeCodec<JSBI, JSBI | string>;
+export function createJSBIJsonCodec(
+  codec: DynamicSizeCodec<JSBI>,
+): DynamicSizeCodec<JSBI, JSBI | string>;
 export function createJSBIJsonCodec(
   codec: Codec<JSBI>,
 ): Codec<JSBI, JSBI | string> {
