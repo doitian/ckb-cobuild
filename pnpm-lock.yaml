@@ -70,6 +70,43 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2
 
+  packages/ckb-molecule-codecs:
+    dependencies:
+      '@ckb-cobuild/molecule':
+        specifier: workspace:^
+        version: link:../molecule
+      '@ckb-cobuild/molecule-jsbi':
+        specifier: workspace:^
+        version: link:../molecule-jsbi
+      '@ckb-cobuild/molecule-json':
+        specifier: workspace:^
+        version: link:../molecule-json
+    devDependencies:
+      '@ckb-cobuild/hex-encoding':
+        specifier: workspace:1.0.0-next.0
+        version: link:../hex-encoding
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@repo/tsup-patcher':
+        specifier: workspace:*
+        version: link:../tsup-patcher
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/jest':
+        specifier: ^29.5.11
+        version: 29.5.11
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0(@types/node@20.11.20)
+      ts-jest:
+        specifier: ^29.1.1
+        version: 29.1.1(@babel/core@7.23.3)(esbuild@0.19.11)(jest@29.7.0)(typescript@5.2.2)
+      tsup:
+        specifier: ^8.0.1
+        version: 8.0.1(typescript@5.2.2)
+
   packages/cobuild:
     dependencies:
       '@ckb-lumos/base':
@@ -255,6 +292,46 @@ importers:
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@20.11.20)
+      ts-jest:
+        specifier: ^29.1.1
+        version: 29.1.1(@babel/core@7.23.3)(esbuild@0.19.11)(jest@29.7.0)(typescript@5.2.2)
+      tsup:
+        specifier: ^8.0.1
+        version: 8.0.1(typescript@5.2.2)
+
+  packages/molecule-json:
+    dependencies:
+      '@ckb-cobuild/hex-encoding':
+        specifier: workspace:1.0.0-next.0
+        version: link:../hex-encoding
+      '@ckb-cobuild/molecule':
+        specifier: workspace:^
+        version: link:../molecule
+    devDependencies:
+      '@ckb-cobuild/molecule-bigint':
+        specifier: workspace:^
+        version: link:../molecule-bigint
+      '@ckb-cobuild/molecule-jsbi':
+        specifier: workspace:^
+        version: link:../molecule-jsbi
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@repo/tsup-patcher':
+        specifier: workspace:*
+        version: link:../tsup-patcher
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/jest':
+        specifier: ^29.5.11
+        version: 29.5.11
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0(@types/node@20.11.20)
+      jsbi:
+        specifier: ^4.3.0
+        version: 4.3.0
       ts-jest:
         specifier: ^29.1.1
         version: 29.1.1(@babel/core@7.23.3)(esbuild@0.19.11)(jest@29.7.0)(typescript@5.2.2)
@@ -5297,7 +5374,6 @@ packages:
 
   /jsbi@4.3.0:
     resolution: {integrity: sha512-SnZNcinB4RIcnEyZqFPdGPVgrg2AcnykiBy0sHVJQKHYeaLUvi3Exj+iaPpLnFVkDPZIV4U0yvgC9/R4uEAZ9g==}
-    dev: false
 
   /jsesc@0.5.0:
     resolution: {integrity: sha512-uZz5UnB7u4T9LvwmFqXii7pZSouaRPorGs5who1Ip7VO0wxanFvBL7GkM6dTHlgX+jhBApRetaWpnDabOeTcnA==}

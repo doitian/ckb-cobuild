@@ -13,6 +13,16 @@
  */
 import { NumberCodec, NumberCodecSpec } from "@ckb-cobuild/molecule";
 
+/**
+ * A wrapper of BigInt to support negative hex string.
+ */
+export function makeBigInt(arg: number | string | boolean | bigint): bigint {
+  if (typeof arg === "string" && arg.startsWith("-")) {
+    return -BigInt(arg.slice(1));
+  }
+  return BigInt(arg);
+}
+
 export function createBigUint64Codec(
   name: string,
   littleEndian: boolean,

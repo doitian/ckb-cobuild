@@ -15,6 +15,8 @@
 import JSBI from "jsbi";
 import { NumberCodec, NumberCodecSpec } from "@ckb-cobuild/molecule";
 
+export { JSBI };
+
 /**
  * A wrapper of JSBI.BigInt to support negative hex string.
  */

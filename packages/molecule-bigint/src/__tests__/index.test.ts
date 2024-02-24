@@ -1,4 +1,5 @@
 import {
+  makeBigInt,
   Uint64,
   Int64,
   Uint128,
@@ -9,6 +10,15 @@ import {
   unpackUintN,
 } from "../";
 import mol from "@ckb-cobuild/molecule";
+
+describe("makeBigInt", () => {
+  test.each([
+    ["0xf", 0xfn],
+    ["-0xf", -0xfn],
+  ])("%s", (input, expected) => {
+    expect(makeBigInt(input)).toEqual(expected);
+  });
+});
 
 describe("Uint64", () => {
   describe(".safeParse", () => {
