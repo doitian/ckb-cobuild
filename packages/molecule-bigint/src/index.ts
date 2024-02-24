@@ -1,5 +1,5 @@
 /**
- * Number Codecs of 64-bit integers using the native bigint.
+ * Number Codecs of integers using JSBI.
  * @module
  * @example
  * ```ts
@@ -11,7 +11,7 @@
  * // => 1n
  * ```
  */
-import { NumberCodec } from "@ckb-cobuild/molecule";
+import { NumberCodec, NumberCodecSpec } from "@ckb-cobuild/molecule";
 
 export function createBigUint64Codec(
   name: string,
@@ -52,3 +52,127 @@ export function createBigInt64Codec(
   });
 }
 export const Int64 = createBigInt64Codec("Int64", true);
+
+export function packUintN(
+  byteLength: number,
+  value: bigint,
+  buffer: Uint8Array,
+  littleEndian: boolean,
+) {
+  const view = new DataView(buffer.buffer, buffer.byteOffset);
+
+  let remainingBytes = byteLength;
+  let remainingValue = BigInt.asUintN(byteLength << 3, value);
+  let [offset, step] = littleEndian ? [0, 4] : [byteLength - 4, -4];
+
+  while (remainingBytes >= 4) {
+    view.setUint32(offset, Number(remainingValue & 0xffffffffn), littleEndian);
+
+    offset += step;
+    remainingBytes -= 4;
+    remainingValue = remainingValue >> 32n;
+  }
+
+  step = littleEndian ? 1 : -1;
+  if (!littleEndian) {
+    offset += 3;
+  }
+
+  while (remainingBytes > 0) {
+    view.setUint8(offset, Number(remainingValue & 0xffn));
+
+    offset += step;
+    remainingBytes -= 1;
+    remainingValue = remainingValue >> 8n;
+  }
+}
+
+export function unpackUintN(
+  byteLength: number,
+  buffer: Uint8Array,
+  littleEndian: boolean,
+): bigint {
+  const view = new DataView(buffer.buffer, buffer.byteOffset);
+
+  let remainingBytes = byteLength;
+  let value = 0n;
+  let [offset, step] = littleEndian ? [byteLength - 4, -4] : [0, 4];
+
+  while (remainingBytes >= 4) {
+    if (value !== 0n) {
+      value = value << 32n;
+    }
+    value += BigInt(view.getUint32(offset, littleEndian));
+
+    offset += step;
+    remainingBytes -= 4;
+  }
+
+  step = littleEndian ? -1 : 1;
+  if (littleEndian) {
+    offset += 3;
+  }
+
+  while (remainingBytes > 0) {
+    value = value << 8n;
+    value += BigInt(view.getUint8(offset));
+
+    offset += step;
+    remainingBytes -= 1;
+  }
+
+  return value;
+}
+
+export function createBigUintNCodecSpec(
+  fixedByteLength: number,
+  littleEndian: boolean,
+): NumberCodecSpec<bigint> {
+  return {
+    checkNumber(value) {
+      return BigInt.asUintN(fixedByteLength << 3, value) === value;
+    },
+    packNumberTo(value, buffer) {
+      return packUintN(fixedByteLength, value, buffer, littleEndian);
+    },
+    unpackNumber(buffer) {
+      return unpackUintN(fixedByteLength, buffer, littleEndian);
+    },
+  };
+}
+
+export function createBigUintNCodec(
+  name: string,
+  fixedByteLength: number,
+  littleEndian: boolean,
+): NumberCodec<bigint> {
+  return new NumberCodec<bigint>(
+    name,
+    fixedByteLength,
+    createBigUintNCodecSpec(fixedByteLength, littleEndian),
+  );
+}
+export const Uint128 = createBigUintNCodec("Uint128", 16, true);
+export const Uint256 = createBigUintNCodec("Uint256", 32, true);
+
+export function createBigIntNCodec(
+  name: string,
+  fixedByteLength: number,
+  littleEndian: boolean,
+): NumberCodec<bigint> {
+  const spec = createBigUintNCodecSpec(fixedByteLength, littleEndian);
+  const bitLength = fixedByteLength << 3;
+  return new NumberCodec<bigint>(name, fixedByteLength, {
+    checkNumber(value) {
+      return BigInt.asIntN(bitLength, value) === value;
+    },
+    packNumberTo(value, buffer) {
+      return spec.packNumberTo(BigInt.asUintN(bitLength, value), buffer);
+    },
+    unpackNumber(buffer) {
+      return BigInt.asIntN(bitLength, spec.unpackNumber(buffer));
+    },
+  });
+}
+export const Int128 = createBigIntNCodec("Int128", 16, true);
+export const Int256 = createBigIntNCodec("Int256", 32, true);
