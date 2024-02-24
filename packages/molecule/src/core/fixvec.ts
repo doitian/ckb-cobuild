@@ -99,7 +99,6 @@ export class Uint8ArrayFixvecCodec extends DynamicSizeCodec<Uint8Array> {
     this.expectMinimalByteLength(UINT32_BYTE_LENGTH, buffer);
     const view = new DataView(buffer.buffer, buffer.byteOffset);
     const length = view.getUint32(0, true);
-    console.log({ buffer, length });
     this.expectByteLength(UINT32_BYTE_LENGTH + length, buffer);
 
     // Create a copy to prevent accidental changes.
@@ -151,7 +150,7 @@ export function fixvec<TCodec extends AnyFixedSizeCodec>(
  * @example
  * ```ts
  * import { mol } from "@ckb-cobuild/molecule";
- * const Bytes = mol.byteFixvec("Bytes", mol.byte);
+ * const Bytes = mol.byteFixvec("Bytes");
  * ```
  */
 export function byteFixvec(name: string): Uint8ArrayFixvecCodec {

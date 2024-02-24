@@ -1,7 +1,6 @@
 {
-  "name": "@ckb-cobuild/molecule",
-  "version": "1.0.1",
-  "private": false,
+  "name": "@ckb-cobuild/hex-encoding",
+  "version": "1.0.0",
   "homepage": "https://github.com/doitian/ckb-cobuild-js",
   "repository": {
     "type": "git",
@@ -40,6 +39,7 @@
     "@repo/tsup-patcher": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/jest": "^29.5.11",
+    "@types/node": "^20.11.20",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.1",
     "tsup": "^8.0.1"

@@ -96,10 +96,16 @@ export class TableCodec<
       const result: Partial<InferShape<TShape>> = {};
       for (const [i, key] of this.order.entries()) {
         const codec = this.inner[key]!;
-        result[key] = codec.unpack(
-          buffer.subarray(offsets[i]!, offsets[i + 1]!),
-          strict,
-        );
+        try {
+          result[key] = codec.unpack(
+            buffer.subarray(offsets[i]!, offsets[i + 1]!),
+            strict,
+          );
+        } catch (err) {
+          throw unpackError(`Invalid table field ${key as string}: ${err}`, {
+            cause: err,
+          });
+        }
       }
       return result as InferShape<TShape>;
     }

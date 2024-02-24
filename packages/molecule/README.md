@@ -5,6 +5,11 @@ An opinionated [molecule](https://github.com/nervosnetwork/molecule) library whi
 - [API Docs](https://ckb-cobuild-docs.vercel.app/api/modules/_ckb_cobuild_molecule.html)
 - [NPM Package](https://www.npmjs.com/package/@ckb-cobuild/molecule)
 
+## More Codecs
+
+- `@ckb-cobuild/molecule-bigint`: BigInt codecs for native bigint.
+- `@ckb-cobuild/molecule-jsbi`: BigInt integer codecs via JSBI.
+
 ## Browser Compatibility
 
 - `TypedArray`: [Can I Use?](https://caniuse.com/mdn-javascript_builtins_typedarray)

@@ -1,5 +1,17 @@
 # @ckb-cobuild/cobuild
 
+## 3.0.0
+
+### Major Changes
+
+- bd644c4: :sparkles: Extract cobuild/json into molecule-json
+
+## 3.0.0-next.0
+
+### Major Changes
+
+- bd644c4: :sparkles: Extract cobuild/json into molecule-json
+
 ## 2.0.0
 
 ### Major Changes
