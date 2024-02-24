@@ -12,6 +12,7 @@ import {
   createUint8ArrayJsonCodec,
   createJSBIJsonCodec,
 } from "@ckb-cobuild/molecule-json";
+import ckbHasher from "@ckb-cobuild/ckb-hasher";
 
 export const Uint32 = createNumberJsonCodec(mol.Uint32);
 export const Uint64 = createJSBIJsonCodec(JSBICodecs.Uint64);
@@ -149,6 +150,13 @@ export const Transaction = mol.table(
   ["raw", "witnesses"],
 );
 
+function transactionRawSubarray(buffer: Uint8Array) {
+  const view = new DataView(buffer.buffer, buffer.byteOffset);
+  const beginPos = view.getUint32(4, true);
+  const endPos = view.getUint32(8, true);
+  return buffer.subarray(beginPos, endPos);
+}
+
 export const FlattenTransaction = Transaction.around({
   safeParse: (
     input: mol.InferParseInput<typeof RawTransaction> & {
@@ -171,12 +179,14 @@ export const FlattenTransaction = Transaction.around({
       witnesses,
     };
   },
-  didUnpack: (value: mol.Infer<typeof Transaction>, _buffer: Uint8Array) => {
+  didUnpack: (value: mol.Infer<typeof Transaction>, buffer: Uint8Array) => {
     const { raw, witnesses } = value;
     return {
       ...raw,
       witnesses,
-      hash: "0x",
+      hash: `0x${ckbHasher()
+        .update(transactionRawSubarray(buffer))
+        .digest("hex")}`,
     } as FlattenTransaction;
   },
 });
@@ -246,12 +256,12 @@ export const FlattenHeader = Header.around({
       nonce,
     };
   },
-  didUnpack: (value: mol.Infer<typeof Header>, _buffer: Uint8Array) => {
+  didUnpack: (value: mol.Infer<typeof Header>, buffer: Uint8Array) => {
     const { raw, nonce } = value;
     return {
       ...raw,
       nonce,
-      hash: "0x",
+      hash: `0x${ckbHasher().update(buffer).digest("hex")}`,
     } as FlattenHeader;
   },
 });

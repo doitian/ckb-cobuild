@@ -170,7 +170,7 @@ describe("BlockV1", () => {
       extension:
         "0x4e5117b595abdadb53704755ada3915b5cc72d647ca487ef7f8ff72e9e93ed0b",
       header: {
-        hash: "0x",
+        hash: "0x041002afe300a332e16601a347107be1135ded74d8d269f95ca038bc970d4a2e",
         nonce: "0x134529aa12c7437c81dc85898cb0cdc6",
         compact_target: "0x1d0a2e15",
         dao: "0xd7fa1e87a4f98a4b8824ccfc6bef2700170e5413cbca180600c6d1b9c2c4dc08",
@@ -190,7 +190,7 @@ describe("BlockV1", () => {
       proposals: ["0x866d6a852895cc73882e", "0x1bacadba568cebeab7ca"],
       transactions: [
         {
-          hash: "0x",
+          hash: "0x8a1c83e55f1196b4cecf5184ccbd54d80eb8c826b64eac9f1374e64ede507ef2",
           cell_deps: [],
           header_deps: [],
           inputs: [
@@ -222,7 +222,7 @@ describe("BlockV1", () => {
           ],
         },
         {
-          hash: "0x",
+          hash: "0xabade4ec074fc2c68c17a1bc4b580f3ae99cdc2732b871627cb98709b71e894e",
           cell_deps: [
             {
               dep_type: "code",
@@ -342,7 +342,7 @@ describe("BlockV1", () => {
           ],
         },
         {
-          hash: "0x",
+          hash: "0xdfa3266ab2a2b4390d6b6131faba8da46b50746de815f1b135827c85dd8337ab",
           cell_deps: [
             {
               dep_type: "code",
