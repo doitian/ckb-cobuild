@@ -45,6 +45,7 @@
     "tsup": "^8.0.1"
   },
   "dependencies": {
+    "@ckb-cobuild/ckb-hasher": "workspace:^",
     "@ckb-cobuild/molecule": "workspace:^",
     "@ckb-cobuild/molecule-jsbi": "workspace:^",
     "@ckb-cobuild/molecule-json": "workspace:^"

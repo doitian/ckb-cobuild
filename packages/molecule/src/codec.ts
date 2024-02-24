@@ -129,7 +129,7 @@ export abstract class Codec<T, TParseInput = T> {
   }: {
     safeParse: (input: TOutterParseInput) => SafeParseReturnType<TOutter>;
     willPack: (input: TOutter) => T;
-    didUnpack: (value: T) => TOutter;
+    didUnpack: (value: T, buffer: Uint8Array) => TOutter;
   }): Codec<TOutter, TOutterParseInput>;
 
   /**
@@ -203,7 +203,7 @@ export abstract class DynamicSizeCodec<T, TParseInput = T> extends Codec<
   }: {
     safeParse: (input: TOutterParseInput) => SafeParseReturnType<TOutter>;
     willPack: (input: TOutter) => T;
-    didUnpack: (value: T) => TOutter;
+    didUnpack: (value: T, buffer: Uint8Array) => TOutter;
   }): DynamicSizeCodec<TOutter, TOutterParseInput> {
     return new DynamicSizeAroundCodec(this, safeParse, willPack, didUnpack);
   }
@@ -259,7 +259,7 @@ export abstract class FixedSizeCodec<T, TParseInput = T> extends Codec<
   }: {
     safeParse: (input: TOutterParseInput) => SafeParseReturnType<TOutter>;
     willPack: (input: TOutter) => T;
-    didUnpack: (value: T) => TOutter;
+    didUnpack: (value: T, buffer: Uint8Array) => TOutter;
   }): FixedSizeCodec<TOutter, TOutterParseInput> {
     return new FixedSizeAroundCodec(this, safeParse, willPack, didUnpack);
   }
@@ -328,13 +328,13 @@ export class DynamicSizeAroundCodec<
   readonly inner: Codec<TInner, TInnerParseInput>;
   private readonly _safeParse: (input: TParseInput) => SafeParseReturnType<T>;
   private readonly _willPack: (input: T) => TInner;
-  private readonly _didUnpack: (value: TInner) => T;
+  private readonly _didUnpack: (value: TInner, buffer: Uint8Array) => T;
 
   constructor(
     inner: Codec<TInner, TInnerParseInput>,
     safeParse: (input: TParseInput) => SafeParseReturnType<T>,
     willPack: (input: T) => TInner,
-    didUnpack: (value: TInner) => T,
+    didUnpack: (value: TInner, buffer: Uint8Array) => T,
   ) {
     super(inner.name);
     this.inner = inner;
@@ -348,7 +348,7 @@ export class DynamicSizeAroundCodec<
   }
 
   unpack(buffer: Uint8Array, strict?: boolean): T {
-    return this._didUnpack(this.inner.unpack(buffer, strict));
+    return this._didUnpack(this.inner.unpack(buffer, strict), buffer);
   }
 
   packTo(value: T, writer: BinaryWriter) {
@@ -387,7 +387,7 @@ export class FixedSizeAroundCodec<
     inner: FixedSizeCodec<TInner, TInnerParseInput>,
     safeParse: (input: TParseInput) => SafeParseReturnType<T>,
     willPack: (input: T) => TInner,
-    didUnpack: (value: TInner) => T,
+    didUnpack: (value: TInner, buffer: Uint8Array) => T,
   ) {
     super(inner.name, inner.fixedByteLength);
     this.inner = inner;

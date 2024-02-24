@@ -12,6 +12,7 @@ import {
   createUint8ArrayJsonCodec,
   createJSBIJsonCodec,
 } from "@ckb-cobuild/molecule-json";
+import ckbHasher from "@ckb-cobuild/ckb-hasher";
 
 export const Uint32 = createNumberJsonCodec(mol.Uint32);
 export const Uint64 = createJSBIJsonCodec(JSBICodecs.Uint64);
@@ -135,6 +136,11 @@ export const RawTransaction = mol.table(
   ["version", "cell_deps", "header_deps", "inputs", "outputs", "outputs_data"],
 );
 
+export type FlattenTransaction = mol.Infer<typeof RawTransaction> & {
+  hash: string;
+  witnesses: mol.Infer<typeof BytesVec>;
+};
+
 export const Transaction = mol.table(
   "Transaction",
   {
@@ -144,7 +150,48 @@ export const Transaction = mol.table(
   ["raw", "witnesses"],
 );
 
-export const TransactionVec = mol.vector("TransactionVec", Transaction);
+function transactionRawSubarray(buffer: Uint8Array) {
+  const view = new DataView(buffer.buffer, buffer.byteOffset);
+  const beginPos = view.getUint32(4, true);
+  const endPos = view.getUint32(8, true);
+  return buffer.subarray(beginPos, endPos);
+}
+
+export const FlattenTransaction = Transaction.around({
+  safeParse: (
+    input: mol.InferParseInput<typeof RawTransaction> & {
+      hash: string;
+      witnesses: mol.InferParseInput<typeof BytesVec>;
+    },
+  ) => {
+    const { hash, witnesses, ...raw } = input;
+    return mol.parseSuccessThen(RawTransaction.safeParse(raw), (raw) =>
+      mol.parseSuccessThen(BytesVec.safeParse(witnesses), (witnesses) =>
+        mol.parseSuccess({ hash, witnesses, ...raw } as FlattenTransaction),
+      ),
+    );
+  },
+  willPack: (input: FlattenTransaction) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { hash, witnesses, ...raw } = input;
+    return {
+      raw,
+      witnesses,
+    };
+  },
+  didUnpack: (value: mol.Infer<typeof Transaction>, buffer: Uint8Array) => {
+    const { raw, witnesses } = value;
+    return {
+      ...raw,
+      witnesses,
+      hash: `0x${ckbHasher()
+        .update(transactionRawSubarray(buffer))
+        .digest("hex")}`,
+    } as FlattenTransaction;
+  },
+});
+
+export const TransactionVec = mol.vector("TransactionVec", FlattenTransaction);
 
 export const RawHeader = mol.struct(
   "RawHeader",
@@ -174,6 +221,11 @@ export const RawHeader = mol.struct(
   ],
 );
 
+export type FlattenHeader = mol.Infer<typeof RawHeader> & {
+  hash: string;
+  nonce: mol.Infer<typeof Uint128>;
+};
+
 export const Header = mol.struct(
   "Header",
   {
@@ -182,11 +234,42 @@ export const Header = mol.struct(
   },
   ["raw", "nonce"],
 );
+export const FlattenHeader = Header.around({
+  safeParse: (
+    input: mol.InferParseInput<typeof RawHeader> & {
+      hash: string;
+      nonce: mol.InferParseInput<typeof Uint128>;
+    },
+  ) => {
+    const { hash, nonce, ...raw } = input;
+    return mol.parseSuccessThen(RawHeader.safeParse(raw), (raw) =>
+      mol.parseSuccessThen(Uint128.safeParse(nonce), (nonce) =>
+        mol.parseSuccess({ hash, nonce, ...raw } as FlattenHeader),
+      ),
+    );
+  },
+  willPack: (input: FlattenHeader) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { hash, nonce, ...raw } = input;
+    return {
+      raw,
+      nonce,
+    };
+  },
+  didUnpack: (value: mol.Infer<typeof Header>, buffer: Uint8Array) => {
+    const { raw, nonce } = value;
+    return {
+      ...raw,
+      nonce,
+      hash: `0x${ckbHasher().update(buffer).digest("hex")}`,
+    } as FlattenHeader;
+  },
+});
 
 export const UncleBlock = mol.table(
   "UncleBlock",
   {
-    header: Header,
+    header: FlattenHeader,
     proposals: ProposalShortIdVec,
   },
   ["header", "proposals"],
@@ -196,7 +279,7 @@ export const UncleBlockVec = mol.vector("UncleBlockVec", UncleBlock);
 export const Block = mol.table(
   "Block",
   {
-    header: Header,
+    header: FlattenHeader,
     uncles: UncleBlockVec,
     transactions: TransactionVec,
     proposals: ProposalShortIdVec,
@@ -207,7 +290,7 @@ export const Block = mol.table(
 export const BlockV1 = mol.table(
   "BlockV1",
   {
-    header: Header,
+    header: FlattenHeader,
     uncles: UncleBlockVec,
     transactions: TransactionVec,
     proposals: ProposalShortIdVec,
