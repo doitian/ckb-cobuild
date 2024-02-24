@@ -1,16 +1,18 @@
-import { blockchain } from "@ckb-lumos/base";
 import {
-  makeMessage,
-  makeBuildingPacketV1,
+  CellInput,
+  CellOutput,
+  Script,
+} from "@ckb-cobuild/ckb-molecule-codecs";
+import { BuildingPacket, BuildingPacketV1 } from "../building-packet";
+import {
   makeBuildingPacket,
+  makeBuildingPacketV1,
   makeCellInput,
   makeCellOutput,
+  makeMessage,
   makeScript,
 } from "../factory";
 import { Message } from "../witness-layout";
-import { BuildingPacketV1, BuildingPacket } from "../building-packet";
-
-const { CellInput, CellOutput, Script } = blockchain;
 
 test("makeMessage", () => {
   const output = makeMessage();
@@ -21,12 +23,16 @@ test("makeMessage", () => {
 test("makeBuildingPacketV1", () => {
   const output = makeBuildingPacketV1();
   const unpacked = BuildingPacketV1.unpack(BuildingPacketV1.pack(output));
+
+  unpacked.payload.hash = output.payload.hash;
   expect(output).toStrictEqual(unpacked);
 });
 
 test("makeBuildingPacket", () => {
   const output = makeBuildingPacket();
   const unpacked = BuildingPacket.unpack(BuildingPacket.pack(output));
+
+  unpacked.value.payload.hash = output.value.payload.hash;
   expect(output).toStrictEqual(unpacked);
 });
 
@@ -40,13 +46,13 @@ test("makeCellOutput", () => {
   const output = makeCellOutput();
   const unpacked = CellOutput.unpack(CellOutput.pack(output));
   expect(output).toStrictEqual(unpacked);
-  expect(output.lock).not.toBeUndefined();
-  expect(output.type).toBeUndefined();
+  expect(output.lock).not.toBeNull();
+  expect(output.type).toBeNull();
 });
 
 test("makeScript", () => {
   const output = makeScript();
   const unpacked = Script.unpack(Script.pack(output));
   expect(output).toStrictEqual(unpacked);
-  expect(output.hashType).toStrictEqual("data");
+  expect(output.hash_type).toStrictEqual("data");
 });

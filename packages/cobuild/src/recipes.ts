@@ -10,20 +10,19 @@
  * import { recipes, factory } from "@ckb-cobuild/cobuild";
  * const input = factory.makeBuildingPacket();
  * const output = produce(input, (draft) => {
- *   recipes.addInputCell(draft, makeInputCell());
+ *   recipes.addInputCell(draft, factory.makeInputCell());
  *   draft.value.witnesses.push("0x");
  * });
  * ```
  */
-import { bytes } from "@ckb-lumos/codec";
+import { CellDep, WitnessArgs } from "@ckb-cobuild/ckb-molecule-codecs";
 import { BuildingPacket, InputCell, OutputCell } from "./building-packet";
-import { CellDep, WitnessArgs } from "./builtins";
 import { makeDefaultWitnessLayout, makeWitnessArgs } from "./factory";
 import { WitnessLayout } from "./witness-layout";
 
 /** Make functions compatible with Immer */
 export type WritableDraft<T> = { -readonly [K in keyof T]: Draft<T[K]> };
-export type Draft<T> = T extends number | string | boolean
+export type Draft<T> = T extends number | string | boolean | bigint
   ? T
   : WritableDraft<T>;
 
@@ -43,13 +42,13 @@ export function addInputCell(
 ): WritableDraft<BuildingPacket> {
   const {
     payload: { inputs },
-    resolvedInputs: { outputs, outputsData },
+    resolved_inputs: { outputs, outputs_data },
   } = buildingPacket.value;
 
-  const index = Math.max(inputs.length, outputs.length, outputsData.length);
+  const index = Math.max(inputs.length, outputs.length, outputs_data.length);
   inputs[index] = cell.cellInput;
   outputs[index] = cell.cellOutput;
-  outputsData[index] = cell.data;
+  outputs_data[index] = cell.data;
 
   return buildingPacket;
 }
@@ -68,12 +67,12 @@ export function addOutputCell(
   cell: OutputCell,
 ): WritableDraft<BuildingPacket> {
   const {
-    payload: { outputs, outputsData },
+    payload: { outputs, outputs_data },
   } = buildingPacket.value;
 
-  const index = Math.max(outputs.length, outputsData.length);
+  const index = Math.max(outputs.length, outputs_data.length);
   outputs[index] = cell.cellOutput;
-  outputsData[index] = cell.data;
+  outputs_data[index] = cell.data;
 
   return buildingPacket;
 }
@@ -94,13 +93,11 @@ export function updateWitnessArgs(
   const witnesses = buildingPacket.value.payload.witnesses;
   const witness = witnesses[index];
   const unpacked =
-    witness !== "0x" && witness !== undefined && witness !== null
-      ? WitnessArgs.unpack(witness)
+    witness !== undefined && witness !== null && witness.length > 0
+      ? WitnessArgs.unpack(witness as Uint8Array)
       : makeWitnessArgs();
 
-  witnesses[index] = bytes.hexify(
-    WitnessArgs.pack(update(unpacked) ?? unpacked),
-  );
+  witnesses[index] = WitnessArgs.pack(update(unpacked) ?? unpacked);
 
   return buildingPacket;
 }
@@ -121,24 +118,25 @@ export function updateWitnessLayout(
   const witnesses = buildingPacket.value.payload.witnesses;
   const witness = witnesses[index];
   const unpacked =
-    witness !== "0x" && witness !== undefined && witness !== null
-      ? WitnessLayout.unpack(witness)
+    witness !== undefined && witness !== null && witness.length > 0
+      ? WitnessLayout.unpack(witness as Uint8Array)
       : makeDefaultWitnessLayout();
 
-  witnesses[index] = bytes.hexify(
-    WitnessLayout.pack(update(unpacked) ?? unpacked),
-  );
+  witnesses[index] = WitnessLayout.pack(update(unpacked) ?? unpacked);
 
   return buildingPacket;
 }
 
-type CellDepPredicate = (cellDep: CellDep) => boolean;
+type CellDepPredicate = (cellDep: CellDep | WritableDraft<CellDep>) => boolean;
 
-function cellDepEqualWithoutCurry(a: CellDep, b: CellDep) {
+function cellDepEqualWithoutCurry(
+  a: CellDep | WritableDraft<CellDep>,
+  b: CellDep | WritableDraft<CellDep>,
+) {
   return (
-    a.outPoint.txHash === b.outPoint.txHash &&
-    a.outPoint.index === b.outPoint.index &&
-    a.depType === b.depType
+    a.out_point.tx_hash === b.out_point.tx_hash &&
+    a.out_point.index === b.out_point.index &&
+    a.dep_type === b.dep_type
   );
 }
 
@@ -152,9 +150,17 @@ function cellDepEqualWithoutCurry(a: CellDep, b: CellDep) {
  * cellDeps.findIndex(cellDepEqual(cellDepToFind));
  * ```
  */
-export function cellDepEqual(a: CellDep): CellDepPredicate;
-export function cellDepEqual(a: CellDep, b: CellDep): boolean;
-export function cellDepEqual(a: CellDep, ...rest: CellDep[]) {
+export function cellDepEqual(
+  a: CellDep | WritableDraft<CellDep>,
+): CellDepPredicate;
+export function cellDepEqual(
+  a: CellDep | WritableDraft<CellDep>,
+  b: CellDep | WritableDraft<CellDep>,
+): boolean;
+export function cellDepEqual(
+  a: CellDep | WritableDraft<CellDep>,
+  ...rest: (CellDep | WritableDraft<CellDep>)[]
+) {
   if (rest.length > 0) {
     return cellDepEqualWithoutCurry(a, rest[0]!);
   }
@@ -169,7 +175,7 @@ export function addDistinctCellDep(
   buildingPacket: WritableDraft<BuildingPacket>,
   cellDep: CellDep,
 ): WritableDraft<BuildingPacket> {
-  const cellDeps = buildingPacket.value.payload.cellDeps;
+  const cellDeps = buildingPacket.value.payload.cell_deps;
 
   if (cellDeps.findIndex(cellDepEqual(cellDep)) === -1) {
     cellDeps.push(cellDep);
@@ -180,9 +186,9 @@ export function addDistinctCellDep(
 
 export function addDistinctHeaderDep(
   buildingPacket: WritableDraft<BuildingPacket>,
-  blockHash: string,
+  blockHash: Uint8Array,
 ): WritableDraft<BuildingPacket> {
-  const headerDeps = buildingPacket.value.payload.headerDeps;
+  const headerDeps = buildingPacket.value.payload.header_deps;
 
   if (headerDeps.indexOf(blockHash) === -1) {
     headerDeps.push(blockHash);

@@ -1,4 +1,3 @@
-import { BI } from "@ckb-lumos/bi";
 import {
   BuildingPacket,
   getInputCell,
@@ -14,55 +13,58 @@ describe("BuildingPacket", () => {
         actions: [],
       },
       payload: {
+        hash: new Uint8Array(32),
         version: 0,
         inputs: [
           {
-            since: BI.from(0),
-            previousOutput: {
-              txHash: makeByte32(1),
+            since: 0n,
+            previous_output: {
+              tx_hash: makeByte32(1),
               index: 2,
             },
           },
         ],
         outputs: [
           {
-            capacity: BI.from(3),
+            capacity: 3n,
             lock: {
-              codeHash: makeByte32(4),
-              hashType: "type",
-              args: "0x05",
+              code_hash: makeByte32(4),
+              hash_type: "type",
+              args: Uint8Array.of(5),
             },
+            type: null,
           },
         ],
-        outputsData: ["0x06"],
-        cellDeps: [],
-        headerDeps: [],
+        outputs_data: [Uint8Array.of(6)],
+        cell_deps: [],
+        header_deps: [],
         witnesses: [],
       },
-      resolvedInputs: {
+      resolved_inputs: {
         outputs: [
           {
-            capacity: BI.from(7),
+            capacity: 7n,
             lock: {
-              codeHash: makeByte32(8),
-              hashType: "type",
-              args: "0x09",
+              code_hash: makeByte32(8),
+              hash_type: "type",
+              args: Uint8Array.of(9),
             },
+            type: null,
           },
         ],
-        outputsData: ["0x10"],
+        outputs_data: [Uint8Array.of(10)],
       },
-      changeOutput: undefined,
-      scriptInfos: [
+      change_output: null,
+      script_infos: [
         {
           name: "a",
           url: "b",
-          scriptHash: makeByte32(11),
+          script_hash: makeByte32(11),
           schema: "c",
-          messageType: "d",
+          message_type: "d",
         },
       ],
-      lockActions: [],
+      lock_actions: [],
     },
   };
 
@@ -70,6 +72,7 @@ describe("BuildingPacket", () => {
     const output = BuildingPacket.unpack(
       BuildingPacket.pack(sampleBuildingPacket),
     );
+    output.value.payload.hash = sampleBuildingPacket.value.payload.hash;
     expect(output).toEqual(sampleBuildingPacket);
   });
 
@@ -77,8 +80,8 @@ describe("BuildingPacket", () => {
     const cell = getInputCell(sampleBuildingPacket, 0);
     expect(cell).toEqual({
       cellInput: sampleBuildingPacket.value.payload.inputs[0],
-      cellOutput: sampleBuildingPacket.value.resolvedInputs.outputs[0],
-      data: sampleBuildingPacket.value.resolvedInputs.outputsData[0],
+      cellOutput: sampleBuildingPacket.value.resolved_inputs.outputs[0],
+      data: sampleBuildingPacket.value.resolved_inputs.outputs_data[0],
     });
   });
 
@@ -86,7 +89,7 @@ describe("BuildingPacket", () => {
     const cell = getOutputCell(sampleBuildingPacket, 0);
     expect(cell).toEqual({
       cellOutput: sampleBuildingPacket.value.payload.outputs[0],
-      data: sampleBuildingPacket.value.payload.outputsData[0],
+      data: sampleBuildingPacket.value.payload.outputs_data[0],
     });
   });
 });

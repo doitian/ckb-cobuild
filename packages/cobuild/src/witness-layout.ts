@@ -1,46 +1,50 @@
-import { BytesLike, UnpackResult, bytes, molecule } from "@ckb-lumos/codec";
-
-import { Bytes, Byte32, Uint32LE, WitnessArgs } from "./builtins";
-const { table, union, vector } = molecule;
+import { Byte32, Bytes, WitnessArgs } from "@ckb-cobuild/ckb-molecule-codecs";
+import mol from "@ckb-cobuild/molecule";
 
 /** @group Molecule Codecs */
-export const Action = table(
+export const Action = mol.table(
+  "Action",
   {
-    scriptInfoHash: Byte32,
-    scriptHash: Byte32,
+    script_info_hash: Byte32,
+    script_hash: Byte32,
     data: Bytes,
   },
-  ["scriptInfoHash", "scriptHash", "data"],
+  ["script_info_hash", "script_hash", "data"],
 );
 
 /** @group Molecule Codecs */
-export const ActionVec = vector(Action);
+export const ActionVec = mol.vector("ActionVec", Action);
 
 /** @group Molecule Codecs */
-export const Message = table({ actions: ActionVec }, ["actions"]);
-
-/** @group Molecule Codecs */
-export const SighashAll = table({ seal: Bytes, message: Message }, [
-  "seal",
-  "message",
+export const Message = mol.table("Message", { actions: ActionVec }, [
+  "actions",
 ]);
 
 /** @group Molecule Codecs */
-export const SighashAllOnly = table({ seal: Bytes }, ["seal"]);
+export const SighashAll = mol.table(
+  "SighashAll",
+  { seal: Bytes, message: Message },
+  ["seal", "message"],
+);
+
+/** @group Molecule Codecs */
+export const SighashAllOnly = mol.table("SighashAllOnly", { seal: Bytes }, [
+  "seal",
+]);
 
 /**
  * Schema TBD
  * @group Molecule Codecs
  * @experimental
  */
-export const OtxStart = table({}, []);
+export const OtxStart = mol.table("OtxStart", {}, []);
 
 /**
  * Schema TBD
  * @group Molecule Codecs
  * @experimental
  */
-export const Otx = table({}, []);
+export const Otx = mol.table("Otx", {}, []);
 
 export const WitnessLayoutTags = {
   SighashAll: 4278190081,
@@ -52,27 +56,20 @@ export type WitnessLayoutTagNames = keyof typeof WitnessLayoutTags;
 /** Minimal union tag for {@link WitnessLayout}. */
 export const MinWitnessLayoutTag = WitnessLayoutTags.SighashAll;
 /** @group Molecule Codecs */
-export const WitnessLayout = union(
+export const WitnessLayout = mol.union(
+  "WitnessLayout",
   { SighashAll, SighashAllOnly, Otx, OtxStart },
   WitnessLayoutTags,
 );
 
-/** @group Molecule Unpack Result */
-export type Action = UnpackResult<typeof Action>;
-/** @group Molecule Unpack Result */
-export type ActionVec = UnpackResult<typeof ActionVec>;
-/** @group Molecule Unpack Result */
-export type Message = UnpackResult<typeof Message>;
-/** @group Molecule Unpack Result */
-export type SighashAll = UnpackResult<typeof SighashAll>;
-/** @group Molecule Unpack Result */
-export type SighashAllOnly = UnpackResult<typeof SighashAllOnly>;
-/** @group Molecule Unpack Result */
-export type Otx = UnpackResult<typeof Otx>;
-/** @group Molecule Unpack Result */
-export type OtxStart = UnpackResult<typeof OtxStart>;
-/** @group Molecule Unpack Result */
-export type WitnessLayout = UnpackResult<typeof WitnessLayout>;
+export type Action = mol.Infer<typeof Action>;
+export type ActionVec = mol.Infer<typeof ActionVec>;
+export type Message = mol.Infer<typeof Message>;
+export type SighashAll = mol.Infer<typeof SighashAll>;
+export type SighashAllOnly = mol.Infer<typeof SighashAllOnly>;
+export type OtxStart = mol.Infer<typeof OtxStart>;
+export type Otx = mol.Infer<typeof Otx>;
+export type WitnessLayout = mol.Infer<typeof WitnessLayout>;
 
 /**
  * Parse the witness type from the first 4 bytes.
@@ -86,11 +83,11 @@ export type WitnessLayout = UnpackResult<typeof WitnessLayout>;
  * @see {@link tryParseWitness}
  */
 export function parseWitnessType(
-  witness: BytesLike | null | undefined,
+  witness: Uint8Array | null | undefined,
 ): "WitnessArgs" | WitnessLayoutTagNames {
-  const buf = bytes.bytify(witness ?? []);
-  if (buf.length > 4) {
-    const tagNumber = Uint32LE.unpack(buf.slice(0, 4));
+  if (witness !== null && witness !== undefined && witness.length > 4) {
+    const view = new DataView(witness.buffer, witness.byteOffset);
+    const tagNumber = view.getUint32(0, true);
     if (tagNumber >= MinWitnessLayoutTag) {
       for (const [name, number] of Object.entries(WitnessLayoutTags)) {
         if (tagNumber == number) {
@@ -121,18 +118,18 @@ export type ParseWitnessResult =
  * @see {@link parseWitnessType}
  */
 export function tryParseWitness(
-  witness: BytesLike | null | undefined,
+  witness: Uint8Array | null | undefined,
 ): ParseWitnessResult {
-  const buf = bytes.bytify(witness ?? []);
-  if (buf.length > 4) {
-    const typeIndex = Uint32LE.unpack(buf.slice(0, 4));
+  if (witness !== null && witness !== undefined && witness.length > 4) {
+    const view = new DataView(witness.buffer, witness.byteOffset);
+    const typeIndex = view.getUint32(0, true);
     try {
       if (typeIndex >= MinWitnessLayoutTag) {
-        return WitnessLayout.unpack(buf);
+        return WitnessLayout.unpack(witness);
       } else {
         return {
           type: "WitnessArgs",
-          value: WitnessArgs.unpack(buf),
+          value: WitnessArgs.unpack(witness),
         };
       }
     } catch (_err) {

@@ -1,26 +1,21 @@
-import { blockchain } from "@ckb-lumos/base";
-import {
-  PackParam,
-  PackResult,
-  UnpackResult,
-  createBytesCodec,
-  molecule,
-} from "@ckb-lumos/codec";
-import { ActionVec, Message } from "./witness-layout";
+import mol from "@ckb-cobuild/molecule";
 import {
   Byte32,
+  Bytes,
   BytesVec,
   CellInput,
   CellOutput,
   CellOutputVec,
-  Uint32LE,
-} from "./builtins";
-
-const { option, table, vector, union } = molecule;
+  Transaction,
+  Uint32,
+} from "@ckb-cobuild/ckb-molecule-codecs";
+import { ActionVec, Message } from "./witness-layout";
 
 /** @group Molecule Codecs */
-export const Uint32Opt = option(Uint32LE);
+export const Uint32Opt = mol.option("Uint32Opt", Uint32);
 
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
 /**
  * A codec which packs JavaScript string as utf-8 buffer into molecule `vector<byte>`.
  *
@@ -28,10 +23,12 @@ export const Uint32Opt = option(Uint32LE);
  * To support older browsers, consider a polyfill like [fast-text-encoding](https://github.com/samthor/fast-text-encoding)
  * @group Molecule Codecs
  */
-export const StringCodec = createBytesCodec<string>({
-  pack: (str) => new TextEncoder().encode(str),
-  unpack: (bytes) => new TextDecoder().decode(bytes),
+export const StringCodec = mol.byteFixvec("String").around({
+  safeParse: (input: string) => mol.parseSuccess(input),
+  willPack: (input: string) => textEncoder.encode(input),
+  didUnpack: (value: Uint8Array) => textDecoder.decode(value),
 });
+
 /**
  * An alias of {@link StringCodec}.
  *
@@ -45,95 +42,76 @@ export const String = StringCodec;
  * @alpha The fields are not finalized in this structure
  * @group Molecule Codecs
  */
-export const ScriptInfo = table(
+export const ScriptInfo = mol.table(
+  "ScriptInfo",
   {
     name: StringCodec,
     url: StringCodec,
-    scriptHash: Byte32,
+    script_hash: Byte32,
     schema: StringCodec,
-    messageType: StringCodec,
+    message_type: StringCodec,
   },
-  ["name", "url", "scriptHash", "schema", "messageType"],
+  ["name", "url", "script_hash", "schema", "message_type"],
 );
 
 /** @group Molecule Codecs */
-export const ScriptInfoVec = vector(ScriptInfo);
+export const ScriptInfoVec = mol.vector("ScriptInfoVec", ScriptInfo);
 
 /** @group Molecule Codecs */
-export const ResolvedInputs = table(
+export const ResolvedInputs = mol.table(
+  "ResolvedInputs",
   {
     outputs: CellOutputVec,
-    outputsData: BytesVec,
+    outputs_data: BytesVec,
   },
-  ["outputs", "outputsData"],
+  ["outputs", "outputs_data"],
 );
 
-/** @group Molecule Unpack Result */
-export type Transaction = UnpackResult<typeof blockchain.Transaction>;
-type TransactionPackParam =
-  | PackParam<typeof blockchain.Transaction>
-  | Transaction;
-
-type TransactionPackFunction = (
-  unpacked: TransactionPackParam,
-) => PackResult<typeof blockchain.Transaction>;
-
-/**
- * @group Molecule Codecs
- * @privateRemarks
- * Make life easier by allowing packing the unpack result.
- */
-export const Transaction = createBytesCodec({
-  pack: blockchain.Transaction.pack as unknown as TransactionPackFunction,
-  unpack: blockchain.Transaction.unpack,
-});
-
 /** @group Molecule Codecs */
-export const BuildingPacketV1 = table(
+export const BuildingPacketV1 = mol.table(
+  "BuildingPacketV1",
   {
     message: Message,
     payload: Transaction,
-    resolvedInputs: ResolvedInputs,
-    changeOutput: Uint32Opt,
-    scriptInfos: ScriptInfoVec,
-    lockActions: ActionVec,
+    resolved_inputs: ResolvedInputs,
+    change_output: Uint32Opt,
+    script_infos: ScriptInfoVec,
+    lock_actions: ActionVec,
   },
   [
     "message",
     "payload",
-    "resolvedInputs",
-    "changeOutput",
-    "scriptInfos",
-    "lockActions",
+    "resolved_inputs",
+    "change_output",
+    "script_infos",
+    "lock_actions",
   ],
 );
 
 /** @group Molecule Codecs */
-export const BuildingPacket = union({ BuildingPacketV1 }, ["BuildingPacketV1"]);
+export const BuildingPacket = mol.union(
+  "BuildingPacket",
+  { BuildingPacketV1 },
+  ["BuildingPacketV1"],
+);
 
-/** @group Molecule Unpack Result */
-export type Uint32Opt = UnpackResult<typeof Uint32Opt>;
-/** @group Molecule Unpack Result */
-export type ScriptInfo = UnpackResult<typeof ScriptInfo>;
-/** @group Molecule Unpack Result */
-export type ScriptInfoVec = UnpackResult<typeof ScriptInfoVec>;
-/** @group Molecule Unpack Result */
-export type ResolvedInputs = UnpackResult<typeof ResolvedInputs>;
-/** @group Molecule Unpack Result */
-export type BuildingPacketV1 = UnpackResult<typeof BuildingPacketV1>;
-/** @group Molecule Unpack Result */
-export type BuildingPacket = UnpackResult<typeof BuildingPacket>;
+export type Uint32Opt = mol.Infer<typeof Uint32Opt>;
+export type ScriptInfo = mol.Infer<typeof ScriptInfo>;
+export type ScriptInfoVec = mol.Infer<typeof ScriptInfoVec>;
+export type ResolvedInputs = mol.Infer<typeof ResolvedInputs>;
+export type BuildingPacketV1 = mol.Infer<typeof BuildingPacketV1>;
+export type BuildingPacket = mol.Infer<typeof BuildingPacket>;
 
 /** Bundle fields for a transaction input */
 export interface InputCell {
   cellInput: CellInput;
   cellOutput: CellOutput;
-  data: string;
+  data: Bytes;
 }
 /** Bundle fields for a transaction output */
 export interface OutputCell {
   cellOutput: CellOutput;
-  data: string;
+  data: Bytes;
 }
 export type Cell = InputCell | OutputCell;
 
@@ -144,8 +122,8 @@ export function getInputCell(
 ): InputCell | undefined {
   const result = {
     cellInput: buildingPacket.value.payload.inputs[index],
-    cellOutput: buildingPacket.value.resolvedInputs.outputs[index],
-    data: buildingPacket.value.resolvedInputs.outputsData[index],
+    cellOutput: buildingPacket.value.resolved_inputs.outputs[index],
+    data: buildingPacket.value.resolved_inputs.outputs_data[index],
   };
   if (
     result.cellInput !== undefined &&
@@ -163,7 +141,7 @@ export function getOutputCell(
 ): OutputCell | undefined {
   const result = {
     cellOutput: buildingPacket.value.payload.outputs[index],
-    data: buildingPacket.value.payload.outputsData[index],
+    data: buildingPacket.value.payload.outputs_data[index],
   };
   if (result.cellOutput !== undefined && result.data !== undefined) {
     return result as OutputCell;
