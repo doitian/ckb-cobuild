@@ -1,5 +1,12 @@
 # @ckb-cobuild/ckb-molecule-codecs
 
+## 2.0.1-next.0
+
+### Patch Changes
+
+- 6e13dc6: :sparkles: Export ckb codecs unpack result types
+- ecb7e57: :sparkles: Flatten export ckb-molecule-codecs
+
 ## 2.0.0
 
 ### Major Changes

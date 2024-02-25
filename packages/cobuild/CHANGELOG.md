@@ -1,5 +1,17 @@
 # @ckb-cobuild/cobuild
 
+## 4.0.0-next.0
+
+### Major Changes
+
+- b7f32af: :sparkles: Remove deps on lumos
+
+### Patch Changes
+
+- Updated dependencies [6e13dc6]
+- Updated dependencies [ecb7e57]
+  - @ckb-cobuild/ckb-molecule-codecs@2.0.1-next.0
+
 ## 3.0.0
 
 ### Major Changes

@@ -16,5 +16,9 @@
     "@repo/typescript-config": "0.0.0",
     "@repo/ui": "0.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "brave-tips-prove",
+    "bright-cherries-shave",
+    "witty-kiwis-carry"
+  ]
 }
