@@ -129,12 +129,28 @@ export function updateWitnessLayout(
 
 type CellDepPredicate = (cellDep: CellDep | WritableDraft<CellDep>) => boolean;
 
+export function uint8ArrayEqual(
+  a: Uint8Array | WritableDraft<Uint8Array>,
+  b: Uint8Array | WritableDraft<Uint8Array>,
+) {
+  if (a.byteLength === b.byteLength) {
+    for (let i = 0; i < a.byteLength; ++i) {
+      if (a[i] !== b[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  return false;
+}
+
 function cellDepEqualWithoutCurry(
   a: CellDep | WritableDraft<CellDep>,
   b: CellDep | WritableDraft<CellDep>,
 ) {
   return (
-    a.out_point.tx_hash === b.out_point.tx_hash &&
+    uint8ArrayEqual(a.out_point.tx_hash, b.out_point.tx_hash) &&
     a.out_point.index === b.out_point.index &&
     a.dep_type === b.dep_type
   );

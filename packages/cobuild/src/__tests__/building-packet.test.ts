@@ -1,5 +1,6 @@
 import {
   BuildingPacket,
+  StringCodec,
   getInputCell,
   getOutputCell,
 } from "../building-packet";
@@ -91,5 +92,25 @@ describe("BuildingPacket", () => {
       cellOutput: sampleBuildingPacket.value.payload.outputs[0],
       data: sampleBuildingPacket.value.payload.outputs_data[0],
     });
+  });
+});
+
+describe("StringCodec", () => {
+  test.each([
+    [null, false],
+    [undefined, false],
+    [0, false],
+    ["", true],
+    ["。", true],
+  ])(".safeParse(%s)", (input, success) => {
+    const result = StringCodec.safeParse(input as string);
+    expect(result.success).toEqual(success);
+    if (result.success) {
+      expect(result.data).toEqual(input);
+    } else {
+      expect(result.error.toString()).toMatch(
+        `Expect string got ${typeof input}`,
+      );
+    }
   });
 });

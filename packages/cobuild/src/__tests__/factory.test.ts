@@ -1,18 +1,26 @@
 import {
+  CellDep,
   CellInput,
   CellOutput,
   Script,
 } from "@ckb-cobuild/ckb-molecule-codecs";
-import { BuildingPacket, BuildingPacketV1 } from "../building-packet";
 import {
+  BuildingPacket,
+  BuildingPacketV1,
+  ScriptInfo,
+} from "../building-packet";
+import {
+  makeAction,
   makeBuildingPacket,
   makeBuildingPacketV1,
+  makeCellDep,
   makeCellInput,
   makeCellOutput,
   makeMessage,
   makeScript,
+  makeScriptInfo,
 } from "../factory";
-import { Message } from "../witness-layout";
+import { Action, Message } from "../witness-layout";
 
 test("makeMessage", () => {
   const output = makeMessage();
@@ -42,6 +50,13 @@ test("makeCellInput", () => {
   expect(output).toStrictEqual(unpacked);
 });
 
+test("makeCellDep", () => {
+  const output = makeCellDep();
+  const unpacked = CellDep.unpack(CellDep.pack(output));
+  expect(output).toStrictEqual(unpacked);
+  expect(unpacked.dep_type).toStrictEqual("code");
+});
+
 test("makeCellOutput", () => {
   const output = makeCellOutput();
   const unpacked = CellOutput.unpack(CellOutput.pack(output));
@@ -55,4 +70,16 @@ test("makeScript", () => {
   const unpacked = Script.unpack(Script.pack(output));
   expect(output).toStrictEqual(unpacked);
   expect(output.hash_type).toStrictEqual("data");
+});
+
+test("makeAction", () => {
+  const output = makeAction();
+  const unpacked = Action.unpack(Action.pack(output));
+  expect(output).toStrictEqual(unpacked);
+});
+
+test("makeScriptInfo", () => {
+  const output = makeScriptInfo();
+  const unpacked = ScriptInfo.unpack(ScriptInfo.pack(output));
+  expect(output).toStrictEqual(unpacked);
 });

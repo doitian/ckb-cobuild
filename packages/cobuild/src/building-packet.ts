@@ -24,7 +24,10 @@ const textDecoder = new TextDecoder();
  * @group Molecule Codecs
  */
 export const StringCodec = mol.byteFixvec("String").around({
-  safeParse: (input: string) => mol.parseSuccess(input),
+  safeParse: (input: string) =>
+    typeof input === "string"
+      ? mol.parseSuccess(input)
+      : mol.parseError(`Expect string got ${typeof input}`),
   willPack: (input: string) => textEncoder.encode(input),
   didUnpack: (value: Uint8Array) => textDecoder.decode(value),
 });

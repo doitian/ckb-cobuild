@@ -1,5 +1,5 @@
 import { freeze, produce } from "immer";
-import { WitnessArgs } from "@ckb-cobuild/ckb-molecule-codecs";
+import { CellDep, WitnessArgs } from "@ckb-cobuild/ckb-molecule-codecs";
 import {
   makeBuildingPacket,
   makeByte32,
@@ -18,6 +18,7 @@ import {
   addOutputCell,
   updateWitnessArgs,
   updateWitnessLayout,
+  cellDepEqual,
 } from "../recipes";
 import { WitnessLayout } from "../witness-layout";
 
@@ -253,4 +254,35 @@ test("addDistinctCellDep", () => {
     addDistinctCellDep(draft, deps[1]!);
   });
   expect(cell_deps).toEqual(deps);
+});
+
+describe("cellDepEqual", () => {
+  const cases: [CellDep, CellDep, boolean][] = [
+    [makeCellDep(), makeCellDep(), true],
+    [
+      makeCellDep({
+        out_point: { tx_hash: makeByte32(0), index: 1 },
+        dep_type: "dep_group",
+      }),
+      makeCellDep(),
+      false,
+    ],
+    [
+      makeCellDep({
+        out_point: { tx_hash: makeByte32(0), index: 1 },
+        dep_type: "dep_group",
+      }),
+      makeCellDep({
+        out_point: { tx_hash: makeByte32(0), index: 1 },
+        dep_type: "dep_group",
+      }),
+      true,
+    ],
+  ];
+  test.each(cases)("(%s, %s)", (a, b, expected) => {
+    expect(cellDepEqual(a, b)).toBe(expected);
+  });
+  test.each(cases)("(%s)(%s)", (a, b, expected) => {
+    expect(cellDepEqual(a)(b)).toBe(expected);
+  });
 });
