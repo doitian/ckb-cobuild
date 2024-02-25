@@ -6,19 +6,19 @@
  */
 
 import mol from "@ckb-cobuild/molecule";
-import * as JSBICodecs from "@ckb-cobuild/molecule-jsbi";
+import * as BigIntCodecs from "@ckb-cobuild/molecule-bigint";
 import {
   createNumberJsonCodec,
   createUint8ArrayJsonCodec,
-  createJSBIJsonCodec,
+  createBigIntJsonCodec,
 } from "@ckb-cobuild/molecule-json";
 import ckbHasher from "@ckb-cobuild/ckb-hasher";
 
 export const Uint32 = createNumberJsonCodec(mol.Uint32);
-export const Uint64 = createJSBIJsonCodec(JSBICodecs.Uint64);
-export const Uint128 = createJSBIJsonCodec(JSBICodecs.Uint128);
+export const Uint64 = createBigIntJsonCodec(BigIntCodecs.Uint64);
+export const Uint128 = createBigIntJsonCodec(BigIntCodecs.Uint128);
 export const Byte32 = createUint8ArrayJsonCodec(mol.byteArray("Byte32", 32));
-export const Uint256 = createJSBIJsonCodec(JSBICodecs.Uint256);
+export const Uint256 = createBigIntJsonCodec(BigIntCodecs.Uint256);
 
 export const Bytes = createUint8ArrayJsonCodec(mol.byteFixvec("Bytes"));
 export const BytesOpt = mol.option("BytesOpt", Bytes);
@@ -136,19 +136,14 @@ export const RawTransaction = mol.table(
   ["version", "cell_deps", "header_deps", "inputs", "outputs", "outputs_data"],
 );
 
-export type FlattenTransaction = mol.Infer<typeof RawTransaction> & {
-  hash: string;
+type Transaction = mol.Infer<typeof RawTransaction> & {
+  hash: mol.Infer<typeof Byte32>;
   witnesses: mol.Infer<typeof BytesVec>;
 };
-
-export const Transaction = mol.table(
-  "Transaction",
-  {
-    raw: RawTransaction,
-    witnesses: BytesVec,
-  },
-  ["raw", "witnesses"],
-);
+type TransactionParseInput = mol.InferParseInput<typeof RawTransaction> & {
+  hash: mol.InferParseInput<typeof Byte32>;
+  witnesses: mol.InferParseInput<typeof BytesVec>;
+};
 
 function transactionRawSubarray(buffer: Uint8Array) {
   const view = new DataView(buffer.buffer, buffer.byteOffset);
@@ -157,41 +152,53 @@ function transactionRawSubarray(buffer: Uint8Array) {
   return buffer.subarray(beginPos, endPos);
 }
 
-export const FlattenTransaction = Transaction.around({
-  safeParse: (
-    input: mol.InferParseInput<typeof RawTransaction> & {
-      hash: string;
-      witnesses: mol.InferParseInput<typeof BytesVec>;
+export const Transaction = mol
+  .table(
+    "Transaction",
+    {
+      raw: RawTransaction,
+      witnesses: BytesVec,
     },
-  ) => {
-    const { hash, witnesses, ...raw } = input;
-    return mol.parseSuccessThen(RawTransaction.safeParse(raw), (raw) =>
-      mol.parseSuccessThen(BytesVec.safeParse(witnesses), (witnesses) =>
-        mol.parseSuccess({ hash, witnesses, ...raw } as FlattenTransaction),
-      ),
-    );
-  },
-  willPack: (input: FlattenTransaction) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { hash, witnesses, ...raw } = input;
-    return {
-      raw,
-      witnesses,
-    };
-  },
-  didUnpack: (value: mol.Infer<typeof Transaction>, buffer: Uint8Array) => {
-    const { raw, witnesses } = value;
-    return {
-      ...raw,
-      witnesses,
-      hash: `0x${ckbHasher()
-        .update(transactionRawSubarray(buffer))
-        .digest("hex")}`,
-    } as FlattenTransaction;
-  },
-});
+    ["raw", "witnesses"],
+  )
+  .around({
+    safeParse: (input: TransactionParseInput) => {
+      const { hash, witnesses, ...raw } = input;
+      return mol.parseSuccessThen(RawTransaction.safeParse(raw), (raw) =>
+        mol.parseSuccessThen(BytesVec.safeParse(witnesses), (witnesses) =>
+          mol.parseSuccessThen(Byte32.safeParse(hash), (hash) =>
+            mol.parseSuccess({ hash, witnesses, ...raw } as Transaction),
+          ),
+        ),
+      );
+    },
+    willPack: (input: Transaction) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { hash, witnesses, ...raw } = input;
+      return {
+        raw,
+        witnesses,
+      };
+    },
+    didUnpack: (value, buffer) => {
+      const { raw, witnesses } = value;
+      return {
+        ...raw,
+        witnesses,
+        hash: ckbHasher().update(transactionRawSubarray(buffer)).digest(),
+      };
+    },
+  });
 
-export const TransactionVec = mol.vector("TransactionVec", FlattenTransaction);
+export function getRawTransaction(
+  input: Transaction,
+): mol.Infer<typeof RawTransaction> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { hash, witnesses, ...raw } = input;
+  return raw;
+}
+
+export const TransactionVec = mol.vector("TransactionVec", Transaction);
 
 export const RawHeader = mol.struct(
   "RawHeader",
@@ -221,55 +228,63 @@ export const RawHeader = mol.struct(
   ],
 );
 
-export type FlattenHeader = mol.Infer<typeof RawHeader> & {
-  hash: string;
+type Header = mol.Infer<typeof RawHeader> & {
+  hash: mol.Infer<typeof Byte32>;
   nonce: mol.Infer<typeof Uint128>;
 };
+type HeaderParseInput = mol.InferParseInput<typeof RawHeader> & {
+  hash: mol.InferParseInput<typeof Byte32>;
+  nonce: mol.InferParseInput<typeof Uint128>;
+};
 
-export const Header = mol.struct(
-  "Header",
-  {
-    raw: RawHeader,
-    nonce: Uint128,
-  },
-  ["raw", "nonce"],
-);
-export const FlattenHeader = Header.around({
-  safeParse: (
-    input: mol.InferParseInput<typeof RawHeader> & {
-      hash: string;
-      nonce: mol.InferParseInput<typeof Uint128>;
+export const Header = mol
+  .struct(
+    "Header",
+    {
+      raw: RawHeader,
+      nonce: Uint128,
     },
-  ) => {
-    const { hash, nonce, ...raw } = input;
-    return mol.parseSuccessThen(RawHeader.safeParse(raw), (raw) =>
-      mol.parseSuccessThen(Uint128.safeParse(nonce), (nonce) =>
-        mol.parseSuccess({ hash, nonce, ...raw } as FlattenHeader),
-      ),
-    );
-  },
-  willPack: (input: FlattenHeader) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { hash, nonce, ...raw } = input;
-    return {
-      raw,
-      nonce,
-    };
-  },
-  didUnpack: (value: mol.Infer<typeof Header>, buffer: Uint8Array) => {
-    const { raw, nonce } = value;
-    return {
-      ...raw,
-      nonce,
-      hash: `0x${ckbHasher().update(buffer).digest("hex")}`,
-    } as FlattenHeader;
-  },
-});
+    ["raw", "nonce"],
+  )
+  .around({
+    safeParse: (input: HeaderParseInput) => {
+      const { hash, nonce, ...raw } = input;
+      return mol.parseSuccessThen(RawHeader.safeParse(raw), (raw) =>
+        mol.parseSuccessThen(Uint128.safeParse(nonce), (nonce) =>
+          mol.parseSuccessThen(Byte32.safeParse(hash), (hash) =>
+            mol.parseSuccess({ hash, nonce, ...raw } as Header),
+          ),
+        ),
+      );
+    },
+    willPack: (input: Header) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { hash, nonce, ...raw } = input;
+      return {
+        raw,
+        nonce,
+      };
+    },
+    didUnpack: (value, buffer) => {
+      const { raw, nonce } = value;
+      return {
+        ...raw,
+        nonce,
+        hash: ckbHasher().update(buffer).digest(),
+      };
+    },
+  });
+
+export function getRawHeader(input: Header): mol.Infer<typeof RawHeader> {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { hash, nonce, ...raw } = input;
+  return raw;
+}
 
 export const UncleBlock = mol.table(
   "UncleBlock",
   {
-    header: FlattenHeader,
+    header: Header,
     proposals: ProposalShortIdVec,
   },
   ["header", "proposals"],
@@ -279,7 +294,7 @@ export const UncleBlockVec = mol.vector("UncleBlockVec", UncleBlock);
 export const Block = mol.table(
   "Block",
   {
-    header: FlattenHeader,
+    header: Header,
     uncles: UncleBlockVec,
     transactions: TransactionVec,
     proposals: ProposalShortIdVec,
@@ -290,7 +305,7 @@ export const Block = mol.table(
 export const BlockV1 = mol.table(
   "BlockV1",
   {
-    header: FlattenHeader,
+    header: Header,
     uncles: UncleBlockVec,
     transactions: TransactionVec,
     proposals: ProposalShortIdVec,
