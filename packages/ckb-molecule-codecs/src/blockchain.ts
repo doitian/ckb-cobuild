@@ -136,7 +136,7 @@ export const RawTransaction = mol.table(
   ["version", "cell_deps", "header_deps", "inputs", "outputs", "outputs_data"],
 );
 
-type Transaction = mol.Infer<typeof RawTransaction> & {
+export type Transaction = mol.Infer<typeof RawTransaction> & {
   hash: mol.Infer<typeof Byte32>;
   witnesses: mol.Infer<typeof BytesVec>;
 };
@@ -228,7 +228,7 @@ export const RawHeader = mol.struct(
   ],
 );
 
-type Header = mol.Infer<typeof RawHeader> & {
+export type Header = mol.Infer<typeof RawHeader> & {
   hash: mol.Infer<typeof Byte32>;
   nonce: mol.Infer<typeof Uint128>;
 };
@@ -323,3 +323,35 @@ export const WitnessArgs = mol.table(
   },
   ["lock", "input_type", "output_type"],
 );
+
+export type Uint32 = mol.Infer<typeof Uint32>;
+export type Uint64 = mol.Infer<typeof Uint64>;
+export type Uint128 = mol.Infer<typeof Uint128>;
+export type Byte32 = mol.Infer<typeof Byte32>;
+export type Uint256 = mol.Infer<typeof Uint256>;
+export type Bytes = mol.Infer<typeof Bytes>;
+export type BytesOpt = mol.Infer<typeof BytesOpt>;
+export type BytesOptVec = mol.Infer<typeof BytesOptVec>;
+export type BytesVec = mol.Infer<typeof BytesVec>;
+export type Byte32Vec = mol.Infer<typeof Byte32Vec>;
+export type HashTypeCodec = mol.Infer<typeof HashTypeCodec>;
+export type Script = mol.Infer<typeof Script>;
+export type ScriptOpt = mol.Infer<typeof ScriptOpt>;
+export type ProposalShortId = mol.Infer<typeof ProposalShortId>;
+export type ProposalShortIdVec = mol.Infer<typeof ProposalShortIdVec>;
+export type OutPoint = mol.Infer<typeof OutPoint>;
+export type CellInput = mol.Infer<typeof CellInput>;
+export type CellInputVec = mol.Infer<typeof CellInputVec>;
+export type CellOutput = mol.Infer<typeof CellOutput>;
+export type CellOutputVec = mol.Infer<typeof CellOutputVec>;
+export type DepTypeCodec = mol.Infer<typeof DepTypeCodec>;
+export type CellDep = mol.Infer<typeof CellDep>;
+export type CellDepVec = mol.Infer<typeof CellDepVec>;
+export type RawTransaction = mol.Infer<typeof RawTransaction>;
+export type TransactionVec = mol.Infer<typeof TransactionVec>;
+export type RawHeader = mol.Infer<typeof RawHeader>;
+export type UncleBlock = mol.Infer<typeof UncleBlock>;
+export type UncleBlockVec = mol.Infer<typeof UncleBlockVec>;
+export type Block = mol.Infer<typeof Block>;
+export type BlockV1 = mol.Infer<typeof BlockV1>;
+export type WitnessArgs = mol.Infer<typeof WitnessArgs>;

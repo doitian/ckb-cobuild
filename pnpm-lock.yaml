@@ -143,15 +143,12 @@ importers:
 
   packages/cobuild:
     dependencies:
-      '@ckb-lumos/base':
-        specifier: ^v0.22.0-next.0
-        version: 0.22.0-next.1
-      '@ckb-lumos/bi':
-        specifier: ^v0.22.0-next.0
-        version: 0.22.0-next.1
-      '@ckb-lumos/codec':
-        specifier: ^v0.22.0-next.0
-        version: 0.22.0-next.1
+      '@ckb-cobuild/ckb-molecule-codecs':
+        specifier: workspace:*
+        version: link:../ckb-molecule-codecs
+      '@ckb-cobuild/molecule':
+        specifier: workspace:*
+        version: link:../molecule
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*
@@ -928,41 +925,6 @@ packages:
       human-id: 1.0.2
       prettier: 2.8.8
     dev: true
-
-  /@ckb-lumos/base@0.22.0-next.1:
-    resolution: {integrity: sha512-GcRHk9urO0JGRZmL1wtOISJLxtrMsi7ZXJr/PP8KRKHxbJtxaW2BIDgbdH+EuYv6jHW3nJmR5FK5zdXG9ZZ7wA==}
-    engines: {node: '>=12.0.0'}
-    dependencies:
-      '@ckb-lumos/bi': 0.22.0-next.1
-      '@ckb-lumos/codec': 0.22.0-next.1
-      '@ckb-lumos/toolkit': 0.22.0-next.1
-      '@types/blake2b': 2.1.3
-      '@types/lodash.isequal': 4.5.8
-      blake2b: 2.1.4
-      js-xxhash: 1.0.4
-      lodash.isequal: 4.5.0
-    dev: false
-
-  /@ckb-lumos/bi@0.22.0-next.1:
-    resolution: {integrity: sha512-29ZTI724HUBv39i2s15xnOUMSjLf5pRJz6Yq5XVJJmQz9ZIsmC3h8EcwqhdrcbQYJxrDNjwmSSP0+cciYK8FQw==}
-    engines: {node: '>=12.0.0'}
-    dependencies:
-      jsbi: 4.3.0
-    dev: false
-
-  /@ckb-lumos/codec@0.22.0-next.1:
-    resolution: {integrity: sha512-+GGd1m/UF69TDflxiFFKGMxTVwyKP/lpCAnTNCsztBXzuHv6Z4hEamCVJr3kx2z8yBXoy3nRTTSo4IwEUxD0Ww==}
-    engines: {node: '>=12.0.0'}
-    dependencies:
-      '@ckb-lumos/bi': 0.22.0-next.1
-    dev: false
-
-  /@ckb-lumos/toolkit@0.22.0-next.1:
-    resolution: {integrity: sha512-Kq3DRKZS1xdnFCXd6QX88w16ldWOTxKSHFpqkzHkLbc/KvHNxLH8Dg9pUYeTqyVOC3LMuIzD1YEw7AR+Gnenog==}
-    engines: {node: '>=12.0.0'}
-    dependencies:
-      '@ckb-lumos/bi': 0.22.0-next.1
-    dev: false
 
   /@cspotcode/source-map-support@0.8.1:
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
@@ -1966,16 +1928,6 @@ packages:
     resolution: {integrity: sha512-dRLjCWHYg4oaA77cxO64oO+7JwCwnIzkZPdrrC71jQmQtlhM556pwKo5bUzqvZndkVbeFLIIi+9TC40JNF5hNQ==}
     dev: true
 
-  /@types/lodash.isequal@4.5.8:
-    resolution: {integrity: sha512-uput6pg4E/tj2LGxCZo9+y27JNyB2OZuuI/T5F+ylVDYuqICLG2/ktjxx0v6GvVntAf8TvEzeQLcV0ffRirXuA==}
-    dependencies:
-      '@types/lodash': 4.14.202
-    dev: false
-
-  /@types/lodash@4.14.202:
-    resolution: {integrity: sha512-OvlIYQK9tNneDlS0VN54LLd5uiPCBOp7gS5Z0f1mjoJYBrtStzgmJBxONW3U6OZqdtNzZPmn9BS/7WI7BFFcFQ==}
-    dev: false
-
   /@types/minimatch@5.1.2:
     resolution: {integrity: sha512-K0VQKziLUWkVKiRVrx4a40iPaxTUefQmjtkQofBkYRcoaaL/8rhwDWww9qWbrgicNOgnpIsMxyNIUM4+n6dUIA==}
     dev: true
@@ -2537,8 +2489,8 @@ packages:
       dequal: 2.0.3
     dev: true
 
-  /b4a@1.6.4:
-    resolution: {integrity: sha512-fpWrvyVHEKyeEvbKZTVOeZF3VSKKWtJxFIxX/jaVPf+cLbGUSitjb49pHLqPV2BUNNZ0LcoeEGfE/YCpyDYHIw==}
+  /b4a@1.6.6:
+    resolution: {integrity: sha512-5Tk1HLk6b6ctmjIkAcU/Ujv/1WqiDl0F0JdRCR80VsOcUlHcu7pWeWRlOqQLHfDEsVx9YH/aif5AG4ehoCtTmg==}
     dev: false
 
   /babel-jest@29.7.0(@babel/core@7.23.3):
@@ -2654,7 +2606,7 @@ packages:
   /blake2b-wasm@2.4.0:
     resolution: {integrity: sha512-S1kwmW2ZhZFFFOghcx73+ZajEfKBqhP82JMssxtLVMxlaPea1p9uoLiUZ5WYyHn0KddwbLc+0vh4wR0KBNoT5w==}
     dependencies:
-      b4a: 1.6.4
+      b4a: 1.6.6
       nanoassert: 2.0.0
     dev: false
 
@@ -5350,11 +5302,6 @@ packages:
   /js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
-  /js-xxhash@1.0.4:
-    resolution: {integrity: sha512-S/6Oo7ruxx5k8m4qlMnbpwQdJjRsvvfcIhIk1dA9c5y5GNhYHKYKu9krEK3QgBax6CxJuf4gRL2opgLkdzWIKg==}
-    engines: {node: '>=8.0.0'}
-    dev: false
-
   /js-yaml@3.14.1:
     resolution: {integrity: sha512-okMH7OXXJ7YrN9Ok3/SXrnu4iX9yOk+25nqX4imS2npuvTYDmo/QEZoqwZkYaIDk3jVvBOTOIEgEhaLOynBS9g==}
     hasBin: true
@@ -5368,10 +5315,6 @@ packages:
     dependencies:
       argparse: 2.0.1
     dev: true
-
-  /jsbi@4.3.0:
-    resolution: {integrity: sha512-SnZNcinB4RIcnEyZqFPdGPVgrg2AcnykiBy0sHVJQKHYeaLUvi3Exj+iaPpLnFVkDPZIV4U0yvgC9/R4uEAZ9g==}
-    dev: false
 
   /jsesc@0.5.0:
     resolution: {integrity: sha512-uZz5UnB7u4T9LvwmFqXii7pZSouaRPorGs5who1Ip7VO0wxanFvBL7GkM6dTHlgX+jhBApRetaWpnDabOeTcnA==}
@@ -5523,10 +5466,6 @@ packages:
   /lodash.get@4.4.2:
     resolution: {integrity: sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==}
     dev: true
-
-  /lodash.isequal@4.5.0:
-    resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
-    dev: false
 
   /lodash.memoize@4.1.2:
     resolution: {integrity: sha512-t7j+NzmgnQzTAYXcsHYLgimltOV1MXHtlOWf6GjL9Kj8GK5FInw5JotxvbOs+IvV1/Dzo04/fCGfLVs7aXb4Ag==}
