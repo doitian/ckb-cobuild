@@ -1,5 +1,12 @@
 # @ckb-cobuild/ckb-molecule-codecs
 
+## 2.0.0-next.0
+
+### Major Changes
+
+- af7ebb6: :sparkles: Remove Flatten prefix from header and tx codecs
+- d695188: :sparkles: Use native bigint to replace JSBI
+
 ## 1.1.0
 
 ### Minor Changes
