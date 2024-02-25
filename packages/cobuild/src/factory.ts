@@ -3,10 +3,16 @@
  * @module
  */
 
-import { blockchain } from "@ckb-lumos/base";
-import { BI, BIish } from "@ckb-lumos/bi";
-import { number } from "@ckb-lumos/codec";
-
+import mol from "@ckb-cobuild/molecule";
+import {
+  CellDep,
+  CellInput,
+  CellOutput,
+  OutPoint,
+  Script,
+  Transaction,
+  WitnessArgs,
+} from "@ckb-cobuild/ckb-molecule-codecs";
 import {
   BuildingPacket,
   BuildingPacketV1,
@@ -14,16 +20,7 @@ import {
   OutputCell,
   ResolvedInputs,
   ScriptInfo,
-  Transaction,
 } from "./building-packet";
-import {
-  CellDep,
-  CellInput,
-  CellOutput,
-  OutPoint,
-  Script,
-  WitnessArgs,
-} from "./builtins";
 import {
   Action,
   Message,
@@ -32,23 +29,27 @@ import {
   WitnessLayout,
 } from "./witness-layout";
 
-const { Uint256 } = number;
-const { Byte32 } = blockchain;
-
-export const BI_ZERO = BI.from(0);
-
 /**
  * Create an unpacked Byte32 by pack a 32-byte unsigned integer in little-endian.
  */
-export function makeByte32(uint256: BIish): string {
-  return Byte32.unpack(Uint256.pack(uint256));
+export function makeByte32(arg: number): Uint8Array {
+  const buf = new Uint8Array(32);
+  const view = new DataView(buf.buffer);
+  view.setUint32(0, arg, true);
+  return buf;
 }
 
-export const BYTE32_ZEROS = makeByte32(0);
+export const EMPTY_BYTES = new Uint8Array();
+export const BYTE32_ZEROS = new Uint8Array(32);
 
 export type FactoryParam<T> = { [P in keyof T]?: FactoryParamAny<T[P]> };
 type FactoryParamArray<T> = Array<FactoryParamAny<T>>;
-type FactoryParamAny<T> = T extends number | string | boolean | BI
+type FactoryParamAny<T> = T extends
+  | number
+  | string
+  | boolean
+  | bigint
+  | Uint8Array
   ? T
   : T extends Array<infer Item>
     ? FactoryParamArray<Item>
@@ -56,65 +57,69 @@ type FactoryParamAny<T> = T extends number | string | boolean | BI
 
 /** @param attrs */
 export function makeAction({
-  scriptInfoHash = BYTE32_ZEROS,
-  scriptHash = BYTE32_ZEROS,
-  data = "0x",
+  script_info_hash = BYTE32_ZEROS,
+  script_hash = BYTE32_ZEROS,
+  data = EMPTY_BYTES,
 }: FactoryParam<Action> = {}): Action {
-  return { scriptInfoHash, scriptHash, data };
+  return { script_info_hash, script_hash, data };
 }
 
 /** @param attrs */
 export function makeMessage({
   actions = [],
-}: FactoryParam<Message> = {}): Message {
+}: FactoryParam<mol.Infer<typeof Message>> = {}): mol.Infer<typeof Message> {
   return { actions: actions.map(makeAction) };
 }
 
 /** @param attrs */
 export function makePayload({
+  hash = BYTE32_ZEROS,
   version = 0,
   inputs = [],
   outputs = [],
-  outputsData = [],
-  cellDeps = [],
-  headerDeps = [],
+  outputs_data = [],
+  cell_deps = [],
+  header_deps = [],
   witnesses = [],
-}: FactoryParam<Transaction> = {}): Transaction {
+}: FactoryParam<mol.Infer<typeof Transaction>> = {}): mol.Infer<
+  typeof Transaction
+> {
   return {
+    hash,
     version,
-    outputsData,
-    headerDeps,
+    outputs_data,
+    header_deps,
     witnesses,
     inputs: inputs.map(makeCellInput),
     outputs: outputs.map(makeCellOutput),
-    cellDeps: cellDeps.map(makeCellDep),
+    cell_deps: cell_deps.map(makeCellDep),
   };
 }
 
 /** @param attrs */
 export function makeResolvedInputs({
   outputs = [],
-  outputsData = [],
+  outputs_data = [],
 }: FactoryParam<ResolvedInputs> = {}): ResolvedInputs {
-  return { outputsData, outputs: outputs.map(makeCellOutput) };
+  return { outputs_data, outputs: outputs.map(makeCellOutput) };
 }
 
 /** @param attrs */
 export function makeBuildingPacketV1({
   message,
   payload,
-  resolvedInputs,
-  changeOutput,
-  scriptInfos = [],
-  lockActions = [],
+  resolved_inputs,
+  change_output = null,
+  script_infos = [],
+  lock_actions = [],
 }: FactoryParam<BuildingPacketV1> = {}): BuildingPacketV1 {
   return {
-    changeOutput,
+    change_output,
     message: makeMessage(message),
     payload: makePayload(payload),
-    resolvedInputs: makeResolvedInputs(resolvedInputs),
-    scriptInfos: scriptInfos.map(makeScriptInfo),
-    lockActions: lockActions.map(makeAction),
+    resolved_inputs: makeResolvedInputs(resolved_inputs),
+    script_infos: script_infos.map(makeScriptInfo),
+    lock_actions: lock_actions.map(makeAction),
   };
 }
 
@@ -129,60 +134,60 @@ export function makeBuildingPacket(
 
 /** @param attrs */
 export function makeScriptInfo({
-  name = "0x",
-  url = "0x",
-  scriptHash = BYTE32_ZEROS,
-  schema = "0x",
-  messageType = "0x",
+  name = "",
+  url = "",
+  script_hash = BYTE32_ZEROS,
+  schema = "",
+  message_type = "",
 }: FactoryParam<ScriptInfo> = {}): ScriptInfo {
-  return { name, url, scriptHash, schema, messageType };
+  return { name, url, script_hash, schema, message_type };
 }
 
 /** @param attrs */
 export function makeOutPoint({
-  txHash = BYTE32_ZEROS,
+  tx_hash = BYTE32_ZEROS,
   index = 0,
 }: FactoryParam<OutPoint> = {}): OutPoint {
-  return { txHash, index };
+  return { tx_hash, index };
 }
 
 /** @param attrs */
 export function makeCellInput({
-  previousOutput,
-  since = BI_ZERO,
+  previous_output,
+  since = 0n,
 }: FactoryParam<CellInput> = {}): CellInput {
   return {
-    previousOutput: makeOutPoint(previousOutput),
+    previous_output: makeOutPoint(previous_output),
     since,
   };
 }
 
 /** @param attrs */
 export function makeScript({
-  codeHash = BYTE32_ZEROS,
-  hashType = "data",
-  args = "0x",
+  code_hash = BYTE32_ZEROS,
+  hash_type = "data",
+  args = EMPTY_BYTES,
 }: FactoryParam<Script> = {}): Script {
-  return { codeHash, hashType, args };
+  return { code_hash, hash_type, args };
 }
 
 /** @param attrs */
 export function makeCellOutput({
-  capacity = BI_ZERO,
+  capacity = 0n,
   lock,
   type,
 }: FactoryParam<CellOutput> = {}): CellOutput {
   return {
     capacity,
     lock: makeScript(lock),
-    type: type === null || type === undefined ? undefined : makeScript(type),
+    type: type === null || type === undefined ? null : makeScript(type),
   };
 }
 
 export function makeInputCell({
   cellInput,
   cellOutput,
-  data = "0x",
+  data = EMPTY_BYTES,
 }: FactoryParam<InputCell> = {}): InputCell {
   return {
     cellInput: makeCellInput(cellInput),
@@ -193,7 +198,7 @@ export function makeInputCell({
 
 export function makeOutputCell({
   cellOutput,
-  data = "0x",
+  data = EMPTY_BYTES,
 }: FactoryParam<OutputCell> = {}): OutputCell {
   return {
     cellOutput: makeCellOutput(cellOutput),
@@ -203,25 +208,25 @@ export function makeOutputCell({
 
 /** @param attrs */
 export function makeCellDep({
-  outPoint,
-  depType = "code",
+  out_point,
+  dep_type = "code",
 }: FactoryParam<CellDep> = {}): CellDep {
-  return { outPoint: makeOutPoint(outPoint), depType };
+  return { out_point: makeOutPoint(out_point), dep_type };
 }
 
 /** @param attrs */
 export function makeWitnessArgs({
-  lock,
-  inputType,
-  outputType,
+  lock = null,
+  input_type = null,
+  output_type = null,
 }: FactoryParam<WitnessArgs> = {}): WitnessArgs {
-  return { lock, inputType, outputType };
+  return { lock, input_type, output_type };
 }
 
 /** @param attrs */
 export function makeSighashAllWitnessLayout({
   message,
-  seal = "0x",
+  seal = EMPTY_BYTES,
 }: FactoryParam<SighashAll> = {}): WitnessLayout {
   return {
     type: "SighashAll",
@@ -234,7 +239,7 @@ export function makeSighashAllWitnessLayout({
 
 /** @param attrs */
 export function makeSighashAllOnlyWitnessLayout({
-  seal = "0x",
+  seal = EMPTY_BYTES,
 }: FactoryParam<SighashAllOnly> = {}): WitnessLayout {
   return {
     type: "SighashAllOnly",

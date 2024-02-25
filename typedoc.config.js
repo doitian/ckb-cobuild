@@ -6,6 +6,7 @@ const config = {
   entryPointStrategy: "packages",
   plugin: ["typedoc-plugin-missing-exports"],
   out: "apps/docs/public/api/",
+  treatWarningsAsErrors: true,
 };
 
 for (const package of fs.readdirSync("./packages")) {

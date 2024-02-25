@@ -1,6 +1,6 @@
 {
   "name": "@ckb-cobuild/cobuild",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "homepage": "https://github.com/doitian/ckb-cobuild-js",
@@ -28,8 +28,8 @@
     "clean": "rm -rf node_modules dist .turbo coverage",
     "coverage": "jest --coverage --coverageReporters lcov",
     "lint": "eslint . --max-warnings 0",
-    "test": "jest",
-    "test:watch": "jest --watch",
+    "test": "jest --maxWorkers=1",
+    "test:watch": "jest --maxWorkers=1 --watch",
     "type-check": "tsc --noEmit",
     "prepublishOnly": "tsup-patcher",
     "postpublish": "mv -f package.json.bak package.json"
@@ -45,8 +45,7 @@
     "tsup": "^8.0.1"
   },
   "dependencies": {
-    "@ckb-lumos/base": "^v0.22.0-next.0",
-    "@ckb-lumos/bi": "^v0.22.0-next.0",
-    "@ckb-lumos/codec": "^v0.22.0-next.0"
+    "@ckb-cobuild/ckb-molecule-codecs": "workspace:*",
+    "@ckb-cobuild/molecule": "workspace:*"
   }
 }
