@@ -1,12 +1,5 @@
-import JSBI from "jsbi";
-import {
-  toJson,
-  createNumberJsonCodec,
-  createBigIntJsonCodec,
-  createJSBIJsonCodec,
-} from "..";
+import { toJson, createNumberJsonCodec, createBigIntJsonCodec } from "..";
 import mol from "@ckb-cobuild/molecule";
-import * as JSBICodecs from "@ckb-cobuild/molecule-jsbi";
 import * as BigIntCodecs from "@ckb-cobuild/molecule-bigint";
 
 const testCaseIn = {
@@ -15,7 +8,7 @@ const testCaseIn = {
   cCase: undefined,
   dCase: true,
   eCase: false,
-  fCase: JSBI.BigInt(2),
+  fCase: 2n,
   gCase: "g",
   hCase: new Uint8Array(3),
   iCase: ["0x"],
@@ -100,49 +93,6 @@ describe("createBigIntJsonCodec", () => {
     test.each(["x"])("(%s)", (input) => {
       expect(Uint64.safeParse(input)).toEqual(
         mol.parseError(`Expect bigint or 0x-prefix hex string`),
-      );
-    });
-  });
-});
-
-describe("createJSBIJsonCodec", () => {
-  const Uint64 = createJSBIJsonCodec(JSBICodecs.Uint64);
-  describe(".safeParse", () => {
-    const successCases = ["0x0", "0x1", "0xffffffffffffffff"];
-    test.each(successCases)("(%s)", (input) => {
-      expect(Uint64.safeParse(input)).toEqual(
-        mol.parseSuccess(JSBI.BigInt(input)),
-      );
-    });
-    test.each(successCases)("(JSBI.BigInt(%s))", (input) => {
-      expect(Uint64.safeParse(JSBI.BigInt(input))).toEqual(
-        mol.parseSuccess(JSBI.BigInt(input)),
-      );
-    });
-
-    const failedCases = ["-0x1", "0x10000000000000000"];
-    test.each(failedCases)("(%s)", (input) => {
-      expect(Uint64.safeParse(input)).toEqual(
-        mol.parseError(
-          `Expected a valid number for Uint64, got ${JSBICodecs.makeJSBI(
-            input,
-          )}`,
-        ),
-      );
-    });
-    test.each(failedCases)("(JSBI.BigInt(%s))", (input) => {
-      expect(Uint64.safeParse(JSBICodecs.makeJSBI(input))).toEqual(
-        mol.parseError(
-          `Expected a valid number for Uint64, got ${JSBICodecs.makeJSBI(
-            input,
-          )}`,
-        ),
-      );
-    });
-
-    test.each(["x"])("(%s)", (input) => {
-      expect(Uint64.safeParse(input)).toEqual(
-        mol.parseError(`Expect JSBI or 0x-prefix hex string`),
       );
     });
   });

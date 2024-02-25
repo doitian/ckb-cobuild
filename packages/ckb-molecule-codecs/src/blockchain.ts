@@ -6,19 +6,19 @@
  */
 
 import mol from "@ckb-cobuild/molecule";
-import * as JSBICodecs from "@ckb-cobuild/molecule-jsbi";
+import * as BigIntCodecs from "@ckb-cobuild/molecule-bigint";
 import {
   createNumberJsonCodec,
   createUint8ArrayJsonCodec,
-  createJSBIJsonCodec,
+  createBigIntJsonCodec,
 } from "@ckb-cobuild/molecule-json";
 import ckbHasher from "@ckb-cobuild/ckb-hasher";
 
 export const Uint32 = createNumberJsonCodec(mol.Uint32);
-export const Uint64 = createJSBIJsonCodec(JSBICodecs.Uint64);
-export const Uint128 = createJSBIJsonCodec(JSBICodecs.Uint128);
+export const Uint64 = createBigIntJsonCodec(BigIntCodecs.Uint64);
+export const Uint128 = createBigIntJsonCodec(BigIntCodecs.Uint128);
 export const Byte32 = createUint8ArrayJsonCodec(mol.byteArray("Byte32", 32));
-export const Uint256 = createJSBIJsonCodec(JSBICodecs.Uint256);
+export const Uint256 = createBigIntJsonCodec(BigIntCodecs.Uint256);
 
 export const Bytes = createUint8ArrayJsonCodec(mol.byteFixvec("Bytes"));
 export const BytesOpt = mol.option("BytesOpt", Bytes);
