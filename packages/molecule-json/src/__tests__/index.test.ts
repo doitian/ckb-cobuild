@@ -1,4 +1,9 @@
-import { toJson, createNumberJsonCodec, createBigIntJsonCodec } from "..";
+import {
+  toJson,
+  createNumberJsonCodec,
+  createBigIntJsonCodec,
+  createUint8ArrayJsonCodec,
+} from "..";
 import mol from "@ckb-cobuild/molecule";
 import * as BigIntCodecs from "@ckb-cobuild/molecule-bigint";
 
@@ -93,6 +98,34 @@ describe("createBigIntJsonCodec", () => {
     test.each(["x"])("(%s)", (input) => {
       expect(Uint64.safeParse(input)).toEqual(
         mol.parseError(`Expect bigint or 0x-prefix hex string`),
+      );
+    });
+  });
+});
+
+describe("createUint8ArrayJsonCodec", () => {
+  const Bytes = createUint8ArrayJsonCodec(mol.byteFixvec("Bytes"));
+  describe(".safeParse", () => {
+    const cases = [
+      ["0x", Uint8Array.of()],
+      ["0x00", Uint8Array.of(0)],
+      ["0xffaa88", Uint8Array.of(0xff, 0xaa, 0x88)],
+    ];
+    test.each(cases)("(%s)", (input, expected) => {
+      expect(Bytes.safeParse(input)).toEqual(mol.parseSuccess(expected));
+    });
+    test.each(cases.map((e) => e[1] as Uint8Array))("(%s)", (input) => {
+      expect(Bytes.safeParse(input)).toEqual(mol.parseSuccess(input));
+    });
+    test("(0x1)", () => {
+      expect(Bytes.safeParse("0x1")).toEqual(
+        mol.parseError("Odd length hex string"),
+      );
+    });
+
+    test.each(["-0x1", "x"])("(%s)", (input) => {
+      expect(Bytes.safeParse(input)).toEqual(
+        mol.parseError("Expect Uint8Array or 0x-prefix hex string"),
       );
     });
   });

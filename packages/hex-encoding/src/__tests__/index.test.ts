@@ -38,6 +38,22 @@ describe("encodeHex()", () => {
     expect(dest).toEqual("616263");
   });
 
+  test("handles Uint8Array", () => {
+    const srcBuf = Uint8Array.of(1, 2);
+    const dest = encodeHex(srcBuf);
+    expect(dest).toEqual("0102");
+  });
+
+  test.each([
+    [null, "null"],
+    [undefined, "undefined"],
+    [{}, "Object"],
+    [1, "number"],
+  ])("handles %s", (input, typeName) => {
+    expect(() => encodeHex(input as string)).toThrow(TypeError);
+    expect(() => encodeHex(input as string)).toThrow(typeName);
+  });
+
   test.each(testCases)("into %s", (enc, dec) => {
     const src = new Uint8Array(dec as number[]);
     const dest = encodeHex(src);
