@@ -11,6 +11,7 @@ import {
 } from "../";
 import mol from "@ckb-cobuild/molecule";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toJson(value: any): any {
   if (typeof value === "bigint") {
     return value.toString(16) + "n";
