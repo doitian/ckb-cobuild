@@ -229,6 +229,30 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1(typescript@5.2.2)
 
+  packages/jsonrpc-client:
+    devDependencies:
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@repo/tsup-patcher':
+        specifier: workspace:*
+        version: link:../tsup-patcher
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/jest':
+        specifier: ^29.5.11
+        version: 29.5.11
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0(@types/node@20.11.20)
+      ts-jest:
+        specifier: ^29.1.1
+        version: 29.1.1(@babel/core@7.23.3)(esbuild@0.19.11)(jest@29.7.0)(typescript@5.2.2)
+      tsup:
+        specifier: ^8.0.1
+        version: 8.0.1(typescript@5.2.2)
+
   packages/library-template:
     devDependencies:
       '@repo/eslint-config':
