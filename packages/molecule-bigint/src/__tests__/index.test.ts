@@ -11,24 +11,35 @@ import {
 } from "../";
 import mol from "@ckb-cobuild/molecule";
 
+function toJson(value: any): any {
+  if (typeof value === "bigint") {
+    return value.toString(16) + "n";
+  }
+  return value;
+}
+
 describe("makeBigInt", () => {
   test.each([
-    ["0xf", 0xfn],
-    ["-0xf", -0xfn],
+    ["0xf", "f"],
+    ["-0xf", "-f"],
   ])("%s", (input, expected) => {
-    expect(makeBigInt(input)).toEqual(expected);
+    expect(makeBigInt(input).toString(16)).toEqual(expected);
   });
 });
 
 describe("Uint64", () => {
   describe(".safeParse", () => {
     test.each([0n, 0xffffffffffffffffn])("(%s)", (input) => {
-      expect(Uint64.safeParse(input)).toEqual(mol.parseSuccess(input));
+      expect(toJson(Uint64.safeParse(input))).toEqual(
+        toJson(mol.parseSuccess(input)),
+      );
     });
 
     test.each([0x10000000000000000n])("(%s)", (input) => {
-      expect(Uint64.safeParse(input)).toEqual(
-        mol.parseError(`Expected a valid number for Uint64, got ${input}`),
+      expect(toJson(Uint64.safeParse(input))).toEqual(
+        toJson(
+          mol.parseError(`Expected a valid number for Uint64, got ${input}`),
+        ),
       );
     });
   });
@@ -56,7 +67,9 @@ describe("Uint64", () => {
 
   describe(".unpack", () => {
     test.each(cases)("($buffer)", ({ value, buffer }) => {
-      expect(Uint64.unpack(Uint8Array.from(buffer))).toEqual(value);
+      expect(Uint64.unpack(Uint8Array.from(buffer)).toString()).toEqual(
+        value.toString(),
+      );
     });
 
     test("([0])", () => {
@@ -74,12 +87,16 @@ describe("Uint64", () => {
 describe("Int64", () => {
   describe(".safeParse", () => {
     test.each([-0x8000000000000000n, 0x7fffffffffffffffn])("(%s)", (input) => {
-      expect(Int64.safeParse(input)).toEqual(mol.parseSuccess(input));
+      expect(toJson(Int64.safeParse(input))).toEqual(
+        toJson(mol.parseSuccess(input)),
+      );
     });
 
     test.each([-0x8000000000000001n, 0x8000000000000000n])("(%s)", (input) => {
-      expect(Int64.safeParse(input)).toEqual(
-        mol.parseError(`Expected a valid number for Int64, got ${input}`),
+      expect(toJson(Int64.safeParse(input))).toEqual(
+        toJson(
+          mol.parseError(`Expected a valid number for Int64, got ${input}`),
+        ),
       );
     });
   });
@@ -111,7 +128,9 @@ describe("Int64", () => {
 
   describe(".unpack", () => {
     test.each(cases)("($buffer)", ({ value, buffer }) => {
-      expect(Int64.unpack(Uint8Array.from(buffer))).toEqual(value);
+      expect(Int64.unpack(Uint8Array.from(buffer)).toString()).toEqual(
+        value.toString(),
+      );
     });
 
     test("([0])", () => {
@@ -129,12 +148,16 @@ describe("Int64", () => {
 describe("Uint128", () => {
   describe(".safeParse", () => {
     test.each([0n, 0xffffffffffffffffffffffffffffffffn])("(%s)", (input) => {
-      expect(Uint128.safeParse(input)).toEqual(mol.parseSuccess(input));
+      expect(toJson(Uint128.safeParse(input))).toEqual(
+        toJson(mol.parseSuccess(input)),
+      );
     });
 
     test.each([0x1000000000000000000000000000000000n])("(%s)", (input) => {
-      expect(Uint128.safeParse(input)).toEqual(
-        mol.parseError(`Expected a valid number for Uint128, got ${input}`),
+      expect(toJson(Uint128.safeParse(input))).toEqual(
+        toJson(
+          mol.parseError(`Expected a valid number for Uint128, got ${input}`),
+        ),
       );
     });
   });
@@ -165,7 +188,9 @@ describe("Uint128", () => {
 
   describe(".unpack", () => {
     test.each(cases)("($buffer)", ({ value, buffer }) => {
-      expect(Uint128.unpack(Uint8Array.from(buffer))).toEqual(value);
+      expect(Uint128.unpack(Uint8Array.from(buffer)).toString()).toEqual(
+        value.toString(),
+      );
     });
 
     test("([0])", () => {
@@ -186,15 +211,19 @@ describe("Int128", () => {
       -0x80000000000000000000000000000000n,
       0x7fffffffffffffffffffffffffffffffn,
     ])("(%s)", (input) => {
-      expect(Int128.safeParse(input)).toEqual(mol.parseSuccess(input));
+      expect(toJson(Int128.safeParse(input))).toEqual(
+        toJson(mol.parseSuccess(input)),
+      );
     });
 
     test.each([
       -0x80000000000000000000000000000001n,
       0x80000000000000000000000000000000n,
     ])("(%s)", (input) => {
-      expect(Int128.safeParse(input)).toEqual(
-        mol.parseError(`Expected a valid number for Int128, got ${input}`),
+      expect(toJson(Int128.safeParse(input))).toEqual(
+        toJson(
+          mol.parseError(`Expected a valid number for Int128, got ${input}`),
+        ),
       );
     });
   });
@@ -235,7 +264,9 @@ describe("Int128", () => {
 
   describe(".unpack", () => {
     test.each(cases)("($buffer)", ({ value, buffer }) => {
-      expect(Int128.unpack(Uint8Array.from(buffer))).toEqual(value);
+      expect(Int128.unpack(Uint8Array.from(buffer)).toString()).toEqual(
+        value.toString(),
+      );
     });
 
     test("([0])", () => {
@@ -256,14 +287,18 @@ describe("Uint256", () => {
       0n,
       0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn,
     ])("(%s)", (input) => {
-      expect(Uint256.safeParse(input)).toEqual(mol.parseSuccess(input));
+      expect(toJson(Uint256.safeParse(input))).toEqual(
+        toJson(mol.parseSuccess(input)),
+      );
     });
 
     test.each([
       0x10000000000000000000000000000000000000000000000000000000000000000000n,
     ])("(%s)", (input) => {
-      expect(Uint256.safeParse(input)).toEqual(
-        mol.parseError(`Expected a valid number for Uint256, got ${input}`),
+      expect(toJson(Uint256.safeParse(input))).toEqual(
+        toJson(
+          mol.parseError(`Expected a valid number for Uint256, got ${input}`),
+        ),
       );
     });
   });
@@ -302,7 +337,9 @@ describe("Uint256", () => {
 
   describe(".unpack", () => {
     test.each(cases)("($buffer)", ({ value, buffer }) => {
-      expect(Uint256.unpack(Uint8Array.from(buffer))).toEqual(value);
+      expect(Uint256.unpack(Uint8Array.from(buffer)).toString()).toEqual(
+        value.toString(),
+      );
     });
 
     test("([0])", () => {
@@ -323,15 +360,19 @@ describe("Int256", () => {
       -0x8000000000000000000000000000000000000000000000000000000000000000n,
       0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffn,
     ])("(%s)", (input) => {
-      expect(Int256.safeParse(input)).toEqual(mol.parseSuccess(input));
+      expect(toJson(Int256.safeParse(input))).toEqual(
+        toJson(mol.parseSuccess(input)),
+      );
     });
 
     test.each([
       -0x8000000000000000000000000000000000000000000000000000000000000001n,
       0x8000000000000000000000000000000000000000000000000000000000000000n,
     ])("(%s)", (input) => {
-      expect(Int256.safeParse(input)).toEqual(
-        mol.parseError(`Expected a valid number for Int256, got ${input}`),
+      expect(toJson(Int256.safeParse(input))).toEqual(
+        toJson(
+          mol.parseError(`Expected a valid number for Int256, got ${input}`),
+        ),
       );
     });
   });
@@ -381,7 +422,9 @@ describe("Int256", () => {
 
   describe(".unpack", () => {
     test.each(cases)("($buffer)", ({ value, buffer }) => {
-      expect(Int256.unpack(Uint8Array.from(buffer))).toEqual(value);
+      expect(Int256.unpack(Uint8Array.from(buffer)).toString()).toEqual(
+        value.toString(),
+      );
     });
 
     test("([0])", () => {
@@ -602,7 +645,7 @@ describe("unpackUintN", () => {
         Uint8Array.from(expected),
         littleEndian,
       );
-      expect(actual).toEqual(value);
+      expect(actual.toString()).toEqual(value.toString());
     },
   );
 });

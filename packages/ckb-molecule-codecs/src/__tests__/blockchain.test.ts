@@ -470,6 +470,6 @@ describe("BlockV1", () => {
     const block = BlockV1.unpack(blockBuffer);
     const blockJson = toJson(block);
     const blockParse = BlockV1.parse(blockJson);
-    expect(blockParse).toStrictEqual(block);
+    expect(toJson(blockParse)).toStrictEqual(toJson(block));
   });
 });

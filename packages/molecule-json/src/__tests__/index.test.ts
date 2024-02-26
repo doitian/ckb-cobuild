@@ -78,19 +78,25 @@ describe("createBigIntJsonCodec", () => {
   const Uint64 = createBigIntJsonCodec(BigIntCodecs.Uint64);
   describe(".safeParse", () => {
     test.each(["0x0", "0x1", "0xffffffffffffffff"])("(%s)", (input) => {
-      expect(Uint64.safeParse(input)).toEqual(mol.parseSuccess(BigInt(input)));
+      expect(toJson(Uint64.safeParse(input))).toEqual(
+        toJson(mol.parseSuccess(BigInt(input))),
+      );
     });
     test.each([0x0n, 0x1n, 0xffffffffffffffffn])("(%s)", (input) => {
-      expect(Uint64.safeParse(input)).toEqual(mol.parseSuccess(input));
+      expect(toJson(Uint64.safeParse(input))).toEqual(
+        toJson(mol.parseSuccess(input)),
+      );
     });
     test.each(["-0x1", "0x10000000000000000", -1n, 0x10000000000000000n])(
       "(%s)",
       (input) => {
-        expect(Uint64.safeParse(input)).toEqual(
-          mol.parseError(
-            `Expected a valid number for Uint64, got ${BigIntCodecs.makeBigInt(
-              input,
-            )}`,
+        expect(toJson(Uint64.safeParse(input))).toEqual(
+          toJson(
+            mol.parseError(
+              `Expected a valid number for Uint64, got ${BigIntCodecs.makeBigInt(
+                input,
+              )}`,
+            ),
           ),
         );
       },

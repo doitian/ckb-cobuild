@@ -150,6 +150,9 @@ importers:
         specifier: workspace:*
         version: link:../molecule
     devDependencies:
+      '@ckb-cobuild/molecule-json':
+        specifier: workspace:*
+        version: link:../molecule-json
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config

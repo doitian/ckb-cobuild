@@ -28,13 +28,14 @@
     "clean": "rm -rf node_modules dist .turbo coverage",
     "coverage": "jest --coverage --coverageReporters text --coverageReporters json",
     "lint": "eslint . --max-warnings 0",
-    "test": "jest --maxWorkers=1",
-    "test:watch": "jest --maxWorkers=1 --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "type-check": "tsc --noEmit",
     "prepublishOnly": "tsup-patcher",
     "postpublish": "mv -f package.json.bak package.json"
   },
   "devDependencies": {
+    "@ckb-cobuild/molecule-json": "workspace:*",
     "@repo/eslint-config": "workspace:*",
     "@repo/tsup-patcher": "workspace:*",
     "@repo/typescript-config": "workspace:*",
