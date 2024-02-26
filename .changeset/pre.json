@@ -14,7 +14,10 @@
     "@ckb-cobuild/molecule-json": "2.0.0",
     "@repo/tsup-patcher": "0.0.0",
     "@repo/typescript-config": "0.0.0",
-    "@repo/ui": "0.0.0"
+    "@repo/ui": "0.0.0",
+    "@ckb-cobuild/jsonrpc-client": "0.0.0"
   },
-  "changesets": []
+  "changesets": [
+    "slow-suns-roll"
+  ]
 }
