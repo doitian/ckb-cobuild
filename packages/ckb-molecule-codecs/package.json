@@ -1,6 +1,6 @@
 {
   "name": "@ckb-cobuild/ckb-molecule-codecs",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "homepage": "https://github.com/doitian/ckb-cobuild-js",
   "repository": {
     "type": "git",
@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsup --clean",
     "clean": "rm -rf node_modules dist .turbo coverage",
-    "coverage": "jest --coverage --coverageReporters lcov",
+    "coverage": "jest --coverage --coverageReporters text --coverageReporters json",
     "lint": "eslint . --max-warnings 0",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -35,7 +35,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@ckb-cobuild/hex-encoding": "workspace:1.0.0",
+    "@ckb-cobuild/hex-encoding": "workspace:*",
     "@repo/eslint-config": "workspace:*",
     "@repo/tsup-patcher": "workspace:*",
     "@repo/typescript-config": "workspace:*",
@@ -45,9 +45,9 @@
     "tsup": "^8.0.1"
   },
   "dependencies": {
-    "@ckb-cobuild/ckb-hasher": "workspace:^",
-    "@ckb-cobuild/molecule": "workspace:^",
-    "@ckb-cobuild/molecule-bigint": "workspace:^",
-    "@ckb-cobuild/molecule-json": "workspace:^"
+    "@ckb-cobuild/ckb-hasher": "workspace:*",
+    "@ckb-cobuild/molecule": "workspace:*",
+    "@ckb-cobuild/molecule-bigint": "workspace:*",
+    "@ckb-cobuild/molecule-json": "workspace:*"
   }
 }

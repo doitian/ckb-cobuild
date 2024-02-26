@@ -1,6 +1,6 @@
 {
   "name": "@ckb-cobuild/molecule-bigint",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "https://github.com/doitian/ckb-cobuild-js",
   "repository": {
     "type": "git",
@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsup --clean",
     "clean": "rm -rf node_modules dist .turbo coverage",
-    "coverage": "jest --coverage --coverageReporters lcov",
+    "coverage": "jest --coverage --coverageReporters text --coverageReporters json",
     "lint": "eslint . --max-warnings 0",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -44,6 +44,6 @@
     "tsup": "^8.0.1"
   },
   "dependencies": {
-    "@ckb-cobuild/molecule": "workspace:^"
+    "@ckb-cobuild/molecule": "workspace:*"
   }
 }

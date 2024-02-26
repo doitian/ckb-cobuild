@@ -5,6 +5,7 @@ import {
   getOutputCell,
 } from "../building-packet";
 import { makeByte32 } from "../factory";
+import { toJson } from "@ckb-cobuild/molecule-json";
 
 describe("BuildingPacket", () => {
   const sampleBuildingPacket: BuildingPacket = {
@@ -74,7 +75,7 @@ describe("BuildingPacket", () => {
       BuildingPacket.pack(sampleBuildingPacket),
     );
     output.value.payload.hash = sampleBuildingPacket.value.payload.hash;
-    expect(output).toEqual(sampleBuildingPacket);
+    expect(toJson(output)).toEqual(toJson(sampleBuildingPacket));
   });
 
   test(".getInputCell", () => {

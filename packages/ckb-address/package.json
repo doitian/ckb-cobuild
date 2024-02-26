@@ -1,5 +1,5 @@
 {
-  "name": "@ckb-cobuild/ckb-hasher",
+  "name": "@ckb-cobuild/ckb-address",
   "version": "1.0.0",
   "homepage": "https://github.com/doitian/ckb-cobuild-js",
   "repository": {
@@ -35,6 +35,7 @@
     "access": "public"
   },
   "devDependencies": {
+    "@ckb-cobuild/hex-encoding": "workspace:*",
     "@repo/eslint-config": "workspace:*",
     "@repo/tsup-patcher": "workspace:*",
     "@repo/typescript-config": "workspace:*",
@@ -44,7 +45,6 @@
     "tsup": "^8.0.1"
   },
   "dependencies": {
-    "@types/blake2b": "^2.1.3",
-    "blake2b": "^2.1.4"
+    "bech32": "^2.0.0"
   }
 }

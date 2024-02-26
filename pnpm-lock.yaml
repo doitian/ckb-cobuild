@@ -70,6 +70,37 @@ importers:
         specifier: ^5.2.2
         version: 5.2.2
 
+  packages/ckb-address:
+    dependencies:
+      bech32:
+        specifier: ^2.0.0
+        version: 2.0.0
+    devDependencies:
+      '@ckb-cobuild/hex-encoding':
+        specifier: workspace:*
+        version: link:../hex-encoding
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@repo/tsup-patcher':
+        specifier: workspace:*
+        version: link:../tsup-patcher
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/jest':
+        specifier: ^29.5.11
+        version: 29.5.11
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0(@types/node@20.11.20)
+      ts-jest:
+        specifier: ^29.1.1
+        version: 29.1.1(@babel/core@7.23.3)(esbuild@0.19.11)(jest@29.7.0)(typescript@5.2.2)
+      tsup:
+        specifier: ^8.0.1
+        version: 8.0.1(typescript@5.2.2)
+
   packages/ckb-hasher:
     dependencies:
       '@types/blake2b':
@@ -104,20 +135,20 @@ importers:
   packages/ckb-molecule-codecs:
     dependencies:
       '@ckb-cobuild/ckb-hasher':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../ckb-hasher
       '@ckb-cobuild/molecule':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../molecule
       '@ckb-cobuild/molecule-bigint':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../molecule-bigint
       '@ckb-cobuild/molecule-json':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../molecule-json
     devDependencies:
       '@ckb-cobuild/hex-encoding':
-        specifier: workspace:1.0.0
+        specifier: workspace:*
         version: link:../hex-encoding
       '@repo/eslint-config':
         specifier: workspace:*
@@ -150,6 +181,9 @@ importers:
         specifier: workspace:*
         version: link:../molecule
     devDependencies:
+      '@ckb-cobuild/molecule-json':
+        specifier: workspace:*
+        version: link:../molecule-json
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
@@ -226,6 +260,30 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1(typescript@5.2.2)
 
+  packages/jsonrpc-client:
+    devDependencies:
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@repo/tsup-patcher':
+        specifier: workspace:*
+        version: link:../tsup-patcher
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/jest':
+        specifier: ^29.5.11
+        version: 29.5.11
+      jest:
+        specifier: ^29.7.0
+        version: 29.7.0(@types/node@20.11.20)
+      ts-jest:
+        specifier: ^29.1.1
+        version: 29.1.1(@babel/core@7.23.3)(esbuild@0.19.11)(jest@29.7.0)(typescript@5.2.2)
+      tsup:
+        specifier: ^8.0.1
+        version: 8.0.1(typescript@5.2.2)
+
   packages/library-template:
     devDependencies:
       '@repo/eslint-config':
@@ -274,7 +332,7 @@ importers:
   packages/molecule-bigint:
     dependencies:
       '@ckb-cobuild/molecule':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../molecule
     devDependencies:
       '@repo/eslint-config':
@@ -302,14 +360,14 @@ importers:
   packages/molecule-json:
     dependencies:
       '@ckb-cobuild/hex-encoding':
-        specifier: workspace:1.0.0
+        specifier: workspace:*
         version: link:../hex-encoding
       '@ckb-cobuild/molecule':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../molecule
     devDependencies:
       '@ckb-cobuild/molecule-bigint':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../molecule-bigint
       '@repo/eslint-config':
         specifier: workspace:*
@@ -2577,6 +2635,10 @@ packages:
     resolution: {integrity: sha512-QHX8HLlncOLpy54mh+k/sWIFd0ThmRqwe9ZjELybGZK+tZ8rUb9VO0saKJUROTbE+KhzDUT7xziGpGrW8Kmd+g==}
     engines: {node: '>=10.0.0'}
     dev: true
+
+  /bech32@2.0.0:
+    resolution: {integrity: sha512-LcknSilhIGatDAsY1ak2I8VtGaHNhgMSYVxFrGLXv+xLHytaKZKcaUJJUE7qmBr7h33o5YQwP55pMI0xmkpJwg==}
+    dev: false
 
   /better-path-resolve@1.0.0:
     resolution: {integrity: sha512-pbnl5XzGBdrFU/wT4jqmJVPn2B6UHPBOhzMQkY/SPUPB6QtUXtmBHBIwCbXJol93mOpGMnQyP/+BB19q04xj7g==}
