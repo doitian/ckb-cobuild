@@ -1,5 +1,11 @@
 # @ckb-cobuild/molecule-bigint
 
+## 1.0.1-next.0
+
+### Patch Changes
+
+- 9903bdc: :arrow_up: Use workspace:\* for workspace dependencies
+
 ## 1.0.0
 
 ### Major Changes

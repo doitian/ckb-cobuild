@@ -1,5 +1,11 @@
 # @ckb-cobuild/molecule-json
 
+## 2.0.1-next.0
+
+### Patch Changes
+
+- 9903bdc: :arrow_up: Use workspace:\* for workspace dependencies
+
 ## 2.0.0
 
 ### Major Changes

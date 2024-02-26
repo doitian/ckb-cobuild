@@ -1,5 +1,14 @@
 # @ckb-cobuild/ckb-molecule-codecs
 
+## 2.0.2-next.0
+
+### Patch Changes
+
+- 9903bdc: :arrow_up: Use workspace:\* for workspace dependencies
+- Updated dependencies [9903bdc]
+  - @ckb-cobuild/molecule-bigint@1.0.1-next.0
+  - @ckb-cobuild/molecule-json@2.0.1-next.0
+
 ## 2.0.1
 
 ### Patch Changes
