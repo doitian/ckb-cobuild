@@ -1,3 +1,17 @@
+/**
+ * JSONRpc Client for typescript.
+ * @module
+ * @example
+ * ```ts
+ * import { createJsonRpcClient } from "@ckb-cobuild/jsonrpc-client";
+ * interface RpcService {
+ *   add(a: number, b: number): number;
+ * }
+ * const client = createJsonRpcClient<RpcService>("https://127.0.0.1:3000/");
+ * const sum = await client.add(1, 2);
+ * ```
+ */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 export interface JsonRpcRequest {
