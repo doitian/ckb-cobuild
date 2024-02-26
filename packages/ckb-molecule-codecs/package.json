@@ -35,7 +35,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@ckb-cobuild/hex-encoding": "workspace:1.0.0",
+    "@ckb-cobuild/hex-encoding": "workspace:*",
     "@repo/eslint-config": "workspace:*",
     "@repo/tsup-patcher": "workspace:*",
     "@repo/typescript-config": "workspace:*",
@@ -45,9 +45,9 @@
     "tsup": "^8.0.1"
   },
   "dependencies": {
-    "@ckb-cobuild/ckb-hasher": "workspace:^",
-    "@ckb-cobuild/molecule": "workspace:^",
-    "@ckb-cobuild/molecule-bigint": "workspace:^",
-    "@ckb-cobuild/molecule-json": "workspace:^"
+    "@ckb-cobuild/ckb-hasher": "workspace:*",
+    "@ckb-cobuild/molecule": "workspace:*",
+    "@ckb-cobuild/molecule-bigint": "workspace:*",
+    "@ckb-cobuild/molecule-json": "workspace:*"
   }
 }
