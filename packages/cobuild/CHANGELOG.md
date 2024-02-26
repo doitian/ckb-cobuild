@@ -1,5 +1,12 @@
 # @ckb-cobuild/cobuild
 
+## 4.0.1
+
+### Patch Changes
+
+- Updated dependencies [9903bdc]
+  - @ckb-cobuild/ckb-molecule-codecs@2.0.2
+
 ## 4.0.0
 
 ### Major Changes
