@@ -1,6 +1,6 @@
 {
   "name": "@ckb-cobuild/ckb-molecule-codecs",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "homepage": "https://github.com/doitian/ckb-cobuild-js",
   "repository": {
     "type": "git",
