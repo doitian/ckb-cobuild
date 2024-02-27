@@ -73,6 +73,12 @@ describe("byte", () => {
       const result = mol.byte.pack(input);
       expect(result).toEqual(expected);
     });
+
+    test("undefined", () => {
+      expect(() => {
+        mol.byte.pack(undefined as any);
+      }).toThrow("Expect number");
+    });
   });
 });
 

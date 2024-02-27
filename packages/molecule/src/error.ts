@@ -70,7 +70,7 @@ export class CodecIssue {
   }
 }
 
-export type CodecErrorSource = "parse" | "unpack" | "schema";
+export type CodecErrorSource = "parse" | "unpack" | "pack" | "schema";
 
 export class CodecError extends Error {
   readonly source: CodecErrorSource;
@@ -166,6 +166,10 @@ export function unpackError(
   options?: ErrorOptions,
 ): CodecError {
   return CodecError.create("unpack", error, options);
+}
+
+export function packError(error?: string, options?: ErrorOptions): CodecError {
+  return CodecError.create("pack", error, options);
 }
 
 export function createSafeParse<TIn, TOut>(

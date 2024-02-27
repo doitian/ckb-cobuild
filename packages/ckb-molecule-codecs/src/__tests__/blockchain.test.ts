@@ -39,6 +39,10 @@ describe("HashTypeCodec", () => {
       );
     });
   });
+
+  test("pack", () => {
+    expect(HashTypeCodec.pack("type")).toEqual(Uint8Array.of(1));
+  });
 });
 
 describe("DepTypeCodec", () => {

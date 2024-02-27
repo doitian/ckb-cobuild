@@ -1,6 +1,11 @@
 import BinaryWriter from "../binary-writer";
 import { FixedSizeCodec } from "../codec";
-import { SafeParseReturnType, parseError, parseSuccess } from "../error";
+import {
+  SafeParseReturnType,
+  parseError,
+  parseSuccess,
+  packError,
+} from "../error";
 
 /** @internal */
 export class ByteCodec extends FixedSizeCodec<number> {
@@ -17,7 +22,10 @@ export class ByteCodec extends FixedSizeCodec<number> {
   }
 
   pack(value: number): Uint8Array {
-    return new Uint8Array([value]);
+    if (typeof value === "number") {
+      return new Uint8Array([value]);
+    }
+    throw packError("Expect number");
   }
 
   safeParse(input: number): SafeParseReturnType<number> {
