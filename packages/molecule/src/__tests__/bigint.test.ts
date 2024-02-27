@@ -1,4 +1,4 @@
-import {
+import mol, {
   makeBigInt,
   Uint64,
   Int64,
@@ -8,16 +8,8 @@ import {
   Int256,
   packUintN,
   unpackUintN,
+  toJson,
 } from "../";
-import mol from "@ckb-cobuild/molecule";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function toJson(value: any): any {
-  if (typeof value === "bigint") {
-    return value.toString(16) + "n";
-  }
-  return value;
-}
 
 describe("makeBigInt", () => {
   test.each([

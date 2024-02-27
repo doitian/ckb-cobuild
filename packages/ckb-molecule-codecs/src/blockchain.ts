@@ -6,21 +6,16 @@
  */
 
 import mol from "@ckb-cobuild/molecule";
-import * as BigIntCodecs from "@ckb-cobuild/molecule-bigint";
-import {
-  createNumberJsonCodec,
-  createUint8ArrayJsonCodec,
-  createBigIntJsonCodec,
-} from "@ckb-cobuild/molecule-json";
 import ckbHasher from "@ckb-cobuild/ckb-hasher";
 
-export const Uint32 = createNumberJsonCodec(mol.Uint32);
-export const Uint64 = createBigIntJsonCodec(BigIntCodecs.Uint64);
-export const Uint128 = createBigIntJsonCodec(BigIntCodecs.Uint128);
-export const Byte32 = createUint8ArrayJsonCodec(mol.byteArray("Byte32", 32));
-export const Uint256 = createBigIntJsonCodec(BigIntCodecs.Uint256);
+export const Uint32 = mol.createNumberJsonCodec(mol.Uint32);
+export const Uint64 = mol.createBigIntJsonCodec(mol.Uint64);
+export const Uint128 = mol.createBigIntJsonCodec(mol.Uint128);
+export const Uint256 = mol.createBigIntJsonCodec(mol.Uint256);
 
-export const Bytes = createUint8ArrayJsonCodec(mol.byteFixvec("Bytes"));
+export const Byte32 = mol.createUint8ArrayJsonCodec(mol.Byte32);
+
+export const Bytes = mol.createUint8ArrayJsonCodec(mol.Bytes);
 export const BytesOpt = mol.option("BytesOpt", Bytes);
 export const BytesOptVec = mol.vector("BytesOptVec", BytesOpt);
 export const BytesVec = mol.vector("BytesVec", Bytes);
@@ -57,7 +52,7 @@ export const Script = mol.table(
 );
 export const ScriptOpt = mol.option("ScriptOpt", Script);
 
-export const ProposalShortId = createUint8ArrayJsonCodec(
+export const ProposalShortId = mol.createUint8ArrayJsonCodec(
   mol.byteArray("ProposalShortId", 10),
 );
 export const ProposalShortIdVec = mol.vector(

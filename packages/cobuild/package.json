@@ -1,6 +1,6 @@
 {
   "name": "@ckb-cobuild/cobuild",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
   "homepage": "https://github.com/doitian/ckb-cobuild-js",
@@ -35,7 +35,6 @@
     "postpublish": "mv -f package.json.bak package.json"
   },
   "devDependencies": {
-    "@ckb-cobuild/molecule-json": "workspace:*",
     "@repo/eslint-config": "workspace:*",
     "@repo/tsup-patcher": "workspace:*",
     "@repo/typescript-config": "workspace:*",

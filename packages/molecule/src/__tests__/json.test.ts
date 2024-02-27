@@ -1,11 +1,4 @@
-import {
-  toJson,
-  createNumberJsonCodec,
-  createBigIntJsonCodec,
-  createUint8ArrayJsonCodec,
-} from "..";
-import mol from "@ckb-cobuild/molecule";
-import * as BigIntCodecs from "@ckb-cobuild/molecule-bigint";
+import mol, { makeBigInt, toJson } from "..";
 
 const testCaseIn = {
   aCase: 1,
@@ -47,7 +40,7 @@ describe("toJson", () => {
 });
 
 describe("createNumberJsonCodec", () => {
-  const Uint32 = createNumberJsonCodec(mol.Uint32);
+  const Uint32 = mol.createNumberJsonCodec(mol.Uint32);
   describe(".safeParse", () => {
     test.each(["0x0", "0x1", "0xffffffff"])("(%s)", (input) => {
       expect(Uint32.safeParse(input)).toEqual(
@@ -75,7 +68,7 @@ describe("createNumberJsonCodec", () => {
 });
 
 describe("createBigIntJsonCodec", () => {
-  const Uint64 = createBigIntJsonCodec(BigIntCodecs.Uint64);
+  const Uint64 = mol.createBigIntJsonCodec(mol.Uint64);
   describe(".safeParse", () => {
     test.each(["0x0", "0x1", "0xffffffffffffffff"])("(%s)", (input) => {
       expect(toJson(Uint64.safeParse(input))).toEqual(
@@ -93,9 +86,7 @@ describe("createBigIntJsonCodec", () => {
         expect(toJson(Uint64.safeParse(input))).toEqual(
           toJson(
             mol.parseError(
-              `Expected a valid number for Uint64, got ${BigIntCodecs.makeBigInt(
-                input,
-              )}`,
+              `Expected a valid number for Uint64, got ${makeBigInt(input)}`,
             ),
           ),
         );
@@ -110,7 +101,7 @@ describe("createBigIntJsonCodec", () => {
 });
 
 describe("createUint8ArrayJsonCodec", () => {
-  const Bytes = createUint8ArrayJsonCodec(mol.byteFixvec("Bytes"));
+  const Bytes = mol.createUint8ArrayJsonCodec(mol.byteFixvec("Bytes"));
   describe(".safeParse", () => {
     const cases = [
       ["0x", Uint8Array.of()],

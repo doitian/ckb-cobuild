@@ -5,7 +5,7 @@ import {
   getOutputCell,
 } from "../building-packet";
 import { makeByte32 } from "../factory";
-import { toJson } from "@ckb-cobuild/molecule-json";
+import { toJson } from "@ckb-cobuild/molecule";
 
 describe("BuildingPacket", () => {
   const sampleBuildingPacket: BuildingPacket = {

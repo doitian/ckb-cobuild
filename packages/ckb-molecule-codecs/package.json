@@ -1,6 +1,6 @@
 {
   "name": "@ckb-cobuild/ckb-molecule-codecs",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "homepage": "https://github.com/doitian/ckb-cobuild-js",
   "repository": {
     "type": "git",
@@ -46,8 +46,6 @@
   },
   "dependencies": {
     "@ckb-cobuild/ckb-hasher": "workspace:*",
-    "@ckb-cobuild/molecule": "workspace:*",
-    "@ckb-cobuild/molecule-bigint": "workspace:*",
-    "@ckb-cobuild/molecule-json": "workspace:*"
+    "@ckb-cobuild/molecule": "workspace:*"
   }
 }

@@ -12,12 +12,8 @@
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { encodeHex, decodeHex } from "@ckb-cobuild/hex-encoding";
-import {
-  Codec,
-  CodecError,
-  DynamicSizeCodec,
-  FixedSizeCodec,
-} from "@ckb-cobuild/molecule";
+import { Codec, DynamicSizeCodec, FixedSizeCodec } from "./codec";
+import { CodecError } from "./error";
 
 type CompatibleType = string | boolean | null;
 type HexStringType = number | bigint | Uint8Array;
