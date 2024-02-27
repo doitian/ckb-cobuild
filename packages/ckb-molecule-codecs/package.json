@@ -46,8 +46,6 @@
   },
   "dependencies": {
     "@ckb-cobuild/ckb-hasher": "workspace:*",
-    "@ckb-cobuild/molecule": "workspace:*",
-    "@ckb-cobuild/molecule-bigint": "workspace:*",
-    "@ckb-cobuild/molecule-json": "workspace:*"
+    "@ckb-cobuild/molecule": "workspace:*"
   }
 }

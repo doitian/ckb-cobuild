@@ -6,5 +6,3 @@ BitInt codecs for `@ckb-cobuild/molecule`.
 - [NPM Package](https://www.npmjs.com/package/@ckb-cobuild/molecule-bigint)
 
 ## Browser Compatibility
-
-- `BigInt`: [Can I Use?](https://caniuse.com/bigint)

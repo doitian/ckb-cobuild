@@ -3,7 +3,7 @@
  * @module
  * @example
  * ```ts
- * import { Uint64 } from "@ckb-cobuild/molecule-bigint";
+ * import { Uint64 } from "@ckb-cobuild/molecule";
  * const buffer = Uint64.pack(1n);
  * console.log(buffer);
  * // => [1, 0, 0, 0, 0, 0, 0, 0],
@@ -11,7 +11,7 @@
  * // => 1n
  * ```
  */
-import { NumberCodec, NumberCodecSpec } from "@ckb-cobuild/molecule";
+import { NumberCodec, NumberCodecSpec } from "./number";
 
 /**
  * A wrapper of BigInt to support negative hex string.

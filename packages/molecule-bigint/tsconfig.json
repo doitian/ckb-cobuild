@@ -3,6 +3,10 @@
   "compilerOptions": {
     "outDir": "dist"
   },
-  "include": ["src"],
+  "include": [
+    "src",
+    "../molecule/src/bigint.ts",
+    "../molecule/src/__tests__/bigint.test.ts"
+  ],
   "exclude": ["node_modules", "dist"]
 }

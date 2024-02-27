@@ -35,7 +35,6 @@
     "postpublish": "mv -f package.json.bak package.json"
   },
   "devDependencies": {
-    "@ckb-cobuild/molecule-json": "workspace:*",
     "@repo/eslint-config": "workspace:*",
     "@repo/tsup-patcher": "workspace:*",
     "@repo/typescript-config": "workspace:*",

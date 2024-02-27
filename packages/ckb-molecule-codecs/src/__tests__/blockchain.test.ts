@@ -1,6 +1,5 @@
 import { decodeHex } from "@ckb-cobuild/hex-encoding";
-import { toJson } from "@ckb-cobuild/molecule-json";
-import { parseError, parseSuccess } from "@ckb-cobuild/molecule";
+import { toJson, parseError, parseSuccess } from "@ckb-cobuild/molecule";
 import {
   Block,
   BlockV1,
