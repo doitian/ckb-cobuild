@@ -1,5 +1,11 @@
 # @ckb-cobuild/molecule
 
+## 1.1.0
+
+### Minor Changes
+
+- b3d94f5: :sparkles: Merge bigint/json extensions into molecule
+
 ## 1.0.1
 
 ### Patch Changes

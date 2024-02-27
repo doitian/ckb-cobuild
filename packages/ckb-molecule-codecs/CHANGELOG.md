@@ -1,5 +1,12 @@
 # @ckb-cobuild/ckb-molecule-codecs
 
+## 2.0.3
+
+### Patch Changes
+
+- Updated dependencies [b3d94f5]
+  - @ckb-cobuild/molecule@1.1.0
+
 ## 2.0.2
 
 ### Patch Changes
