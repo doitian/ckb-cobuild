@@ -1,5 +1,11 @@
 # @ckb-cobuild/molecule
 
+## 1.1.1-next.0
+
+### Patch Changes
+
+- 60b1195: :bug: Mol.byte.pack(undefined) should throw
+
 ## 1.1.0
 
 ### Minor Changes

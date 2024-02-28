@@ -1,5 +1,14 @@
 # @ckb-cobuild/cobuild
 
+## 4.0.3-next.0
+
+### Patch Changes
+
+- 5af852b: :sparkles: Re-export ckb codecs in cobuild package
+- Updated dependencies [60b1195]
+  - @ckb-cobuild/molecule@1.1.1-next.0
+  - @ckb-cobuild/ckb-molecule-codecs@2.0.4-next.0
+
 ## 4.0.2
 
 ### Patch Changes
